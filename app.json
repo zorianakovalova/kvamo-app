@@ -30,6 +30,7 @@
     "scheme": "kvamo",
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "owner": "zorianakovalovas-team"
   }
 }
