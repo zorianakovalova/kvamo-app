@@ -31,6 +31,22 @@
     "experiments": {
       "typedRoutes": true
     },
-    "owner": "zorianakovalovas-team"
+    "owner": "zorianakovalovas-team",
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "2d9a1b9d-447d-4d07-9221-beb67ae2ccfc"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2d9a1b9d-447d-4d07-9221-beb67ae2ccfc"
+    }
   }
 }

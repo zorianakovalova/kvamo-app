@@ -31,3 +31,14 @@ src/
 ```
 
 Шрифти: Unbounded (заголовки) і Onest (текст).
+
+## Перегляд в Expo Go
+
+Застосунок опубліковано через EAS Update (гілка `main`, канал `main`).
+Відкрийте в Expo Go (SDK 58) посилання:
+
+```
+exp://u.expo.dev/2d9a1b9d-447d-4d07-9221-beb67ae2ccfc?channel-name=main
+```
+
+Щоб опублікувати нову версію: `npm run publish:expo-go -- --message "Опис змін"` (потрібен `EXPO_TOKEN`).
