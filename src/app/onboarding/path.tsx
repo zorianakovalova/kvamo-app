@@ -11,7 +11,7 @@ import { ProgressPill } from '@/components/ProgressPill';
 import { Screen, ScreenHeader } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { MODULES, plural, type Module } from '@/data/modules';
-import { GOALS, MODULE_GOALS } from '@/data/onboarding';
+import { GOALS } from '@/data/onboarding';
 import { useProfile } from '@/store/profile';
 import { colors, palette, radius, shadow, space } from '@/theme/tokens';
 
@@ -26,22 +26,22 @@ export default function YourPath() {
   const { goals, otherGoal, onboarded, update } = useProfile();
   const [start, setStart] = useState<string | null>(null);
 
-  const isGoal = (m: Module) => MODULE_GOALS[m.id].some((g) => goals.includes(g));
-  const ordered = [...MODULES.filter(isGoal), ...MODULES.filter((m) => !isGoal(m))];
-  const first = ordered[0];
-  const rest = ordered.slice(1);
+  // The route always starts with module 1; goals are shown as the destination rows below.
+  const first = MODULES[0];
+  const rest = MODULES.slice(1);
 
-  const phrases = GOALS.filter((g) => goals.includes(g.id) && g.phrase).map((g) => g.phrase);
-  const goalRows = GOALS.filter((g) => goals.includes(g.id) && g.id !== 'other').map((g) => g.label);
+  const chosen = GOALS.filter((g) => goals.includes(g.id) && g.id !== 'other');
   const own = goals.includes('other') ? otherGoal.trim().replace(/[.!]+$/, '') : '';
-  if (own) {
-    phrases.push(own);
-    goalRows.push(own.charAt(0).toUpperCase() + own.slice(1));
-  }
+  const ownLabel = own ? own.charAt(0).toUpperCase() + own.slice(1) : '';
+  const phrases = chosen.map((g) => g.phrase);
+  if (own) phrases.push(`«${ownLabel}»`);
+  const goalRows = [...chosen.map((g) => ({ label: g.label, tag: 'Твоя мета' })), ...(own ? [{ label: ownLabel, tag: 'Своя мета' }] : [])];
   const recommended = phrases.length === 0;
   const description = recommended
-    ? 'Ми склали маршрут від основ бюджету до інвестування, крок за кроком.'
-    : `${phrases.length > 1 ? 'Твої цілі' : 'Твоя мета'}: ${phrases.join(', ')}. Ми склали маршрут, який веде ${phrases.length > 1 ? 'до них' : 'до неї'} крок за кроком.`;
+    ? 'Мету не обрано, тож ми склали порядок, з якого зазвичай починають.'
+    : phrases.length > 1
+      ? `Твої цілі: ${phrases.join(', ')}. Ми склали маршрут, який веде до них.`
+      : `Твоя мета: ${phrases[0]}. Ми склали маршрут, який веде до неї крок за кроком.`;
 
   // Navigate only after "onboarded" is saved, otherwise the tabs would send us back here.
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function YourPath() {
                 <Chip label={`Модуль №${first.number}`} tone="glassLight" />
                 <Chip label={count(first)} tone="glassLight" />
               </View>
-              <Text variant="title1" style={[{ width: 158 }, first.title.length > 14 && { fontSize: 18, lineHeight: 24 }]}>
+              <Text variant="title1" style={{ width: 130 }}>
                 {first.title}
               </Text>
               <Text variant="body" style={{ fontSize: 13, lineHeight: 18, letterSpacing: -0.08, opacity: 0.7 }}>
@@ -110,19 +110,25 @@ export default function YourPath() {
             </View>
           ))}
           {goalRows.map((g, i) => (
-            <View key={g} style={[styles.row, i < goalRows.length - 1 && styles.divider]}>
+            <View key={g.label} style={[styles.row, i < goalRows.length - 1 && styles.divider]}>
               <View style={styles.number}>
                 <Icon name="flag" size={20} />
               </View>
               <Text variant="body" style={{ flex: 1 }}>
-                {g}
+                {g.label}
               </Text>
               <Text variant="subheadlineStrong" color={POSITIVE}>
-                Твоя мета
+                {g.tag}
               </Text>
             </View>
           ))}
         </View>
+
+        {own ? (
+          <View style={styles.note}>
+            <Text variant="subheadline">Твою мету «{ownLabel}» збережемо в профілі, щоб ти бачив(-ла) прогрес до неї.</Text>
+          </View>
+        ) : null}
       </View>
     </Screen>
   );
@@ -137,6 +143,7 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', gap: 4 },
   frog: { position: 'absolute', left: 199.44, top: 30, width: 157.56, height: 190 },
   list: { backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.glassStrong, paddingHorizontal: space.lg, paddingVertical: 4 },
+  note: { backgroundColor: colors.surface, borderRadius: radius.md, borderWidth: 1, borderColor: colors.borderGlass, padding: space.md },
   listTitle: { paddingTop: space.md, paddingBottom: 4 },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.md },
   divider: { borderBottomWidth: 1, borderBottomColor: 'rgba(11,16,13,0.1)' },
