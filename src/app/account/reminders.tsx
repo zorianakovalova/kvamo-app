@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Linking, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Linking, Pressable, StyleSheet, TextInput, View, type TextInputInstance } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { GlassButton } from '@/components/GlassButton';
@@ -13,14 +13,12 @@ import { findLesson } from '@/data/modules';
 import { scheduleReminders, type PermissionResult } from '@/lib/reminders';
 import { useProfile } from '@/store/profile';
 import { useProgress } from '@/store/progress';
-import { colors, radius, space, type } from '@/theme/tokens';
+import { colors, fonts, radius, space } from '@/theme/tokens';
 
 const appIcon = require('../../../assets/img/app-icon.png');
 const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
 const DAY_NAMES = ['понеділок', 'вівторок', 'середа', 'четвер', 'пʼятниця', 'субота', 'неділя'];
 const QUICK = ['08:00', '12:30', '18:00', '19:00', '20:00', '21:30'];
-
-const validTime = (s: string) => /^([01]?\d|2[0-3]):[0-5]\d$/.test(s);
 
 /** 17 Reminders: when and on which days to remind about a lesson. */
 export default function RemindersScreen() {
@@ -31,8 +29,10 @@ export default function RemindersScreen() {
   const [time, setTime] = useState(reminders?.time ?? '19:00');
   const [days, setDays] = useState<boolean[]>(reminders?.days ?? DAYS.map(() => true));
   const [sheet, setSheet] = useState<'freq' | 'time' | null>(null);
-  const [custom, setCustom] = useState('');
+  const [hh, setHh] = useState('');
+  const [mm, setMm] = useState('');
   const [customError, setCustomError] = useState<string | undefined>();
+  const minutesRef = useRef<TextInputInstance>(null);
   const [result, setResult] = useState<PermissionResult | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -55,14 +55,30 @@ export default function RemindersScreen() {
     if (res === 'granted') setTimeout(finish, 1200);
   };
 
-  const pickCustom = () => {
-    const t = custom.trim();
-    if (!validTime(t)) return setCustomError('Введи час у форматі ГГ:ХХ, наприклад 07:45');
+  const openTime = () => {
+    const [h, m] = time.split(':');
+    setHh(h);
+    setMm(m);
+    setCustomError(undefined);
+    setSheet('time');
+  };
+
+  const fill = (t: string) => {
     const [h, m] = t.split(':');
-    setTime(`${h.padStart(2, '0')}:${m}`);
-    setCustom('');
+    setHh(h);
+    setMm(m);
+    setCustomError(undefined);
+  };
+
+  const saveTime = () => {
+    const h = Number(hh);
+    const m = Number(mm);
+    if (hh === '' || mm === '' || h > 23 || m > 59) return setCustomError('Години від 00 до 23, хвилини від 00 до 59');
+    setTime(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
     setSheet(null);
   };
+
+  const draft = hh.length && mm.length ? `${hh.padStart(2, '0')}:${mm.padStart(2, '0')}` : '';
 
   return (
     <Screen
@@ -114,7 +130,7 @@ export default function RemindersScreen() {
 
       <View style={styles.pickers}>
         <Picker label="Коли?" value={off ? 'Не нагадувати' : 'Щодня'} onPress={() => setSheet('freq')} small={off} />
-        {!off && <Picker label="О котрій?" value={time} icon onPress={() => setSheet('time')} />}
+        {!off && <Picker label="О котрій?" value={time} icon onPress={openTime} />}
       </View>
 
       {!off && (
@@ -153,43 +169,74 @@ export default function RemindersScreen() {
         </View>
       </Sheet>
 
-      <Sheet visible={sheet === 'time'} onClose={() => setSheet(null)} title="О котрій нагадувати?">
+      <Sheet visible={sheet === 'time'} onClose={() => setSheet(null)} title="О котрій нагадувати?" titleVariant="title1">
+        <Text variant="subheadlineStrong" style={{ marginBottom: space.sm }}>
+          Швидкий вибір
+        </Text>
         <View style={styles.quick}>
           {QUICK.map((q) => (
             <Pressable
               key={q}
-              onPress={() => (setTime(q), setSheet(null))}
+              onPress={() => fill(q)}
               accessibilityRole="radio"
-              accessibilityState={{ checked: time === q }}
-              style={[styles.quickItem, time === q && styles.dayOn]}
+              accessibilityState={{ checked: draft === q }}
+              style={[styles.quickItem, draft === q && styles.dayOn]}
             >
-              <Text variant="numberSmall" color={time === q ? colors.textInverse : colors.textPrimary}>
+              <Text variant="numberSmall" color={draft === q ? colors.textInverse : colors.textPrimary}>
                 {q}
               </Text>
             </Pressable>
           ))}
         </View>
-        <Text variant="subheadlineStrong" style={{ marginTop: space.lg, marginBottom: space.sm, paddingHorizontal: space.sm }}>
-          Свій час
+        <Text variant="subheadlineStrong" style={{ marginTop: space.lg, marginBottom: space.sm }}>
+          Або введи свій час
         </Text>
-        <View style={{ flexDirection: 'row', gap: space.sm }}>
-          <TextInput
-            value={custom}
-            onChangeText={(t) => (setCustom(t.replace(/[^\d:]/g, '').slice(0, 5)), setCustomError(undefined))}
-            placeholder="ГГ:ХХ"
-            placeholderTextColor={colors.textTertiary}
-            keyboardType="numbers-and-punctuation"
-            accessibilityLabel="Свій час, у форматі години двокрапка хвилини"
-            style={[styles.timeInput, customError && { borderColor: colors.danger }]}
-            onSubmitEditing={pickCustom}
-          />
-          <Button label="Обрати" onPress={pickCustom} style={{ paddingHorizontal: space.xl }} />
+        <View style={styles.alarm}>
+          <View style={styles.alarmUnit}>
+            <TextInput
+              value={hh}
+              onChangeText={(t) => {
+                const v = t.replace(/\D/g, '').slice(0, 2);
+                setHh(v);
+                setCustomError(undefined);
+                if (v.length === 2) minutesRef.current?.focus();
+              }}
+              placeholder="00"
+              placeholderTextColor={colors.textTertiary}
+              keyboardType="number-pad"
+              maxLength={2}
+              selectTextOnFocus
+              accessibilityLabel="Години, від 00 до 23"
+              style={[styles.alarmCell, customError && { borderColor: colors.danger }]}
+            />
+            <Text variant="caption" color={colors.textSecondary}>
+              год
+            </Text>
+          </View>
+          <Text style={styles.colon}>:</Text>
+          <View style={styles.alarmUnit}>
+            <TextInput
+              ref={minutesRef}
+              value={mm}
+              onChangeText={(t) => (setMm(t.replace(/\D/g, '').slice(0, 2)), setCustomError(undefined))}
+              placeholder="00"
+              placeholderTextColor={colors.textTertiary}
+              keyboardType="number-pad"
+              maxLength={2}
+              selectTextOnFocus
+              accessibilityLabel="Хвилини, від 00 до 59"
+              style={[styles.alarmCell, customError && { borderColor: colors.danger }]}
+              onSubmitEditing={saveTime}
+            />
+            <Text variant="caption" color={colors.textSecondary}>
+              хв
+            </Text>
+          </View>
         </View>
-        {customError && (
-          <Text variant="subheadline" color={colors.danger} style={{ marginTop: space.sm, paddingHorizontal: space.sm }}>
-            {customError}
-          </Text>
-        )}
+        <Text variant="subheadline" color={customError ? colors.danger : colors.textSecondary} style={{ textAlign: 'center', marginTop: space.md }}>
+          {customError ?? '24-годинний формат, як у будильнику'}
+        </Text>
+        <Button label="Зберегти час" onPress={saveTime} style={{ marginTop: space.lg }} />
       </Sheet>
     </Screen>
   );
@@ -276,27 +323,34 @@ const styles = StyleSheet.create({
   dayOn: { backgroundColor: colors.ink, borderColor: colors.ink },
   quick: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   quickItem: {
-    width: '31.5%',
-    height: 56,
-    borderRadius: radius.lg,
+    width: '31%',
+    flexGrow: 1,
+    height: 48,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.borderCard,
+    borderColor: colors.borderGlass,
   },
-  timeInput: {
-    ...type.body,
-    flex: 1,
-    minWidth: 0,
-    height: 56,
+  alarm: { flexDirection: 'row', justifyContent: 'center', gap: space.sm },
+  alarmUnit: { alignItems: 'center', gap: 4 },
+  alarmCell: {
+    fontFamily: fonts.display,
+    fontSize: 40,
+    lineHeight: 46,
+    letterSpacing: -0.8,
+    width: 104,
+    height: 80,
+    textAlign: 'center',
     borderRadius: radius.lg,
-    paddingHorizontal: space.lg,
     backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.borderCard,
+    borderColor: colors.borderGlass,
     color: colors.textPrimary,
+    padding: 0,
   },
+  colon: { fontFamily: fonts.display, fontSize: 40, lineHeight: 80, color: colors.textPrimary },
   row: { minHeight: 56, flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface },
   banner: { flexDirection: 'row', gap: space.sm, padding: space.md, borderRadius: radius.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderCard },
 });

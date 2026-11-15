@@ -53,24 +53,7 @@ export function Cube({ state, number, stars = 0 }: Props) {
         <Polygon points={`0,${b} ${a},${top} ${a},${h} 0,${h - b}`} fill={c.left} stroke={outline ? '#fff' : undefined} strokeWidth={outline ? 1 : 0} strokeLinejoin="round" />
         <Polygon points={`${a},${top} ${w},${b} ${w},${h - b} ${a},${h}`} fill={c.right} stroke={outline ? '#fff' : undefined} strokeWidth={outline ? 1 : 0} strokeLinejoin="round" />
         <Polygon points={`${a},0 ${w},${b} ${a},${top} 0,${b}`} fill={`url(#${id}t)`} stroke={outline ? '#fff' : undefined} strokeWidth={outline ? 1.4 : 0} strokeLinejoin="round" />
-        {state === 'done' &&
-          STAR_ORDER.map((idx, i) => {
-            const on = i < stars;
-            return (
-              <G key={idx}>
-                {on && <Path d={STARS[idx]} fill="rgba(20,90,40,0.35)" transform="translate(0 1.5)" />}
-                <Path
-                  d={STARS[idx]}
-                  fill={on ? colors.star : '#fff'}
-                  fillOpacity={on ? 1 : 0.3}
-                  stroke="#fff"
-                  strokeOpacity={on ? 1 : 0.85}
-                  strokeWidth={on ? 1.5 : 1.2}
-                  strokeLinejoin="round"
-                />
-              </G>
-            );
-          })}
+        {state === 'done' && <Stars stars={stars} />}
       </Svg>
       {number != null && state !== 'done' && (
         <View style={[StyleSheet.absoluteFill, { alignItems: 'center', top: state === 'current' ? 20 : 16 }]} pointerEvents="none">
@@ -80,5 +63,54 @@ export function Cube({ state, number, stars = 0 }: Props) {
         </View>
       )}
     </View>
+  );
+}
+
+/** Earned and empty stars as drawn on a done cube's 104×52 top face. */
+function Stars({ stars, transform }: { stars: number; transform?: string }) {
+  return (
+    <G transform={transform}>
+      {STAR_ORDER.map((idx, i) => {
+        const on = i < stars;
+        return (
+          <G key={idx}>
+            {on && <Path d={STARS[idx]} fill="rgba(20,90,40,0.35)" transform="translate(0 1.5)" />}
+            <Path
+              d={STARS[idx]}
+              fill={on ? colors.star : '#fff'}
+              fillOpacity={on ? 1 : 0.3}
+              stroke="#fff"
+              strokeOpacity={on ? 1 : 0.85}
+              strokeWidth={on ? 1.5 : 1.2}
+              strokeLinejoin="round"
+            />
+          </G>
+        );
+      })}
+    </G>
+  );
+}
+
+export const TEST_SIZE = { w: 151, h: 125.5 };
+
+/** Passed final test: the Figma test step in done-lesson green, with its stars and no white outline. */
+export function TestStepDone({ stars }: { stars: number }) {
+  const id = useId().replace(/[^a-zA-Z0-9]/g, '');
+  return (
+    <Svg width={TEST_SIZE.w} height={TEST_SIZE.h} viewBox="0 0 151 125.5">
+      <Defs>
+        <LinearGradient id={`${id}t`} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor={COLORS.done.top[0]} />
+          <Stop offset="1" stopColor={COLORS.done.top[1]} />
+        </LinearGradient>
+      </Defs>
+      <Path d="M0.5 59.5L75.5 97V125L0.5 87.5V59.5Z" fill={COLORS.done.left} />
+      <Path d="M75.5 97L150.5 59.5V87.5L75.5 125V97Z" fill={COLORS.done.right} />
+      <Path d="M75.5 22L150.5 59.5L75.5 97L0.5 59.5L75.5 22Z" fill={`url(#${id}t)`} />
+      <Path d="M75.5 3V60.2632" stroke="#7A4A06" strokeWidth={2} strokeLinecap="round" />
+      <Path d="M77.1842 4.68421H107.5L100.763 13.1053L107.5 21.5263H77.1842V4.68421Z" fill="#FFC75A" />
+      {/* Cube stars scaled to the larger top face and centred on it. */}
+      <Stars stars={stars} transform="translate(13.1 31.3) scale(1.2)" />
+    </Svg>
   );
 }

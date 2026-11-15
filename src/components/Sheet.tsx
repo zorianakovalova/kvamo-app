@@ -4,17 +4,17 @@ import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 import { Text } from './Text';
 
-type Props = { visible: boolean; onClose: () => void; title: string; description?: string; children: ReactNode };
+type Props = { visible: boolean; onClose: () => void; title: string; description?: string; titleVariant?: 'title1' | 'title3'; children: ReactNode };
 
 /** Centered popup over a dimmed screen. Tap outside to close. */
-export function Sheet({ visible, onClose, title, description, children }: Props) {
+export function Sheet({ visible, onClose, title, description, titleVariant = 'title3', children }: Props) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <View style={styles.wrap}>
         <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Закрити" />
         <View style={styles.card} accessibilityViewIsModal>
           <View style={{ gap: space.sm, marginBottom: space.lg }}>
-            <Text variant="title3" accessibilityRole="header">
+            <Text variant={titleVariant} accessibilityRole="header">
               {title}
             </Text>
             {description ? (

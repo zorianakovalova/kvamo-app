@@ -5,16 +5,17 @@ import Svg, { Path } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
-import { GlassCard } from '@/components/GlassCard';
 import { Screen, ScreenHeader } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { plural } from '@/data/modules';
 import { useProfile } from '@/store/profile';
 import { useProgress } from '@/store/progress';
-import { colors, radius, space } from '@/theme/tokens';
+import { colors, radius, shadow, space } from '@/theme/tokens';
 
 const flame = require('../../../assets/img/flame.png');
 const frog = require('../../../assets/img/streak-frog.png');
+// Frog export is 534×908 px at 3x.
+const FROG = { w: 178, h: 302.7 };
 const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
 
 /** 11 Streak after a lesson: flame with the day count and this week. */
@@ -36,8 +37,8 @@ export default function Streak() {
   return (
     <Screen
       background="gradient"
-      bodyStyle={{ paddingHorizontal: space.lg, paddingTop: 114, gap: space.lg, alignItems: 'center' }}
-      behind={<Image source={frog} contentFit="contain" style={{ position: 'absolute', left: width - 174, top: insets.top + 146, width: 174, height: 345 }} />}
+      bodyStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 0, paddingTop: 28, gap: space.lg, alignItems: 'center' }}
+      behind={<Image source={frog} contentFit="contain" style={{ position: 'absolute', left: width - FROG.w, top: insets.top, width: FROG.w, height: FROG.h }} />}
       footer={<Button label="Зберегти стрик" onPress={next} />}
     >
       <View style={styles.flame} accessibilityLabel={`Стрик ${count} ${plural(count, 'день', 'дні', 'днів')}`}>
@@ -47,12 +48,15 @@ export default function Streak() {
         </Text>
       </View>
 
+      <View style={{ paddingHorizontal: space.lg, alignSelf: 'stretch' }}>
       <ScreenHeader
         align="center"
         title={first ? 'Перший день стрику!' : `${count} ${plural(count, 'день', 'дні', 'днів')} поспіль!`}
         description="Повертайся завтра, щоб продовжити серію."
       />
+      </View>
 
+      <View style={styles.weekWrap}>
       <View style={styles.week}>
         {DAYS.map((d, i) => {
           const done = i <= today && i > today - count;
@@ -71,19 +75,22 @@ export default function Streak() {
               ) : (
                 <View style={styles.dot} />
               )}
-              <Text variant={done ? 'captionStrong' : 'caption'}>
+              <Text variant={done ? 'captionStrong' : 'caption'} color={colors.textPrimary}>
                 {d}
               </Text>
             </View>
           );
         })}
       </View>
+      </View>
 
-      <GlassCard style={{ padding: space.lg, alignSelf: 'stretch' }}>
-        <Text variant="subheadline" color={colors.textSecondary}>
-          Якщо пропустите день, стрик заморозиться — наступного дня продовжите без втрати вогника.
-        </Text>
-      </GlassCard>
+      <View style={{ paddingHorizontal: space.lg, alignSelf: 'stretch' }}>
+        <View style={styles.note}>
+          <Text variant="subheadlineMedium" color={colors.textPrimary} style={{ textAlign: 'center' }}>
+            Якщо пропустите день, стрик заморозиться — наступного дня продовжите без втрати вогника.
+          </Text>
+        </View>
+      </View>
     </Screen>
   );
 }
@@ -91,19 +98,19 @@ export default function Streak() {
 const styles = StyleSheet.create({
   flame: { width: 115, height: 162, alignItems: 'center' },
   count: { position: 'absolute', top: 103 - 3 },
+  weekWrap: { alignSelf: 'stretch', paddingHorizontal: space.lg },
   week: {
-    width: 336,
-    maxWidth: '100%',
+    height: 72 + 2 * space.md,
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    backgroundColor: colors.surface,
     borderRadius: radius.lg,
     paddingHorizontal: space.lg,
     paddingVertical: space.md,
   },
+  note: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderGlass, borderRadius: radius.md, padding: space.md },
   day: { width: 40, alignItems: 'center', gap: 4 },
-  dot: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
+  dot: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)', backgroundColor: colors.surface, ...shadow.ink6 },
   dotBox: { width: 36, height: 36 },
   dayFlame: { position: 'absolute', left: 0, bottom: 0 },
 });
