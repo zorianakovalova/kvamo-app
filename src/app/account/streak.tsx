@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
@@ -57,8 +58,20 @@ export default function Streak() {
           const done = i <= today && i > today - count;
           return (
             <View key={d} style={styles.day} accessibilityLabel={`${d}: ${done ? 'є урок' : 'немає уроку'}`}>
-              <View style={[styles.dot, done && styles.dotDone]}>{done && <Image source={flame} style={{ width: 22, height: 30 }} contentFit="contain" />}</View>
-              <Text variant={i === today ? 'captionStrong' : 'caption'} color={i === today ? colors.textPrimary : colors.textSecondary}>
+              {done ? (
+                <View style={styles.dotBox}>
+                  <Svg width={36} height={51} viewBox="0 0 36 51" style={styles.dayFlame}>
+                    <Path
+                      d="M19.89 0C24.63 9.71 36 15.38 36 29.95C36 42.1 27.47 51 18 51C8.53 51 0 42.9 0 30.76C0 22.67 5.68 17 9.47 11.33C11.37 17 14.21 19.43 17.05 20.24C16.11 12.95 16.11 6.48 19.89 0Z"
+                      fill={colors.streakIcon}
+                    />
+                    <Path d="M23.33 29L16 36.33L12.67 33" stroke="#F7F9F7" strokeWidth={1.2} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                  </Svg>
+                </View>
+              ) : (
+                <View style={styles.dot} />
+              )}
+              <Text variant={done ? 'captionStrong' : 'caption'}>
                 {d}
               </Text>
             </View>
@@ -82,6 +95,7 @@ const styles = StyleSheet.create({
     width: 336,
     maxWidth: '100%',
     flexDirection: 'row',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
@@ -90,5 +104,6 @@ const styles = StyleSheet.create({
   },
   day: { width: 40, alignItems: 'center', gap: 4 },
   dot: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
-  dotDone: { borderWidth: 0, backgroundColor: 'transparent' },
+  dotBox: { width: 36, height: 36 },
+  dayFlame: { position: 'absolute', left: 0, bottom: 0 },
 });

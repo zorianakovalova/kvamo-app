@@ -10,7 +10,7 @@ import { ProgressRing } from '../ProgressRing';
 import { Text } from '../Text';
 import { Cube, CUBE_SIZE, type CubeState } from './Cube';
 import { GUIDE_H, GUIDE_W, GUIDE_XML } from './guide';
-import { TEST_STEP_XML } from './testStep';
+import { TEST_STEP_DONE_XML, TEST_STEP_XML } from './testStep';
 
 /** Step positions from the Figma Path frame (393 pt wide), relative to the steps container. */
 const DESIGN_W = 393;
@@ -92,7 +92,7 @@ export function PathModule({ module, stars, currentLessonId, done }: Props) {
                 style={{ position: 'absolute', left, top, width: w, height: h }}
               >
                 {isTest ? (
-                  <SvgXml xml={TEST_STEP_XML} width={TEST.w} height={TEST.h} />
+                  <SvgXml xml={result ? TEST_STEP_DONE_XML : TEST_STEP_XML} width={TEST.w} height={TEST.h} />
                 ) : (
                   <Cube state={state} number={i + 1} stars={result ?? 0} />
                 )}
