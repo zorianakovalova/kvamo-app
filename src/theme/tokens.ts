@@ -78,6 +78,7 @@ export const type = {
   displayLarge: display(40, 46, -0.8),
   largeTitle: display(30, 36, -0.3),
   title1: display(24, 30, -0.24),
+  numberMedium: display(24, 30),
   numberSmall: display(16, 20),
   numberXs: display(12, 16),
   title3: sys(20, 25, '600', -0.45),

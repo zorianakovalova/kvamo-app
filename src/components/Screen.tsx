@@ -3,7 +3,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, type View
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, space } from '@/theme/tokens';
-import { GradientBackground } from './GradientBackground';
+import { PathBackground } from './PathBackground';
 import { Text } from './Text';
 
 type Props = {
@@ -17,15 +17,16 @@ type Props = {
   bodyStyle?: ViewStyle;
   /** Decorations drawn behind the body (illustrations that bleed off the edges). */
   behind?: ReactNode;
+  footerStyle?: ViewStyle;
 };
 
 /** Onboarding / account screen frame from Figma: status bar, 52 px nav bar, body, footer, home indicator. */
-export function Screen({ background = 'tertiary', nav, children, footer, scroll = true, bodyStyle, behind }: Props) {
+export function Screen({ background = 'tertiary', nav, children, footer, scroll = true, bodyStyle, behind, footerStyle }: Props) {
   const insets = useSafeAreaInsets();
   const Body = scroll ? ScrollView : View;
   return (
     <View style={[styles.screen, background === 'tertiary' && { backgroundColor: colors.backgroundTertiary }]}>
-      {background === 'gradient' && <GradientBackground />}
+      {background === 'gradient' && <PathBackground />}
       {behind}
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={{ height: insets.top }} />
@@ -38,7 +39,7 @@ export function Screen({ background = 'tertiary', nav, children, footer, scroll 
         >
           {children}
         </Body>
-        {footer ? <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, space.lg) }]}>{footer}</View> : <View style={{ height: insets.bottom }} />}
+        {footer ? <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, space.lg) }, footerStyle]}>{footer}</View> : <View style={{ height: insets.bottom }} />}
       </KeyboardAvoidingView>
     </View>
   );

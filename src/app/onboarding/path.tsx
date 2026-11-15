@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
@@ -13,13 +13,15 @@ import { Text } from '@/components/Text';
 import { MODULES, plural, type Module } from '@/data/modules';
 import { GOALS, MODULE_GOALS } from '@/data/onboarding';
 import { useProfile } from '@/store/profile';
-import { palette, radius, space } from '@/theme/tokens';
+import { colors, palette, radius, shadow, space } from '@/theme/tokens';
 
-const walkingFrog = require('../../../assets/img/walk-frog.png');
+const waveFrog = require('../../../assets/img/wave-frog.png');
 
-const CARD_COLORS: Record<string, string> = { m1: palette.lime, m2: palette.blue, m3: palette.sun };
+const MODULE_COLORS: Record<string, string> = { m1: palette.lime, m2: palette.blue, m3: palette.peach };
+const POSITIVE = '#2f9a52';
+const count = (m: Module) => `${m.lessons.length} ${plural(m.lessons.length, 'заняття', 'заняття', 'занять')}`;
 
-/** 10 Your path: modules ordered by the chosen goals. */
+/** 10 Your path, cover variant: the first module as a cover card, the rest of the route below. */
 export default function YourPath() {
   const { goals, otherGoal, onboarded, update } = useProfile();
   const [start, setStart] = useState<string | null>(null);
@@ -27,13 +29,19 @@ export default function YourPath() {
   const isGoal = (m: Module) => MODULE_GOALS[m.id].some((g) => goals.includes(g));
   const ordered = [...MODULES.filter(isGoal), ...MODULES.filter((m) => !isGoal(m))];
   const first = ordered[0];
+  const rest = ordered.slice(1);
 
   const phrases = GOALS.filter((g) => goals.includes(g.id) && g.phrase).map((g) => g.phrase);
-  if (goals.includes('other') && otherGoal.trim()) phrases.push(otherGoal.trim().replace(/[.!]+$/, ''));
+  const goalRows = GOALS.filter((g) => goals.includes(g.id) && g.id !== 'other').map((g) => g.label);
+  const own = goals.includes('other') ? otherGoal.trim().replace(/[.!]+$/, '') : '';
+  if (own) {
+    phrases.push(own);
+    goalRows.push(own.charAt(0).toUpperCase() + own.slice(1));
+  }
   const recommended = phrases.length === 0;
   const description = recommended
-    ? 'Почнемо з бюджету: це основа для всього іншого. Почати можна з будь-якого модуля.'
-    : `Твої цілі: ${phrases.join(', ')}. Почати можна з будь-якого модуля.`;
+    ? 'Ми склали маршрут від основ бюджету до інвестування, крок за кроком.'
+    : `${phrases.length > 1 ? 'Твої цілі' : 'Твоя мета'}: ${phrases.join(', ')}. Ми склали маршрут, який веде ${phrases.length > 1 ? 'до них' : 'до неї'} крок за кроком.`;
 
   // Navigate only after "onboarded" is saved, otherwise the tabs would send us back here.
   useEffect(() => {
@@ -43,8 +51,8 @@ export default function YourPath() {
     }
   }, [onboarded, start]);
 
-  const begin = (m: Module) => {
-    setStart(m.lessons[0].id);
+  const begin = () => {
+    setStart(first.lessons[0].id);
     update({ onboarded: true });
   };
 
@@ -56,40 +64,64 @@ export default function YourPath() {
           <ProgressPill total={4} done={3} />
         </>
       }
-      bodyStyle={{ gap: space.xxl }}
-      footer={<Button label={`Почати з «${first.title}»`} icon="play" onPress={() => begin(first)} />}
+      bodyStyle={{ paddingTop: space.xxl }}
+      footer={<Button label={`Почати з «${first.title}»`} icon="play" onPress={begin} />}
     >
       <ScreenHeader title={recommended ? 'Рекомендований шлях' : 'Твій шлях готовий'} description={description} />
-      <View style={{ gap: space.md }}>
-        {ordered.map((m, i) => (
-          <Pressable
-            key={m.id}
-            onPress={() => begin(m)}
-            accessibilityRole="button"
-            accessibilityLabel={`Почати модуль ${m.number}: ${m.title}`}
-            style={({ pressed }) => [styles.card, { backgroundColor: CARD_COLORS[m.id] }, pressed && { opacity: 0.9 }]}
-          >
-            {i === 0 && <Image source={walkingFrog} style={styles.frog} contentFit="contain" />}
-            <View style={{ flex: 1, gap: 4 }}>
+
+      <View style={styles.cover}>
+        <View style={styles.stack}>
+          {rest[1] && <View style={[styles.back, { left: 24, top: 28, width: 305, backgroundColor: MODULE_COLORS[rest[1].id] }]} />}
+          {rest[0] && <View style={[styles.back, { left: 12, top: 14, width: 329, backgroundColor: MODULE_COLORS[rest[0].id] }]} />}
+          <View style={[styles.front, { backgroundColor: MODULE_COLORS[first.id] }]}>
+            <View style={styles.coverText}>
               <View style={styles.chips}>
-                {isGoal(m) && <Chip label="Твоя мета" tone="glassLight" />}
-                <Chip label={`Модуль №${m.number}`} tone="glassLight" />
-                <Chip label={`${m.lessons.length} ${plural(m.lessons.length, 'заняття', 'заняття', 'занять')}`} tone="glassLight" />
+                <Chip label={`Модуль №${first.number}`} tone="glassLight" />
+                <Chip label={count(first)} tone="glassLight" />
               </View>
-              <Text variant="title1" style={{ paddingRight: i === 0 ? 64 : 0 }}>
-                {m.title}
+              <Text variant="title1" style={[{ width: 158 }, first.title.length > 14 && { fontSize: 18, lineHeight: 24 }]}>
+                {first.title}
+              </Text>
+              <Text variant="body" style={{ fontSize: 13, lineHeight: 18, letterSpacing: -0.08, opacity: 0.7 }}>
+                Старт твого шляху
               </Text>
             </View>
-            <Icon name="chevronRight" size={24} />
-          </Pressable>
-        ))}
-        <View style={[styles.card, { backgroundColor: palette.peach }]}>
-          <View style={{ flex: 1, gap: 4 }}>
-            <View style={styles.chips}>
-              <Chip label="Скоро" tone="glassLight" />
-            </View>
-            <Text variant="title1">Кредити і борги</Text>
+            <Image source={waveFrog} contentFit="contain" style={styles.frog} />
           </View>
+        </View>
+
+        <View style={styles.list}>
+          <Text variant="subheadline" color={colors.textSecondary} style={styles.listTitle}>
+            Далі в маршруті
+          </Text>
+          {rest.map((m, i) => (
+            <View key={m.id} style={[styles.row, (i < rest.length - 1 || goalRows.length > 0) && styles.divider]}>
+              <View style={[styles.number, { backgroundColor: MODULE_COLORS[m.id] }]}>
+                <Text variant="captionStrong" style={{ fontSize: 13, lineHeight: 18 }}>
+                  {m.number}
+                </Text>
+              </View>
+              <Text variant="body" style={{ flex: 1 }}>
+                {m.title}
+              </Text>
+              <Text variant="subheadline" color={colors.textSecondary}>
+                {count(m)}
+              </Text>
+            </View>
+          ))}
+          {goalRows.map((g, i) => (
+            <View key={g} style={[styles.row, i < goalRows.length - 1 && styles.divider]}>
+              <View style={styles.number}>
+                <Icon name="flag" size={20} />
+              </View>
+              <Text variant="body" style={{ flex: 1 }}>
+                {g}
+              </Text>
+              <Text variant="subheadlineStrong" color={POSITIVE}>
+                Твоя мета
+              </Text>
+            </View>
+          ))}
         </View>
       </View>
     </Screen>
@@ -97,15 +129,16 @@ export default function YourPath() {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    minHeight: 117,
-    borderRadius: radius.lg,
-    padding: space.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.lg,
-    overflow: 'hidden',
-  },
-  chips: { flexDirection: 'row', gap: 4, flexWrap: 'wrap' },
-  frog: { position: 'absolute', right: 0, bottom: 0, width: 179, height: 92 },
+  cover: { paddingTop: space.xxl, gap: space.xl },
+  stack: { height: 196 },
+  back: { position: 'absolute', height: 168, borderRadius: 22 },
+  front: { height: 168, borderRadius: 22, ...shadow.ink6 },
+  coverText: { position: 'absolute', left: 20, top: 20, gap: 6 },
+  chips: { flexDirection: 'row', gap: 4 },
+  frog: { position: 'absolute', left: 199.44, top: 30, width: 157.56, height: 190 },
+  list: { backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.glassStrong, paddingHorizontal: space.lg, paddingVertical: 4 },
+  listTitle: { paddingTop: space.md, paddingBottom: 4 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.md },
+  divider: { borderBottomWidth: 1, borderBottomColor: 'rgba(11,16,13,0.1)' },
+  number: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
 });
