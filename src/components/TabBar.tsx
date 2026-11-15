@@ -12,7 +12,7 @@ const TABS: Record<string, { label: string; icon: IconName }> = {
   profile: { label: 'Профіль', icon: 'user' },
 };
 
-/** Floating pill tab bar; the active tab is a lime pill. */
+/** Floating white tab bar from Figma; the active tab is an ink pill with a white icon. */
 export function TabBar({ state, navigateToTab }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   return (
@@ -31,8 +31,8 @@ export function TabBar({ state, navigateToTab }: BottomTabBarProps) {
               onPress={() => navigateToTab(route.key)}
               style={[styles.tab, focused && styles.tabActive]}
             >
-              <Icon name={tab.icon} size={24} color={focused ? colors.textPrimary : colors.textSecondary} />
-              <Text variant="tab" color={focused ? colors.textPrimary : colors.textSecondary} style={focused && { fontFamily: 'Onest_600SemiBold' }}>
+              <Icon name={tab.icon} size={24} color={focused ? '#fff' : colors.textPrimary} strokeWidth={focused ? 1.8 : 1.6} />
+              <Text variant={focused ? 'captionStrong' : 'caption'} color={focused ? colors.textInverse : colors.textPrimary}>
                 {tab.label}
               </Text>
             </Pressable>
@@ -44,16 +44,16 @@ export function TabBar({ state, navigateToTab }: BottomTabBarProps) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16 },
+  wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center', paddingHorizontal: 16 },
   bar: {
+    width: '100%',
+    maxWidth: 361,
     flexDirection: 'row',
     padding: 4,
     borderRadius: radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.94)',
-    borderWidth: 1,
-    borderColor: '#fff',
+    backgroundColor: '#fff',
     ...shadow.tabBar,
   },
-  tab: { flex: 1, alignItems: 'center', gap: 2, paddingTop: 8, paddingBottom: 4, borderRadius: radius.pill },
-  tabActive: { backgroundColor: colors.accent },
+  tab: { flex: 1, height: 61, alignItems: 'center', justifyContent: 'center', gap: 2, borderRadius: radius.xxxl },
+  tabActive: { backgroundColor: colors.ink },
 });

@@ -1,74 +1,69 @@
+import { router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
-import { Card } from '@/components/Card';
+import { GlassCard } from '@/components/GlassCard';
 import { GradientBackground } from '@/components/GradientBackground';
 import { StreakPill } from '@/components/StreakPill';
 import { Text } from '@/components/Text';
 import { MODULES } from '@/data/modules';
+import { useProfile } from '@/store/profile';
 import { useProgress } from '@/store/progress';
 import { colors, space } from '@/theme/tokens';
 
+const METHOD: Record<string, string> = { google: 'Google', apple: 'Apple', phone: 'телефон', email: 'email' };
+
+/** Placeholder until the Profile screen is built from Figma. Has a reset to replay onboarding. */
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { stars, streak, doneCount, resetProgress } = useProgress();
-  const totalStars = Object.values(stars).reduce<number>((s, n) => s + n, 0);
+  const { account, reminders, resetProfile } = useProfile();
   const lessonsDone = Object.keys(stars).length;
 
+  const resetAll = () => {
+    resetProgress();
+    resetProfile();
+    router.replace('/onboarding');
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: '#eef8e3' }}>
+    <View style={{ flex: 1 }}>
       <GradientBackground />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + space.md, paddingHorizontal: space.lg, paddingBottom: 140, gap: space.md }}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top, paddingHorizontal: space.lg, paddingBottom: 140, gap: space.md }}>
         <View style={styles.titleRow}>
-          <Text variant="screenTitle" accessibilityRole="header">
+          <Text variant="largeTitle" accessibilityRole="header">
             Профіль
           </Text>
           <StreakPill days={streak} />
         </View>
 
-        <View style={{ flexDirection: 'row', gap: space.sm }}>
-          <Stat value={lessonsDone} label="занять пройдено" />
-          <Stat value={totalStars} label="зірок зібрано" />
-          <Stat value={streak} label="днів поспіль" />
-        </View>
+        <GlassCard style={{ padding: space.lg, gap: 4 }}>
+          <Text variant="headline">{account ? `Акаунт: ${METHOD[account.method]}` : 'Без акаунта'}</Text>
+          <Text variant="subheadline" color={colors.textSecondary}>
+            {account?.contact ? `${account.contact}. ` : ''}
+            Вхід поки демонстраційний: прогрес зберігається лише на цьому телефоні.
+          </Text>
+          <Text variant="subheadline" color={colors.textSecondary}>
+            Нагадування: {reminders?.enabled ? `щодня о ${reminders.time}` : 'вимкнені'}
+          </Text>
+        </GlassCard>
 
-        {MODULES.map((m) => (
-          <Card key={m.id} tone="soft" style={{ padding: space.lg }}>
-            <Text variant="overline" color={colors.textSecondary}>
-              МОДУЛЬ {m.number}
+        <GlassCard style={{ padding: space.lg, gap: 4 }}>
+          <Text variant="headline">Пройдено занять: {lessonsDone}</Text>
+          {MODULES.map((m) => (
+            <Text key={m.id} variant="subheadline" color={colors.textSecondary}>
+              {m.title}: {doneCount(m)} з {m.lessons.length}
             </Text>
-            <Text variant="moduleTitle" style={{ marginTop: 2 }}>
-              {m.title}
-            </Text>
-            <Text variant="caption" color={colors.textSecondary} style={{ marginTop: 4 }}>
-              {doneCount(m)} з {m.lessons.length} · бейдж «{m.badge}»
-            </Text>
-          </Card>
-        ))}
+          ))}
+        </GlassCard>
 
-        <Text variant="caption" color={colors.textSecondary} style={{ marginTop: space.md }}>
-          Прогрес зберігається лише на цьому телефоні.
-        </Text>
-        <Button label="Почати спочатку" variant="secondary" onPress={resetProgress} />
+        <Button label="Почати спочатку з онбордингу" variant="secondary" onPress={resetAll} />
       </ScrollView>
     </View>
   );
 }
 
-function Stat({ value, label }: { value: number; label: string }) {
-  return (
-    <Card style={{ flex: 1, padding: space.md }}>
-      <Text variant="moduleTitle" style={{ fontSize: 22, lineHeight: 28 }}>
-        {value}
-      </Text>
-      <Text variant="caption" color={colors.textSecondary}>
-        {label}
-      </Text>
-    </Card>
-  );
-}
-
 const styles = StyleSheet.create({
-  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, paddingTop: space.md },
+  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 4, paddingVertical: space.md },
 });

@@ -1,25 +1,26 @@
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Card } from '@/components/Card';
+import { GlassCard } from '@/components/GlassCard';
 import { GradientBackground } from '@/components/GradientBackground';
 import { Text } from '@/components/Text';
 import { colors, space } from '@/theme/tokens';
 
+/** Placeholder until the Library screens are built from Figma. */
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
   return (
-    <View style={{ flex: 1, backgroundColor: '#eef8e3', paddingTop: insets.top + space.md, paddingHorizontal: space.lg }}>
+    <View style={{ flex: 1, paddingTop: insets.top, paddingHorizontal: space.lg }}>
       <GradientBackground />
-      <Text variant="screenTitle" accessibilityRole="header" style={{ paddingHorizontal: 4, paddingTop: space.md }}>
+      <Text variant="largeTitle" accessibilityRole="header" style={{ paddingHorizontal: 4, paddingVertical: space.md }}>
         Бібліотека
       </Text>
-      <Card style={{ padding: space.lg, marginTop: space.lg }}>
-        <Text variant="label">Скоро тут будуть статті, симуляції та тести</Text>
-        <Text variant="body" color={colors.textSecondary} style={{ marginTop: 4 }}>
+      <GlassCard style={{ padding: space.lg, marginTop: space.sm, gap: 4 }}>
+        <Text variant="headline">Скоро тут будуть статті, симуляції та тести</Text>
+        <Text variant="subheadline" color={colors.textSecondary}>
           Матеріали з усіх модулів, щоб повертатися до них у будь-який момент.
         </Text>
-      </Card>
+      </GlassCard>
     </View>
   );
 }

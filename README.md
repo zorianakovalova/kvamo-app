@@ -23,14 +23,18 @@ src/
   app/                 маршрути Expo Router
     (tabs)/            Шлях, Бібліотека, Профіль
     lesson/[id].tsx    екран заняття
+    onboarding/        заставка, привітання, вхід, тест, мета, час, твій шлях
+    account/           стрик, збереження прогресу, телефон, email, код, нагадування
   components/          компоненти дизайн-системи (Text, Button, Card, Icon, TabBar…)
     path/              кубики Шляху, банер модуля, зірки
   data/modules.ts      модулі й заняття
   store/progress.tsx   прогрес, зірки і серія днів (AsyncStorage, лише на пристрої)
+  store/profile.tsx    відповіді онбордингу, акаунт (поки демо), нагадування
   theme/tokens.ts      кольори, шрифти, відступи, радіуси з Figma
 ```
 
-Шрифти: Unbounded (заголовки) і Onest (текст).
+Шрифти: Unbounded (заголовки) і системний шрифт (SF Pro на iPhone), як у Figma.
+Ілюстрації жабки експортовано з Figma в assets/img.
 
 ## Перегляд в Expo Go
 

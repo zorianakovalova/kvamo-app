@@ -1,26 +1,43 @@
-import { Pressable, StyleSheet, type PressableProps } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View, type PressableProps } from 'react-native';
 
-import { colors, radius } from '@/theme/tokens';
+import { colors, radius, shadow } from '@/theme/tokens';
+import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
 
 type Props = Omit<PressableProps, 'children'> & {
   label: string;
-  variant?: 'primary' | 'secondary' | 'chip';
+  variant?: 'primary' | 'secondary' | 'link';
+  icon?: IconName;
+  loading?: boolean;
 };
 
-export function Button({ label, variant = 'primary', style, ...rest }: Props) {
+/** Action button from Figma: 56 px, full radius. Primary is ink, secondary is white with a soft shadow. */
+export function Button({ label, variant = 'primary', icon, loading, disabled, style, ...rest }: Props) {
+  const primary = variant === 'primary';
+  const off = disabled && !loading;
+  const textColor = primary ? (off ? colors.textSecondary : colors.textInverse) : off ? colors.textTertiary : colors.textPrimary;
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled: !!disabled, busy: !!loading }}
+      disabled={disabled || loading}
       {...rest}
       style={(state) => [
         styles.base,
         styles[variant],
-        state.pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+        primary && off && styles.primaryOff,
+        state.pressed && { opacity: 0.85 },
         typeof style === 'function' ? style(state) : style,
       ]}
     >
-      <Text variant={variant === 'chip' ? 'caption' : 'label'} color={variant === 'primary' ? colors.textOnDark : colors.textPrimary} style={variant === 'chip' && { fontFamily: 'Onest_600SemiBold' }}>
+      {loading ? (
+        <ActivityIndicator color={textColor} />
+      ) : icon ? (
+        <View>
+          <Icon name={icon} size={24} color={textColor} />
+        </View>
+      ) : null}
+      <Text variant="headline" color={textColor} numberOfLines={1}>
         {label}
       </Text>
     </Pressable>
@@ -28,8 +45,9 @@ export function Button({ label, variant = 'primary', style, ...rest }: Props) {
 }
 
 const styles = StyleSheet.create({
-  base: { alignItems: 'center', justifyContent: 'center', borderRadius: radius.pill },
-  primary: { backgroundColor: colors.ink, height: 56, paddingHorizontal: 24 },
-  secondary: { backgroundColor: colors.surface, height: 56, paddingHorizontal: 24, borderWidth: 1, borderColor: colors.border },
-  chip: { backgroundColor: 'rgba(255,255,255,0.75)', paddingVertical: 4, paddingHorizontal: 10, alignSelf: 'flex-start' },
+  base: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: radius.pill },
+  primary: { backgroundColor: colors.ink, height: 56, paddingHorizontal: 16 },
+  primaryOff: { backgroundColor: colors.border },
+  secondary: { backgroundColor: colors.surface, height: 56, paddingHorizontal: 16, ...shadow.ink6 },
+  link: { height: 44, paddingHorizontal: 8, alignSelf: 'center' },
 });
