@@ -21,7 +21,11 @@ export type IconName =
   | 'flag'
   | 'google'
   | 'apple'
-  | 'alert';
+  | 'alert'
+  | 'search'
+  | 'external'
+  | 'compass'
+  | 'bookmark';
 
 type Props = { name: IconName; size?: number; color?: string; strokeWidth?: number };
 
@@ -44,6 +48,13 @@ export function Icon({ name, size = 24, color = colors.textPrimary, strokeWidth 
           d="M16.37 0.43C16.37 1.57 15.88 2.7 15.19 3.51C14.45 4.41 13.2 5.08 12.2 5.08C12.08 5.08 11.97 5.06 11.9 5.05C11.89 4.99 11.86 4.83 11.86 4.66C11.86 3.51 12.43 2.39 13.07 1.68C13.87 0.74 15.21 0.04 16.32 0C16.35 0.13 16.37 0.28 16.37 0.43ZM20.93 16.14C20.9 16.21 20.47 17.72 19.41 19.26C18.47 20.6 17.47 21.97 15.98 21.97C14.46 21.97 14.08 21.09 12.35 21.09C10.65 21.09 10.05 22 8.68 22C7.3 22 6.35 20.74 5.25 19.2C3.96 17.38 2.93 14.57 2.93 11.92C2.93 7.64 5.73 5.37 8.48 5.37C9.93 5.37 11.16 6.32 12.08 6.32C12.95 6.32 14.3 5.31 15.98 5.31C16.59 5.31 18.87 5.37 20.35 7.5C20.22 7.59 17.97 8.87 17.97 11.69C17.97 14.95 20.82 16.11 20.93 16.14Z"
           fill={color}
         />
+      </Svg>
+    );
+  }
+  if (name === 'bookmark') {
+    return (
+      <Svg width={size} height={size} viewBox="0 0 24 24">
+        <Path d="M6 3h12v18l-6-4.5L6 21z" fill={color} />
       </Svg>
     );
   }
@@ -108,6 +119,19 @@ export function Icon({ name, size = 24, color = colors.textPrimary, strokeWidth 
         <>
           <Circle cx={12} cy={12} r={10} {...p} />
           <Path d="M12 8v4M12 16h.01" {...p} />
+        </>
+      )}
+      {name === 'search' && (
+        <>
+          <Circle cx={11} cy={11} r={7} {...p} />
+          <Path d="m16.2 16.2 4.3 4.3" {...p} />
+        </>
+      )}
+      {name === 'external' && <Path d="M7 17L17 7M17 16V7H8" {...p} />}
+      {name === 'compass' && (
+        <>
+          <Circle cx={12} cy={12} r={10} {...p} />
+          <Path d="M15.5 8.5l-2 5-5 2 2-5z" {...p} />
         </>
       )}
     </Svg>

@@ -43,6 +43,7 @@ function Root() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
       <Stack.Screen name="account" options={{ animation: 'fade' }} />
+      <Stack.Screen name="library/search" />
       <Stack.Screen name="lesson/[id]" options={{ presentation: 'modal' }} />
     </Stack>
   );
