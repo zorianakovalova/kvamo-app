@@ -9,6 +9,12 @@ export const memo = {
   monthly: 8200,
   /** Cushion size from "Твоя подушка". */
   cushion: 24600,
+  /** Risk profile from "Який ризик підходить тобі?": 0 cautious, 1 moderate, 2 bold. */
+  profile: 0,
+  /** Basket from "Розподіли 10 000 грн": deposit, OVDP, stock fund, one company. */
+  basket: [4000, 3000, 2000, 1000],
 };
+
+export const PROFILES = ['обережний', 'помірний', 'сміливий'];
 
 export const round = (n: number, step = 100) => Math.round(n / step) * step;

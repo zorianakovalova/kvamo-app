@@ -212,6 +212,25 @@ function BlockView({ block: b }: { block: Block }) {
       );
     case 'choose':
       return <Choose items={b.items} />;
+    case 'chips':
+      return <ChoiceChips items={b.items} value={b.value} onChange={() => {}} />;
+    case 'compare':
+      return (
+        <View style={[styles.card, { paddingVertical: space.sm }]}>
+          {[['', ...b.cols] as [string, string, string], ...b.rows].map(([label, a, c], i, all) => (
+            <View key={label || 'head'} style={[styles.compareRow, i > 0 && i < all.length - 1 && styles.divider, i === 0 && styles.divider]}>
+              <Text variant="caption" color={colors.textSecondary} style={{ flex: 0.8 }}>
+                {label}
+              </Text>
+              {[a, c].map((v, k) => (
+                <Text key={k} variant={i === 0 ? 'caption' : 'footnote'} color={colors.textPrimary} style={[{ flex: 1 }, i === 0 && { fontWeight: '600' }]}>
+                  {v}
+                </Text>
+              ))}
+            </View>
+          ))}
+        </View>
+      );
   }
 }
 
@@ -442,7 +461,7 @@ export function UpNextCard({ chip, minutes, title, cta, onPress }: { chip: strin
 }
 
 /** Pill chips for a single choice (proportions, categories). */
-export function ChoiceChips({ items, value, onChange, label }: { items: string[]; value: number; onChange: (i: number) => void; label?: string }) {
+export function ChoiceChips({ items, value, onChange, label, small }: { items: string[]; value: number; onChange: (i: number) => void; label?: string; small?: boolean }) {
   return (
     <View style={{ gap: space.sm }}>
       {label ? (
@@ -459,9 +478,9 @@ export function ChoiceChips({ items, value, onChange, label }: { items: string[]
               onPress={() => onChange(i)}
               accessibilityRole="radio"
               accessibilityState={{ checked: on }}
-              style={({ pressed }) => [styles.choice, on && { backgroundColor: colors.ink, borderColor: colors.ink }, pressed && { opacity: 0.85 }]}
+              style={({ pressed }) => [styles.choice, small && styles.choiceSmall, on && { backgroundColor: colors.ink, borderColor: colors.ink }, pressed && { opacity: 0.85 }]}
             >
-              <Text variant="subheadlineMedium" color={on ? colors.textInverse : colors.textPrimary}>
+              <Text variant={small ? 'footnote' : 'subheadlineMedium'} color={on ? colors.textInverse : colors.textPrimary} style={small ? { fontWeight: '500' } : undefined}>
                 {it}
               </Text>
             </Pressable>
@@ -562,5 +581,7 @@ const styles = StyleSheet.create({
   feedbackHeader: { flexDirection: 'row', alignItems: 'flex-end', minHeight: 30 },
   avatar: { position: 'absolute', right: 0, bottom: 0, width: 90, height: 90 },
   upNext: { borderRadius: radius.xxl, padding: space.lg, gap: space.sm, borderWidth: 1, borderColor: '#f6fbb0' },
+  choiceSmall: { height: 28, paddingHorizontal: space.md },
+  compareRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm, paddingVertical: space.sm },
   choice: { height: 36, paddingHorizontal: space.lg, borderRadius: radius.pill, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.surface, justifyContent: 'center' },
 });

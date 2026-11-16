@@ -18,7 +18,11 @@ export type Block =
   /** Check-marked list without numbers. */
   | { t: 'checks'; items: string[] }
   /** Selectable options with a second line (result of a practice). */
-  | { t: 'choose'; items: [string, string][] };
+  | { t: 'choose'; items: [string, string][] }
+  /** Two-column comparison: column titles, then rows of label and two values. */
+  | { t: 'compare'; cols: [string, string]; rows: [string, string, string][] }
+  /** Read-only chip row with one chip highlighted. */
+  | { t: 'chips'; items: string[]; value: number };
 
 /** Illustration key from assets/img/lesson. */
 export type Art =
@@ -43,7 +47,18 @@ export type Art =
   | 'sit-m2-l5'
   | 'sit-m2-l6'
   | 'sim2-intro'
-  | 'test2-intro';
+  | 'test2-intro'
+  | 'story-m3'
+  | 'sit-m3-l1'
+  | 'sit-m3-l2'
+  | 'sit-m3-l3'
+  | 'ovdp-simple'
+  | 'sit-m3-l4'
+  | 'sit-m3-l5'
+  | 'sit-m3-l6'
+  | 'sim3-intro'
+  | 'test3-intro'
+  | 'stocks';
 
 type Base = {
   /** Chips above the title, left aligned. */
@@ -114,7 +129,7 @@ export type RecordStep = Base & {
 export type CheckListStep = Base & { kind: 'checklist'; title: string; items: [string, number][]; checked: number[]; caption: string };
 
 /** Values the learner entered in a calculator practice. */
-export type CalcState = { values: number[]; to: number[]; text: string; on: boolean[]; choice: number; flag: boolean };
+export type CalcState = { values: number[]; to: number[]; text: string; on: boolean[]; choice: number; flag: boolean; picks: number[] };
 
 /** Practice with editable numbers and a computed result screen (Modules 2 and 3). */
 export type CalcStep = Base & {
@@ -129,12 +144,16 @@ export type CalcStep = Base & {
   toggles?: { label: string; sub: string; amount: number; on: boolean }[];
   totalLabel?: string;
   choice?: { label: string; items: string[]; value: number };
+  /** Several chip questions; `inline` puts each as a row with small chips inside one card. */
+  choices?: { label: string; items: string[]; value: number }[];
+  inline?: boolean;
   flag?: { label: string; value: boolean };
   /** Live stat under the fields. */
   live?: (s: CalcState) => [string, string];
   note?: string;
   cta: string;
-  result: (s: CalcState) => { title?: string; text?: string; blocks: Block[]; cta?: string };
+  /** `save` adds a Library material to the saved list ("Зберегти чекліст"). */
+  result: (s: CalcState) => { title?: string; text?: string; blocks: Block[]; cta?: string; save?: { label: string; id: string } };
 };
 
 export type Step = ContentStep | QuestionStep | SituationStep | SortStep | PlanStep | RecordStep | CheckListStep | CalcStep;
@@ -153,6 +172,8 @@ export type Done = {
   pretest?: string;
   /** Outline "Детальніше в Бібліотеці". */
   library?: boolean;
+  /** Small grey line under the callouts. */
+  note?: string;
 };
 
 export type LessonContent = { steps: Step[]; done: Done };
@@ -183,21 +204,50 @@ export type TestQuestion = {
   short: string;
 };
 
-/** Month-by-month practice (Module 2 "Непередбачені витрати", Module 3). */
+/** Numbers a month simulation keeps between steps. */
+export type SimState = Record<string, number>;
+
+/** Text that may depend on the simulation state. */
+export type SimText = string | ((s: SimState) => string);
+
+export type MonthOption = {
+  label: SimText;
+  amount: SimText;
+  good: boolean;
+  fb: Feedback;
+  /** Module 2: change of the cushion and debts. */
+  cushion?: number;
+  debt?: number;
+  covered?: boolean;
+  drain?: boolean;
+  habit?: boolean;
+  /** Module 3: id of the decision, read by the simulation's apply(). */
+  act?: string;
+  /** Risky option that has to be changed: no "Залишити так". */
+  retry?: boolean;
+};
+
+/** Month-by-month practice (Module 2 "Непередбачені витрати", Module 3 "Перші 1 000 грн"). */
 export type MonthSim = {
   title: string;
+  /** Chips above the intro title. */
+  chips?: string[];
   text: string;
   intro: [string, string][];
   note: string;
-  goal: number;
-  monthly: number;
-  goalLabel: string;
-  steps: {
-    label: string;
-    text: string;
-    options: { label: string; amount: string; cushion?: number; debt?: number; covered?: boolean; drain?: boolean; good: boolean; habit?: boolean; fb: Feedback }[];
-  }[];
-  result: (r: { cushion: number; debt: number; covered: number; risky: number }) => { title: string; stats: [string, string][]; rows: [string, string][]; callout: string };
+  /** Message bubble on the intro (Module 2) or a plain note (Module 3). */
+  noteStyle?: 'message' | 'note';
+  /** Caption under the intro title (Module 3). */
+  sub?: string;
+  next: string;
+  resultCta: string;
+  init: SimState;
+  steps: { label: string; text: SimText; options: MonthOption[] }[];
+  /** New state after a decision on step `i`. */
+  apply: (s: SimState, o: MonthOption, i: number) => SimState;
+  /** Summary card above the question. */
+  card: (s: SimState) => { label: string; value: string; aside?: string; progress?: number; foot: [string, string] | string };
+  result: (s: SimState) => { title: string; stats: [string, string][]; rows: [string, string][]; callout: string };
 };
 
 /** Copy of the Module 2–3 test screens (they differ from Module 1). */
@@ -205,11 +255,15 @@ export type TestCopy = {
   introChips: string[];
   introTitle: string;
   introText: string;
-  introNote: string;
+  introNote?: string;
   failCallout: string;
   failNote: string;
   moduleTitle: string;
   nextCta: string;
+  /** Badge screen extras (Module 3): link under the main button, example callout and a grey note. */
+  badgeLink?: { label: string; href: '/profile/badges' };
+  badgeCallout?: string;
+  badgeNote?: string;
 };
 
 export type Test = { pass: number; minutes: number; attempts: TestQuestion[][]; nextModule?: string; copy?: TestCopy; art?: Art };

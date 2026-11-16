@@ -5,14 +5,14 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { Callout } from '@/components/library/LibraryUI';
 import { Text } from '@/components/Text';
-import type { Art, MonthSim } from '@/data/lessons';
+import type { Art, MonthSim, SimState, SimText } from '@/data/lessons';
 import type { Lesson, Module } from '@/data/modules';
 import { dayKey, useProgress, type Stars } from '@/store/progress';
 import { colors, radius, space } from '@/theme/tokens';
 import { useAfterLesson } from './LessonFlow';
-import { ArtImage, DataTable, DoneHeader, FeedbackPanel, fmt, Header, LessonChip, LessonFrame, Message, Option, Stats } from './LessonUI';
+import { ArtImage, DataTable, DoneHeader, FeedbackPanel, Header, LessonChip, LessonFrame, Message, Option, Stats } from './LessonUI';
 
-type State = { cushion: number; debt: number; covered: number; risky: number; habit: boolean };
+const txt = (t: SimText, s: SimState) => (typeof t === 'function' ? t(s) : t);
 
 /** Month-by-month practice: every decision changes the cushion and the debts. */
 export function MonthSimFlow({ lesson, module, sim, art }: { lesson: Lesson; module: Module; sim: MonthSim; art: Art }) {
@@ -20,13 +20,15 @@ export function MonthSimFlow({ lesson, module, sim, art }: { lesson: Lesson; mod
   const after = useAfterLesson();
   const [phase, setPhase] = useState<'intro' | 'play' | 'result'>('intro');
   const [index, setIndex] = useState(0);
-  const [st, setSt] = useState<State>({ cushion: 0, debt: 0, covered: 0, risky: 0, habit: false });
+  const [st, setSt] = useState<SimState>(sim.init);
+  const [risky, setRisky] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [meta, setMeta] = useState({ first: false, streak: false });
   const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
   const restart = () => {
-    setSt({ cushion: 0, debt: 0, covered: 0, risky: 0, habit: false });
+    setSt(sim.init);
+    setRisky(0);
     setIndex(0);
     setPicked(null);
     setPhase('intro');
@@ -36,9 +38,20 @@ export function MonthSimFlow({ lesson, module, sim, art }: { lesson: Lesson; mod
     return (
       <LessonFrame onClose={close} footer={<Button label="Почати" onPress={() => setPhase('play')} />}>
         <ArtImage art={art} />
-        <Header title={sim.title} display sub={sim.text} />
+        <Header chips={sim.chips} title={sim.title} display sub={sim.text} />
+        {sim.sub ? (
+          <Text variant="footnote" color={colors.textSecondary} style={{ paddingHorizontal: 4, marginTop: -space.sm }}>
+            {sim.sub}
+          </Text>
+        ) : null}
         <DataTable rows={sim.intro} />
-        <Message text={sim.note} />
+        {sim.noteStyle === 'note' ? (
+          <Text variant="footnote" color={colors.textSecondary} style={{ paddingHorizontal: 4 }}>
+            {sim.note}
+          </Text>
+        ) : (
+          <Message text={sim.note} />
+        )}
       </LessonFrame>
     );
   }
@@ -51,13 +64,13 @@ export function MonthSimFlow({ lesson, module, sim, art }: { lesson: Lesson; mod
         onClose={after.leave}
         footer={
           <>
-            {next ? <Button label="Далі: підсумковий тест" onPress={() => after.open(next.id, meta.first)} /> : null}
+            {next ? <Button label={sim.resultCta} onPress={() => after.open(next.id, meta.first)} /> : null}
             <Button label="Пройти ще раз з іншими рішеннями" variant="secondary" onPress={restart} />
             <Button label="Завершити на сьогодні" variant="link" onPress={after.leave} />
           </>
         }
       >
-        <DoneHeader title={r.title} stars={Math.max(1, 3 - st.risky)} streak={meta.streak} />
+        <DoneHeader title={r.title} stars={Math.max(1, 3 - risky)} streak={meta.streak} />
         <Stats items={r.stats} />
         <DataTable rows={r.rows} />
         <Callout text={r.callout} tone="example" />
@@ -69,22 +82,16 @@ export function MonthSimFlow({ lesson, module, sim, art }: { lesson: Lesson; mod
   const o = picked === null ? null : step.options[picked];
   const last = index === sim.steps.length - 1;
 
+  const card = sim.card(st);
+
   const apply = () => {
     if (!o) return;
-    const habit = st.habit || !!o.habit;
-    let cushion = o.drain ? 0 : st.cushion + (o.cushion ?? 0);
-    let debt = st.debt + (o.debt ?? 0);
-    if (cushion < 0) {
-      debt -= cushion;
-      cushion = 0;
-    }
-    if (habit && !o.habit) cushion += sim.monthly;
-    const covered = st.covered + (o.covered ? Math.min(-(o.cushion ?? 0), st.cushion) : 0);
-    const next = { cushion, debt, covered, risky: st.risky + (o.good ? 0 : 1), habit };
-    setSt(next);
+    const nextRisky = risky + (o.good ? 0 : 1);
+    setSt(sim.apply(st, o, index));
+    setRisky(nextRisky);
     setPicked(null);
     if (!last) return setIndex(index + 1);
-    const earned = Math.max(1, 3 - next.risky) as Stars;
+    const earned = Math.max(1, 3 - nextRisky) as Stars;
     setMeta({ first: Object.keys(stars).length === 0, streak: !days.includes(dayKey(new Date())) });
     completeLesson(lesson.id, earned);
     setPhase('result');
@@ -99,11 +106,11 @@ export function MonthSimFlow({ lesson, module, sim, art }: { lesson: Lesson; mod
         o ? (
           <FeedbackPanel tone={o.good ? 'right' : 'risk'} title={o.fb.title} text={o.fb.text}>
             {o.good ? (
-              <Button label={last ? 'До результату' : 'Наступний місяць'} onPress={apply} />
+              <Button label={last ? 'До результату' : sim.next} onPress={apply} />
             ) : (
               <>
                 <Button label="Обрати інакше" onPress={() => setPicked(null)} />
-                <Button label="Залишити так" variant="link" onPress={apply} />
+                {o.retry ? null : <Button label="Залишити так" variant="link" onPress={apply} />}
               </>
             )}
           </FeedbackPanel>
@@ -127,26 +134,36 @@ export function MonthSimFlow({ lesson, module, sim, art }: { lesson: Lesson; mod
       </ScrollView>
       <View style={styles.card}>
         <Text variant="footnote" color={colors.textSecondary}>
-          Подушка
+          {card.label}
         </Text>
-        <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 2 }}>
-          <Text variant="title3">{fmt(st.cushion)}</Text>
-          <Text variant="caption" color={colors.textSecondary}>
-            {sim.goalLabel}
+        <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: space.sm, marginTop: 2 }}>
+          <Text variant="title3">{card.value}</Text>
+          {card.aside ? (
+            <Text variant="caption" color={colors.textSecondary} style={{ flexShrink: 1, textAlign: 'right' }}>
+              {card.aside}
+            </Text>
+          ) : null}
+        </View>
+        {card.progress != null ? (
+          <View style={styles.track}>
+            <View style={[styles.fill, { width: `${Math.min(100, card.progress * 100)}%` }]} />
+          </View>
+        ) : null}
+        {typeof card.foot === 'string' ? (
+          <Text variant="caption" color={colors.textSecondary} style={{ marginTop: 2 }}>
+            {card.foot}
           </Text>
-        </View>
-        <View style={styles.track}>
-          <View style={[styles.fill, { width: `${Math.min(100, (st.cushion / sim.goal) * 100)}%` }]} />
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: space.sm }}>
-          <Text variant="body">Борги</Text>
-          <Text variant="body">{fmt(st.debt)}</Text>
-        </View>
+        ) : (
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: space.sm }}>
+            <Text variant="body">{card.foot[0]}</Text>
+            <Text variant="body">{card.foot[1]}</Text>
+          </View>
+        )}
       </View>
-      <Header title={step.text} />
+      <Header title={txt(step.text, st)} />
       <View style={{ gap: space.sm }} accessibilityRole="radiogroup">
         {step.options.map((opt, i) => (
-          <Option key={opt.label} label={opt.label} value={opt.amount} state={i === picked ? (opt.good ? 'right' : 'wrong') : 'idle'} disabled={picked !== null} onPress={() => setPicked(i)} />
+          <Option key={i} label={txt(opt.label, st)} value={txt(opt.amount, st)} state={i === picked ? (opt.good ? 'right' : 'wrong') : 'idle'} disabled={picked !== null} onPress={() => setPicked(i)} />
         ))}
       </View>
     </LessonFrame>

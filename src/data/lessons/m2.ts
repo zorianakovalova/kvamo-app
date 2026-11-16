@@ -779,9 +779,23 @@ export const M2_SIM: MonthSim = {
     ['Мета', '7 700 грн без боргів'],
   ],
   note: 'Правильних відповідей немає. Симуляцію можна пройти ще раз з іншими рішеннями.',
-  goal: 7700,
-  monthly: 3080,
-  goalLabel: 'мета 7 700 грн',
+  next: 'Наступний місяць',
+  resultCta: 'Далі: підсумковий тест',
+  init: { cushion: 0, debt: 0, covered: 0, habit: 0 },
+  // A negative cushion turns into debt; with the saving habit the salary tops the cushion up after each month.
+  apply: (s, o) => {
+    const habit = s.habit || o.habit ? 1 : 0;
+    let cushion = o.drain ? 0 : s.cushion + (o.cushion ?? 0);
+    let debt = s.debt + (o.debt ?? 0);
+    if (cushion < 0) {
+      debt -= cushion;
+      cushion = 0;
+    }
+    if (habit && !o.habit) cushion += 3080;
+    const covered = s.covered + (o.covered ? Math.min(-(o.cushion ?? 0), s.cushion) : 0);
+    return { cushion, debt, covered, habit };
+  },
+  card: (s) => ({ label: 'Подушка', value: g(s.cushion), aside: 'мета 7 700 грн', progress: s.cushion / 7700, foot: ['Борги', g(s.debt)] }),
   steps: [
     {
       label: '1 міс',

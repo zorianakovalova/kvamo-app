@@ -70,7 +70,7 @@ export function TestFlow({ lesson, module, test }: { lesson: Lesson; module: Mod
                 ['Щоб отримати бейдж', `від ${test.pass} з ${total}`],
               ]}
             />
-            <Message text={copy.introNote} />
+            {copy.introNote ? <Message text={copy.introNote} /> : null}
           </>
         )}
       </LessonFrame>
@@ -233,7 +233,11 @@ export function TestFlow({ lesson, module, test }: { lesson: Lesson; module: Mod
         footer={
           <>
             <Button label={copy?.nextCta ?? `До модуля ${module.number + 1}`} onPress={home} />
-            <Button label="На головну" variant="link" onPress={home} />
+            {copy?.badgeLink ? (
+              <Button label={copy.badgeLink.label} variant="link" onPress={() => router.push(copy.badgeLink!.href)} />
+            ) : (
+              <Button label="На головну" variant="link" onPress={home} />
+            )}
           </>
         }
       >
@@ -250,6 +254,12 @@ export function TestFlow({ lesson, module, test }: { lesson: Lesson; module: Mod
           ]}
         />
         {test.nextModule ? <Message text={test.nextModule} /> : null}
+        {copy?.badgeCallout ? <Callout text={copy.badgeCallout} tone="example" /> : null}
+        {copy?.badgeNote ? (
+          <Text variant="footnote" color={colors.textSecondary} style={{ paddingHorizontal: 4 }}>
+            {copy.badgeNote}
+          </Text>
+        ) : null}
       </LessonFrame>
     );
   }

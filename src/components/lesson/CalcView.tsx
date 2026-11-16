@@ -3,6 +3,7 @@ import { StyleSheet, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Switch } from '@/components/profile/ProfileUI';
+import { toggleSaved, useSaved } from '@/store/saved';
 import { Text } from '@/components/Text';
 import type { CalcState, CalcStep } from '@/data/lessons';
 import { colors, radius, space, type } from '@/theme/tokens';
@@ -19,13 +20,28 @@ export function CalcView({ step, total, done, onNext, onClose }: Props) {
     on: step.toggles?.map((t) => t.on) ?? [],
     choice: step.choice?.value ?? 0,
     flag: step.flag?.value ?? false,
+    picks: step.choices?.map((c) => c.value) ?? [],
   });
   const [shown, setShown] = useState(false);
+  const saved = useSaved();
 
   if (shown) {
     const r = step.result(s);
     return (
-      <LessonFrame total={total} done={done + 1} onClose={onClose} footer={<Button label={r.cta ?? 'Далі'} onPress={onNext} />}>
+      <LessonFrame total={total} done={done + 1} onClose={onClose} footer={
+          <>
+            <Button label={r.cta ?? 'Далі'} onPress={onNext} />
+            {r.save ? (
+              <Button
+                label={saved.includes(r.save.id) ? 'Збережено в Бібліотеці' : r.save.label}
+                variant="link"
+                disabled={saved.includes(r.save.id)}
+                onPress={() => toggleSaved(r.save!.id)}
+              />
+            ) : null}
+          </>
+        }
+      >
         <Header chips={step.chips} />
         {r.title ? <Header title={r.title} /> : null}
         {r.text ? <Blocks blocks={[{ t: 'text', text: r.text }]} /> : null}
@@ -40,6 +56,7 @@ export function CalcView({ step, total, done, onNext, onClose }: Props) {
     next[i] = n;
     setS({ ...s, [key]: next });
   };
+  const setPick = (i: number, v: number) => setS({ ...s, picks: s.picks.map((x, k) => (k === i ? v : x)) });
   const sum = step.toggles?.reduce((acc, t, i) => acc + (s.on[i] ? t.amount : 0), 0) ?? 0;
   const live = step.live?.(s);
 
@@ -104,6 +121,21 @@ export function CalcView({ step, total, done, onNext, onClose }: Props) {
         </View>
       ) : null}
       {step.choice ? <ChoiceChips label={step.choice.label} items={step.choice.items} value={s.choice} onChange={(choice) => setS({ ...s, choice })} /> : null}
+      {step.choices && !step.inline
+        ? step.choices.map((c, i) => <ChoiceChips key={c.label} label={c.label} items={c.items} value={s.picks[i]} onChange={(v) => setPick(i, v)} />)
+        : null}
+      {step.choices && step.inline ? (
+        <View style={styles.card}>
+          {step.choices.map((c, i, all) => (
+            <View key={c.label} style={[styles.row, i < all.length - 1 && styles.divider]}>
+              <Text variant="subheadline" style={{ flex: 1 }}>
+                {c.label}
+              </Text>
+              <ChoiceChips small items={c.items} value={s.picks[i]} onChange={(v) => setPick(i, v)} />
+            </View>
+          ))}
+        </View>
+      ) : null}
       {step.flag ? (
         <View style={[styles.card, styles.row]}>
           <Text variant="body" style={{ flex: 1 }}>

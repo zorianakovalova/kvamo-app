@@ -353,6 +353,11 @@ function DoneView({ lesson, module, content, result, short }: { lesson: Lesson; 
       <DoneHeader title={done.title ?? 'Заняття пройдено'} stars={result.stars} streak={result.streak} />
       <Callout text={done.key} />
       {done.task ? <Callout text={done.task} tone="example" /> : null}
+      {done.note ? (
+        <Text variant="footnote" color={colors.textSecondary} style={{ paddingHorizontal: 4 }}>
+          {done.note}
+        </Text>
+      ) : null}
       {done.pretest ? <DataTable title={done.pretest} rows={[['Правильних відповідей', `${result.pretest} з ${content.steps.filter((s) => s.kind === 'question' && s.pretest).length}`]]} /> : null}
     </LessonFrame>
   );
