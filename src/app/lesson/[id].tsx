@@ -6,18 +6,31 @@ import { Button } from '@/components/Button';
 import { GlassButton } from '@/components/GlassButton';
 import { GlassCard } from '@/components/GlassCard';
 import { GradientBackground } from '@/components/GradientBackground';
+import { LessonFlow } from '@/components/lesson/LessonFlow';
+import { SimFlow } from '@/components/lesson/SimFlow';
+import { TestFlow } from '@/components/lesson/TestFlow';
 import { Text } from '@/components/Text';
+import { lessonContent, simulation, testContent } from '@/data/lessons';
 import { findLesson, lessonMeta } from '@/data/modules';
 import { useProfile } from '@/store/profile';
 import { useProgress, type Stars } from '@/store/progress';
 import { colors, space } from '@/theme/tokens';
 
-/**
- * Lesson placeholder. Real lesson cards (theory, questions, simulations) come next;
- * for now the learner can finish with a result so the Path, stars and streak can be tried.
- */
+/** Lesson screens from Figma; lessons whose content is not built yet keep the placeholder. */
 export default function LessonScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, short } = useLocalSearchParams<{ id: string; short?: string }>();
+  const lesson = findLesson(id);
+  const content = lessonContent(id);
+  const sim = simulation(id);
+  const test = testContent(id);
+  if (lesson && content) return <LessonFlow key={id} lesson={lesson} module={lesson.module} content={content} short={short === '1'} />;
+  if (lesson && sim) return <SimFlow key={id} lesson={lesson} module={lesson.module} sim={sim} />;
+  if (lesson && test) return <TestFlow key={id} lesson={lesson} module={lesson.module} test={test} />;
+  return <Placeholder id={id} />;
+}
+
+/** Placeholder for lessons still in progress: finish with a result so the Path, stars and streak can be tried. */
+function Placeholder({ id }: { id: string }) {
   const insets = useSafeAreaInsets();
   const { completeLesson, stars } = useProgress();
   const { accountOffered } = useProfile();

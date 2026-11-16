@@ -6,7 +6,7 @@ import { Text } from './Text';
 
 type Props = Omit<PressableProps, 'children'> & {
   label: string;
-  variant?: 'primary' | 'secondary' | 'link' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'link' | 'danger';
   icon?: IconName;
   loading?: boolean;
 };
@@ -50,5 +50,6 @@ const styles = StyleSheet.create({
   danger: { backgroundColor: colors.error, height: 56, paddingHorizontal: 16 },
   primaryOff: { backgroundColor: colors.border },
   secondary: { backgroundColor: colors.surface, height: 56, paddingHorizontal: 16, ...shadow.ink6 },
+  outline: { backgroundColor: colors.surface, height: 56, paddingHorizontal: 16, borderWidth: 1.5, borderColor: colors.border },
   link: { height: 44, paddingHorizontal: 8, alignSelf: 'center' },
 });

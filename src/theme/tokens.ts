@@ -62,7 +62,7 @@ export const fonts = {
   system: Platform.select({ ios: 'System', default: undefined }),
 } as const;
 
-const sys = (fontSize: number, lineHeight: number, fontWeight: '400' | '500' | '600', letterSpacing = 0) => ({
+const sys = (fontSize: number, lineHeight: number, fontWeight: '400' | '500' | '600' | '700', letterSpacing = 0) => ({
   fontFamily: fonts.system,
   fontSize,
   lineHeight,
@@ -81,9 +81,11 @@ export const type = {
   displayLarge: display(40, 46, -0.8),
   largeTitle: display(30, 36, -0.3),
   title1: display(24, 30, -0.24),
+  displaySmall: display(22, 28, -0.22),
   numberMedium: display(24, 30),
   numberSmall: display(16, 20),
   numberXs: display(12, 16),
+  title2: sys(22, 28, '700', -0.26),
   title3: sys(20, 25, '600', -0.45),
   headline: sys(17, 22, '600', -0.43),
   body: sys(17, 22, '400', -0.43),

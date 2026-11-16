@@ -94,7 +94,7 @@ function Stars({ stars, transform }: { stars: number; transform?: string }) {
 export const TEST_SIZE = { w: 151, h: 125.5 };
 
 /** Passed final test: the Figma test step in done-lesson green, with its stars and no white outline. */
-export function TestStepDone({ stars }: { stars: number }) {
+export function TestStepDone({ stars }: { stars?: number }) {
   const id = useId().replace(/[^a-zA-Z0-9]/g, '');
   return (
     <Svg width={TEST_SIZE.w} height={TEST_SIZE.h} viewBox="0 0 151 125.5">
@@ -110,7 +110,7 @@ export function TestStepDone({ stars }: { stars: number }) {
       <Path d="M75.5 3V60.2632" stroke="#7A4A06" strokeWidth={2} strokeLinecap="round" />
       <Path d="M77.1842 4.68421H107.5L100.763 13.1053L107.5 21.5263H77.1842V4.68421Z" fill="#FFC75A" />
       {/* Cube stars scaled to the larger top face and centred on it. */}
-      <Stars stars={stars} transform="translate(13.1 31.3) scale(1.2)" />
+      {stars != null && <Stars stars={stars} transform="translate(13.1 31.3) scale(1.2)" />}
     </Svg>
   );
 }
