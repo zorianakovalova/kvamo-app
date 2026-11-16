@@ -9,13 +9,15 @@ type LibraryState = {
   viewed: string[];
   /** Upcoming modules the learner asked to be told about. */
   notify: number[];
+  /** Quiz results: last and best score per quiz. */
+  quiz: Record<string, { last: number; best: number }>;
 };
 
 /** Items saved before the learner touched any bookmark (as in the Figma "Збережене" screen). */
 const DEFAULT_SAVED = ['art-ovdp-buy', 't-ovdp', 'check-offer', 'art-cashback'];
 
 let saved: string[] = DEFAULT_SAVED;
-let state: LibraryState = { viewed: [], notify: [] };
+let state: LibraryState = { viewed: [], notify: [], quiz: {} };
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 const subscribe = (l: () => void) => {
@@ -51,6 +53,11 @@ export function markViewed(id: string) {
 
 export function setNotify(module: number) {
   if (!state.notify.includes(module)) setState({ ...state, notify: [...state.notify, module] });
+}
+
+export function saveQuizScore(id: string, score: number) {
+  const prev = state.quiz[id];
+  setState({ ...state, viewed: state.viewed.includes(id) ? state.viewed : [...state.viewed, id], quiz: { ...state.quiz, [id]: { last: score, best: Math.max(score, prev?.best ?? 0) } } });
 }
 
 /** Saved material and term ids, in the order they were saved. */

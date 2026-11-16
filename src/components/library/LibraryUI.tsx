@@ -5,7 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { router } from 'expo-router';
 
-import { ARTICLES, type Material } from '@/data/library';
+import { ARTICLES, QUIZZES, SIMULATIONS, findMaterial, type Material } from '@/data/library';
+import { useProgress } from '@/store/progress';
 import { markViewed } from '@/store/saved';
 import { colors, palette, radius, shadow, space, type } from '@/theme/tokens';
 import { Button } from '../Button';
@@ -197,22 +198,86 @@ export function ExternalSiteSheet({ site, onClose }: { site: Material['site'] | 
 /** Opens a material by its kind: article screen, lesson, external site sheet, or a "coming soon" note. */
 export function useMaterialOpener(toastBottom: number) {
   const [site, setSite] = useState<Material['site'] | null>(null);
+  const [rerun, setRerun] = useState<string | null>(null);
   const [toast, soon] = useSoonToast(toastBottom);
+  const { stars } = useProgress();
   const open = (m: Material) => {
+    const sim = SIMULATIONS[m.id];
     if (m.site) {
       markViewed(m.id);
       setSite(m.site);
     } else if (m.lessonId) router.push({ pathname: '/lesson/[id]', params: { id: m.lessonId } });
     else if (ARTICLES[m.id]) router.push({ pathname: '/library/article/[id]', params: { id: m.id } });
-    else soon();
+    else if (QUIZZES[m.id]) router.push({ pathname: '/library/quiz/[id]', params: { id: m.id } });
+    else if (sim) {
+      if (stars[sim.lessonId]) setRerun(m.id);
+      else router.push({ pathname: '/library/sim/[id]', params: { id: m.id } });
+    } else soon();
   };
   const overlay = (
     <>
       {toast}
       <ExternalSiteSheet site={site} onClose={() => setSite(null)} />
+      <SimRerunSheet id={rerun} best={rerun ? stars[SIMULATIONS[rerun].lessonId] : undefined} onClose={() => setRerun(null)} />
     </>
   );
   return { open, soon, overlay };
+}
+
+/** Sheet for a simulation that was already passed: reminds the result and offers another run. */
+function SimRerunSheet({ id, best, onClose }: { id: string | null; best?: number; onClose: () => void }) {
+  const sim = id ? SIMULATIONS[id] : null;
+  const m = id ? findMaterial(id) : null;
+  const go = () => {
+    onClose();
+    if (sim) router.push({ pathname: '/lesson/[id]', params: { id: sim.lessonId } });
+  };
+  return (
+    <BottomSheet visible={!!sim} onClose={onClose}>
+      {sim && m ? (
+        <>
+          <View style={{ alignItems: 'center', gap: space.md, marginTop: space.lg, paddingHorizontal: 4 }}>
+            <Image source={sim.tile} style={{ width: 120, height: 120, borderRadius: radius.xl }} contentFit="cover" />
+            <Text variant="title1" accessibilityRole="header" style={{ textAlign: 'center', marginTop: space.sm }}>
+              {m.title}
+            </Text>
+            <Text variant="body" style={{ textAlign: 'center' }}>
+              Симуляцію вже пройдено: найкращий результат – {best ?? 0} з 3 зірок.
+            </Text>
+          </View>
+          <View style={{ marginTop: space.lg, gap: space.sm }}>
+            <Button label="Пройти ще раз" onPress={go} />
+            <Button label="Подивитися мій результат" variant="link" onPress={go} />
+          </View>
+        </>
+      ) : null}
+    </BottomSheet>
+  );
+}
+
+/** White card with label–value rows (quiz and simulation facts). */
+export function FactsTable({ rows }: { rows: [string, string][] }) {
+  return (
+    <View style={styles.facts}>
+      {rows.map(([label, value], i) => (
+        <View key={label} style={[styles.factRow, i < rows.length - 1 && styles.factDivider]}>
+          <Text variant="body" style={{ flex: 1 }}>
+            {label}
+          </Text>
+          <Text variant="bodyMedium">{value}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** Small glass chip with plain text (material kind, module name, duration). */
+export function InfoChip({ label }: { label: string }) {
+  return (
+    <View style={styles.infoChip}>
+      <Text variant="subheadline">{label}</Text>
+    </View>
+  );
 }
 
 export const openTerm = (id: string) => router.push({ pathname: '/library/term/[id]', params: { id } });
@@ -404,6 +469,18 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: radius.lg,
     backgroundColor: colors.surface,
+    ...shadow.ink6,
+  },
+  facts: { marginHorizontal: space.lg, backgroundColor: colors.surface, borderRadius: radius.lg, paddingHorizontal: space.lg, paddingVertical: 4 },
+  factRow: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.md },
+  factDivider: { borderBottomWidth: 1, borderBottomColor: 'rgba(11,16,13,0.1)' },
+  infoChip: {
+    paddingHorizontal: space.sm,
+    paddingVertical: 2,
+    borderRadius: radius.pill,
+    backgroundColor: colors.glassStrong,
+    borderWidth: 1,
+    borderColor: colors.glass,
     ...shadow.ink6,
   },
   scrim: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(11,16,13,0.4)' },

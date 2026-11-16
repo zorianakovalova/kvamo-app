@@ -282,7 +282,7 @@ function FilteredList({ filter, open, goArticles }: Actions & { filter: Filter; 
   const kind = KIND_OF[filter]!;
   const items = MATERIALS.filter((m) => m.kind === kind);
   const subtitle = (m: Material) =>
-    kind === 'sim' ? `Модуль ${m.module}` : kind === 'source' ? `Модуль ${m.module} · Зовнішній сайт` : kind === 'article' ? m.subtitle : undefined;
+    kind === 'sim' ? `Модуль ${m.module} · ${m.minutes} хв` : kind === 'source' ? `Модуль ${m.module} · Зовнішній сайт` : kind === 'article' ? m.subtitle : undefined;
   return (
     <List count={countLabel(items.length, COUNT[filter as keyof typeof COUNT])}>
       {items.map((m) => (
