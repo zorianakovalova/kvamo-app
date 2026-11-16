@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 
@@ -17,23 +17,28 @@ const card = require('../../../assets/img/save-card.png');
 /** 12 Save progress: offered after the first lesson. */
 export default function SaveProgress() {
   const { update } = useProfile();
+  const fromProfile = useLocalSearchParams<{ from?: string }>().from === 'profile';
+  // From the Profile tab there is nothing to skip to: closing just returns there.
+  const close = () => (fromProfile ? router.back() : setAskSkip(true));
   const [askSkip, setAskSkip] = useState(false);
 
   return (
     <Screen
-      nav={<GlassButton icon="close" label="Закрити" onPress={() => setAskSkip(true)} />}
+      nav={<GlassButton icon="close" label="Закрити" onPress={close} />}
       bodyStyle={{ paddingHorizontal: space.xxl, gap: space.lg }}
       footer={
         <View style={{ paddingHorizontal: space.sm, gap: space.sm }}>
           <SignInOptions
             verb="Продовжити з"
-            mode="save"
+            mode={fromProfile ? 'profile' : 'save'}
+            back="/profile"
             onSignedIn={(method) => {
               update({ account: { method } });
-              router.replace('/account/reminders');
+              if (fromProfile) router.back();
+              else router.replace('/account/reminders');
             }}
           />
-          <Button label="Пропустити" variant="link" onPress={() => setAskSkip(true)} />
+          <Button label="Пропустити" variant="link" onPress={close} />
           <Text variant="caption" color={colors.textSecondary} style={{ textAlign: 'center' }}>
             Продовжуючи, ти погоджуєшся з <Text variant="caption" color={colors.textSecondary} style={{ textDecorationLine: 'underline' }}>Умовами</Text> та{' '}
             <Text variant="caption" color={colors.textSecondary} style={{ textDecorationLine: 'underline' }}>

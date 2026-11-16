@@ -11,11 +11,13 @@ type Persisted = {
   /** Best star result per completed lesson id. */
   stars: Record<string, Stars>;
   streak: { count: number; lastDay: string | null };
+  /** Every day (YYYY-MM-DD) with at least one finished lesson, for the streak calendar. */
+  days: string[];
 };
 
-const EMPTY: Persisted = { stars: {}, streak: { count: 0, lastDay: null } };
+const EMPTY: Persisted = { stars: {}, streak: { count: 0, lastDay: null }, days: [] };
 
-function dayKey(date: Date) {
+export function dayKey(date: Date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
@@ -28,11 +30,18 @@ function daysBetween(a: string, b: string) {
   return Math.round((Date.UTC(yb, mb - 1, db) - Date.UTC(ya, ma - 1, da)) / 86_400_000);
 }
 
+function streakDays(lastDay: string, count: number) {
+  const [y, m, d] = lastDay.split('-').map(Number);
+  return Array.from({ length: count }, (_, i) => dayKey(new Date(y, m - 1, d - i)));
+}
+
 type ProgressValue = {
   ready: boolean;
   stars: Record<string, Stars>;
   /** Streak that is still alive today (0 if a day was missed). */
   streak: number;
+  /** Days with lessons (YYYY-MM-DD). */
+  days: string[];
   /** The lesson the learner should do next, across all modules. */
   currentLessonId: string | null;
   completeLesson: (lessonId: string, stars: Stars) => void;
@@ -69,7 +78,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       else if (lastDay && daysBetween(lastDay, today) === 1) nextCount = count + 1;
 
       const best = Math.max(data.stars[lessonId] ?? 0, result) as Stars;
-      persist({ stars: { ...data.stars, [lessonId]: best }, streak: { count: nextCount, lastDay: today } });
+      const days = data.days.includes(today) ? data.days : [...data.days, today];
+      persist({ stars: { ...data.stars, [lessonId]: best }, streak: { count: nextCount, lastDay: today }, days });
     },
     [data, persist],
   );
@@ -85,6 +95,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       ready,
       stars: data.stars,
       streak: alive ? count : 0,
+      // Older saves have no day list: rebuild it from the streak so the calendar is not empty.
+      days: data.days.length || !lastDay ? data.days : streakDays(lastDay, count),
       currentLessonId: current?.id ?? null,
       completeLesson,
       resetProgress,

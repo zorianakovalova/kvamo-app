@@ -11,7 +11,9 @@ type Props = {
   /** "Увійти з" on Login, "Продовжити з" on Save progress. */
   verb: string;
   /** Where the phone/email flow returns to. */
-  mode: 'login' | 'save';
+  mode: 'login' | 'save' | 'profile';
+  /** For mode "profile": the screen to return to after the code is entered. */
+  back?: string;
   onSignedIn: (method: AccountMethod) => void;
 };
 
@@ -19,7 +21,7 @@ type Props = {
  * Google, Apple, Phone and Email buttons. There is no server yet, so Google and Apple
  * only show the connecting state and then sign in locally.
  */
-export function SignInOptions({ verb, mode, onSignedIn }: Props) {
+export function SignInOptions({ verb, mode, back, onSignedIn }: Props) {
   const [busy, setBusy] = useState<AccountMethod | null>(null);
 
   const social = (method: 'google' | 'apple') => {
@@ -36,8 +38,8 @@ export function SignInOptions({ verb, mode, onSignedIn }: Props) {
       <Option icon="google" label={busy === 'google' ? 'Підключаємо…' : `${verb} Google`} busy={busy === 'google'} disabled={disabled} onPress={() => social('google')} />
       <Option icon="apple" label={busy === 'apple' ? 'Підключаємо…' : `${verb} Apple`} busy={busy === 'apple'} disabled={disabled} onPress={() => social('apple')} />
       <View style={{ flexDirection: 'row', gap: space.sm }}>
-        <Option icon="phone" label="Телефон" disabled={disabled} onPress={() => router.push({ pathname: '/account/phone', params: { mode } })} style={{ flex: 1 }} />
-        <Option icon="mail" label="Email" disabled={disabled} onPress={() => router.push({ pathname: '/account/email', params: { mode } })} style={{ flex: 1 }} />
+        <Option icon="phone" label="Телефон" disabled={disabled} onPress={() => router.push({ pathname: '/account/phone', params: { mode, back } })} style={{ flex: 1 }} />
+        <Option icon="mail" label="Email" disabled={disabled} onPress={() => router.push({ pathname: '/account/email', params: { mode, back } })} style={{ flex: 1 }} />
       </View>
     </View>
   );

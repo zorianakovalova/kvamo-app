@@ -1,16 +1,17 @@
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Linking, Pressable, StyleSheet, TextInput, View, type TextInputInstance } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { GlassButton } from '@/components/GlassButton';
 import { Icon } from '@/components/Icon';
+import { ToggleRow } from '@/components/profile/ProfileUI';
 import { Screen, ScreenHeader } from '@/components/Screen';
 import { Sheet } from '@/components/Sheet';
 import { Text } from '@/components/Text';
 import { findLesson } from '@/data/modules';
-import { scheduleReminders, type PermissionResult } from '@/lib/reminders';
+import { cancelReminders, scheduleReminders, type PermissionResult } from '@/lib/reminders';
 import { useProfile } from '@/store/profile';
 import { useProgress } from '@/store/progress';
 import { colors, fonts, radius, space } from '@/theme/tokens';
@@ -20,9 +21,11 @@ const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
 const DAY_NAMES = ['понеділок', 'вівторок', 'середа', 'четвер', 'пʼятниця', 'субота', 'неділя'];
 const QUICK = ['08:00', '12:30', '18:00', '19:00', '20:00', '21:30'];
 
-/** 17 Reminders: when and on which days to remind about a lesson. */
+/** 17 Reminders: when and on which days to remind about a lesson. With ?edit=1 it is "10 Нагадування / Редагування" from Profile. */
 export default function RemindersScreen() {
+  const editing = useLocalSearchParams<{ edit?: string }>().edit === '1';
   const { reminders, update } = useProfile();
+  const [on, setOn] = useState(reminders ? reminders.enabled : true);
   const { currentLessonId } = useProgress();
   const lesson = currentLessonId ? findLesson(currentLessonId) : undefined;
   const [frequency, setFrequency] = useState<'daily' | 'off'>(reminders?.frequency ?? 'daily');
@@ -36,14 +39,15 @@ export default function RemindersScreen() {
   const [result, setResult] = useState<PermissionResult | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const off = frequency === 'off';
+  const off = frequency === 'off' || (editing && !on);
   const noDays = !days.some(Boolean);
 
-  const finish = () => router.replace('/');
+  const finish = () => (editing ? router.back() : router.replace('/'));
 
   const enable = async () => {
     if (off) {
       update({ reminders: { enabled: false, frequency, days, time } });
+      if (editing) await cancelReminders();
       return finish();
     }
     setBusy(true);
@@ -82,7 +86,7 @@ export default function RemindersScreen() {
 
   return (
     <Screen
-      nav={<GlassButton icon="close" label="Закрити" onPress={finish} />}
+      nav={editing ? <GlassButton icon="chevronLeft" label="Назад" onPress={finish} /> : <GlassButton icon="close" label="Закрити" onPress={finish} />}
       bodyStyle={{ paddingHorizontal: 0, gap: space.xxl }}
       footer={
         <>
@@ -99,16 +103,17 @@ export default function RemindersScreen() {
             <Banner icon="alert" danger text="На цьому пристрої нагадування не працюють. Налаштування збережено." />
           ) : null}
           <Button
-            label={off ? 'Зберегти' : 'Увімкнути нагадування'}
-            icon={off ? undefined : 'bell'}
+            label={off || editing ? 'Зберегти' : 'Увімкнути нагадування'}
+            icon={off || editing ? undefined : 'bell'}
             loading={busy}
             disabled={!off && noDays}
             onPress={result === 'granted' || result === 'unsupported' ? finish : enable}
           />
-          <Button label="Пропустити" variant="link" onPress={finish} />
+          {!editing && <Button label="Пропустити" variant="link" onPress={finish} />}
         </>
       }
     >
+      {!editing && (
       <View style={{ paddingHorizontal: space.lg }}>
         <View style={styles.preview} accessibilityLabel="Так виглядатиме нагадування">
           <Image source={appIcon} style={styles.appIcon} />
@@ -124,14 +129,24 @@ export default function RemindersScreen() {
         </View>
       </View>
 
+      )}
+
       <View style={{ paddingHorizontal: space.xl }}>
-        <ScreenHeader title="Нагадувати про урок?" description="Не частіше одного разу на день, у дні й час, які обереш." />
+        <ScreenHeader title={editing ? 'Нагадування' : 'Нагадувати про урок?'} description="Не частіше одного разу на день, у дні й час, які обереш." />
       </View>
 
+      {editing && (
+        <View style={{ paddingHorizontal: space.lg }}>
+          <ToggleRow label="Нагадувати про урок" description="Одне сповіщення в обраний час" value={on} onChange={(v) => (setOn(v), setResult(null))} />
+        </View>
+      )}
+
+      {!(editing && !on) && (
       <View style={styles.pickers}>
         <Picker label="Коли?" value={off ? 'Не нагадувати' : 'Щодня'} onPress={() => setSheet('freq')} small={off} />
         {!off && <Picker label="О котрій?" value={time} icon onPress={openTime} />}
       </View>
+      )}
 
       {!off && (
         <View style={{ gap: space.sm }}>

@@ -12,7 +12,7 @@ const valid = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s.trim());
 
 /** 15 Email. */
 export default function Email() {
-  const { mode = 'save' } = useLocalSearchParams<{ mode?: string }>();
+  const { mode = 'save', back } = useLocalSearchParams<{ mode?: string; back?: string }>();
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | undefined>();
 
@@ -21,7 +21,7 @@ export default function Email() {
       setError(email.trim() ? 'Перевір адресу: схоже, в ній помилка' : 'Введи email');
       return;
     }
-    router.push({ pathname: '/account/code', params: { kind: 'email', to: email.trim(), mode } });
+    router.push({ pathname: '/account/code', params: { kind: 'email', to: email.trim(), mode , back } });
   };
 
   return (

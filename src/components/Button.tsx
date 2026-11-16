@@ -6,14 +6,14 @@ import { Text } from './Text';
 
 type Props = Omit<PressableProps, 'children'> & {
   label: string;
-  variant?: 'primary' | 'secondary' | 'link';
+  variant?: 'primary' | 'secondary' | 'link' | 'danger';
   icon?: IconName;
   loading?: boolean;
 };
 
 /** Action button from Figma: 56 px, full radius. Primary is ink, secondary is white with a soft shadow. */
 export function Button({ label, variant = 'primary', icon, loading, disabled, style, ...rest }: Props) {
-  const primary = variant === 'primary';
+  const primary = variant === 'primary' || variant === 'danger';
   const off = disabled && !loading;
   const textColor = primary ? (off ? colors.textSecondary : colors.textInverse) : off ? colors.textTertiary : colors.textPrimary;
   return (
@@ -47,6 +47,7 @@ export function Button({ label, variant = 'primary', icon, loading, disabled, st
 const styles = StyleSheet.create({
   base: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: radius.pill },
   primary: { backgroundColor: colors.ink, height: 56, paddingHorizontal: 16 },
+  danger: { backgroundColor: colors.error, height: 56, paddingHorizontal: 16 },
   primaryOff: { backgroundColor: colors.border },
   secondary: { backgroundColor: colors.surface, height: 56, paddingHorizontal: 16, ...shadow.ink6 },
   link: { height: 44, paddingHorizontal: 8, alignSelf: 'center' },

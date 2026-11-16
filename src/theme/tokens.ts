@@ -42,6 +42,9 @@ export const colors = {
   streakIcon: palette.orange,
   star: palette.star,
   danger: palette.danger,
+  /** feedback/error/text from Figma (destructive rows and buttons). */
+  error: '#b8321a',
+  positive: '#2f9a52',
   dangerSurface: '#fdecea',
 } as const;
 
@@ -88,6 +91,7 @@ export const type = {
   subheadline: sys(15, 20, '400', -0.23),
   subheadlineMedium: sys(15, 20, '500', -0.23),
   subheadlineStrong: sys(15, 20, '600', -0.23),
+  footnote: sys(13, 18, '400', -0.08),
   caption: sys(12, 16, '400'),
   captionStrong: sys(12, 16, '600'),
   captionMedium: sys(12, 16, '500'),

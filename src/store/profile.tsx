@@ -26,6 +26,10 @@ export type Profile = {
   /** The "save progress" flow after the first lesson was shown once. */
   accountOffered: boolean;
   reminders: Reminders | null;
+  /** Shown in the profile; empty until the learner sets it in Settings. */
+  name: string;
+  sounds: boolean;
+  haptics: boolean;
 };
 
 const EMPTY: Profile = {
@@ -37,6 +41,9 @@ const EMPTY: Profile = {
   account: null,
   accountOffered: false,
   reminders: null,
+  name: '',
+  sounds: true,
+  haptics: true,
 };
 
 type ProfileValue = Profile & {

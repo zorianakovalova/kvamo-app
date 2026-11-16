@@ -14,7 +14,7 @@ const RESEND = 60;
 
 /** 14 / 16 Six-digit code from SMS or email. There is no server yet, so any 6 digits are accepted. */
 export default function Code() {
-  const { kind = 'phone', to = '', mode = 'save' } = useLocalSearchParams<{ kind?: string; to?: string; mode?: string }>();
+  const { kind = 'phone', to = '', mode = 'save', back } = useLocalSearchParams<{ kind?: string; to?: string; mode?: string; back?: string }>();
   const { update, onboarded } = useProfile();
   const [code, setCode] = useState('');
   const [left, setLeft] = useState(RESEND);
@@ -32,7 +32,8 @@ export default function Code() {
     if (code.length < LEN || done) return;
     setDone(true);
     update({ account: { method: phone ? 'phone' : 'email', contact: to }, accountOffered: true, ...(mode === 'login' ? { onboarded: true } : {}) });
-    if (mode !== 'login') router.replace('/account/reminders');
+    if (mode === 'profile') router.dismissTo((back ?? '/profile') as '/profile');
+    else if (mode !== 'login') router.replace('/account/reminders');
   }, [code]);
 
   // Login: wait until "onboarded" is saved before opening the Path.

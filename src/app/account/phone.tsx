@@ -18,7 +18,7 @@ export function formatPhone(digits: string) {
 
 /** 13 Phone number. */
 export default function Phone() {
-  const { mode = 'save' } = useLocalSearchParams<{ mode?: string }>();
+  const { mode = 'save', back } = useLocalSearchParams<{ mode?: string; back?: string }>();
   const [digits, setDigits] = useState('');
   const [error, setError] = useState<string | undefined>();
 
@@ -27,7 +27,7 @@ export default function Phone() {
       setError(digits.length === 0 ? 'Введи номер телефону' : 'У номері має бути 9 цифр після +380');
       return;
     }
-    router.push({ pathname: '/account/code', params: { kind: 'phone', to: `+380 ${formatPhone(digits)}`, mode } });
+    router.push({ pathname: '/account/code', params: { kind: 'phone', to: `+380 ${formatPhone(digits)}`, mode , back } });
   };
 
   return (
