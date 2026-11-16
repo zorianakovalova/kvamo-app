@@ -306,7 +306,7 @@ export function useSavedToast(bottom: number): [ReactNode, () => void] {
 /** Short message above the tab bar for screens that arrive in the next update. */
 export function useSoonToast(bottom: number): [ReactNode, (text?: string) => void] {
   const [text, setText] = useState<string | null>(null);
-  const opacity = useRef(new Animated.Value(0)).current;
+  const [opacity] = useState(() => new Animated.Value(0));
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
   const show = (t = 'Цей матеріал з’явиться в наступному оновленні') => {

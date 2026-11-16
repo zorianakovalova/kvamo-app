@@ -51,13 +51,20 @@ export default function LibraryScreen() {
     chipsRef.current?.scrollTo({ x: Math.max(0, x - 80), animated: true });
   };
 
+  // Opened with ?filter=saved (from the "Додано в «Збережене»" toast): switch the chip once per request.
+  const requested = FILTERS.some((f) => f.id === params.filter) ? (params.filter as Filter) : undefined;
+  const [handled, setHandled] = useState<Filter | undefined>();
+  if (requested !== handled) {
+    setHandled(requested);
+    if (requested) setFilter(requested);
+  }
   useEffect(() => {
-    if (params.filter && FILTERS.some((f) => f.id === params.filter)) {
-      select(params.filter as Filter);
-      router.setParams({ filter: undefined });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.filter]);
+    if (!requested) return;
+    router.setParams({ filter: undefined });
+    // Wait for the tab to become visible before scrolling the chip row.
+    // Not cleared on change: clearing the param re-runs this effect right away.
+    setTimeout(() => chipsRef.current?.scrollTo({ x: Math.max(0, (chipX.current[requested] ?? 0) - 80), animated: true }), 300);
+  }, [requested]);
 
   return (
     <View style={{ flex: 1 }}>
