@@ -1,17 +1,17 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
-import { useRef, useState, type ReactNode } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, type ScrollViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { Icon } from '@/components/Icon';
-import { ExternalSiteSheet, FilterChip, MaterialRow, SearchField, SectionHeader, useSoonToast } from '@/components/library/LibraryUI';
+import { BottomSheet, FilterChip, MaterialRow, SearchField, SectionHeader, openTerm, useMaterialOpener } from '@/components/library/LibraryUI';
 import { PathBackground } from '@/components/PathBackground';
 import { Text } from '@/components/Text';
-import { FOR_YOU, KIND_LABEL, MATERIALS, SOON, TERMS, UP_NEXT_ID, findMaterial, plural, type Material, type MaterialKind } from '@/data/library';
-import { toggleSaved, useSaved } from '@/store/saved';
+import { FOR_YOU, HOME_MODULE_ROWS, HOME_TERMS, KIND_LABEL, MATERIALS, SOON, TERMS, UP_NEXT_ID, findMaterial, findTerm, moduleMaterials, plural, termsLabel, type Material, type MaterialKind } from '@/data/library';
+import { setNotify, toggleSaved, useLibraryState, useSaved } from '@/store/saved';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
 type Filter = 'all' | 'sim' | 'article' | 'quiz' | 'source' | 'terms' | 'saved';
@@ -39,8 +39,9 @@ const countLabel = (n: number, forms: [string, string, string]) => `${n} ${plura
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
   const [filter, setFilter] = useState<Filter>('all');
-  const [site, setSite] = useState<Material['site'] | null>(null);
-  const [toast, soon] = useSoonToast(insets.bottom + 92);
+  const { open, soon, overlay } = useMaterialOpener(insets.bottom + 92);
+  const [soonModule, setSoonModule] = useState<(typeof SOON)[number] | null>(null);
+  const params = useLocalSearchParams<{ filter?: string }>();
   const chipsRef = useRef<ScrollViewInstance>(null);
   const chipX = useRef<Partial<Record<Filter, number>>>({});
 
@@ -50,7 +51,13 @@ export default function LibraryScreen() {
     chipsRef.current?.scrollTo({ x: Math.max(0, x - 80), animated: true });
   };
 
-  const open = (m: Material) => (m.site ? setSite(m.site) : soon());
+  useEffect(() => {
+    if (params.filter && FILTERS.some((f) => f.id === params.filter)) {
+      select(params.filter as Filter);
+      router.setParams({ filter: undefined });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.filter]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -72,22 +79,48 @@ export default function LibraryScreen() {
           ))}
         </ScrollView>
 
-        {filter === 'all' ? <Home open={open} soon={soon} selectTerm={() => select('terms')} /> : <FilteredList filter={filter} open={open} soon={soon} goArticles={() => select('article')} />}
+        {filter === 'all' ? <Home open={open} soon={soon} openSoon={setSoonModule} /> : <FilteredList filter={filter} open={open} goArticles={() => select('article')} />}
       </ScrollView>
-      {toast}
-      <ExternalSiteSheet site={site} onClose={() => setSite(null)} />
+      {overlay}
+      <SoonSheet item={soonModule} onClose={() => setSoonModule(null)} />
     </View>
   );
 }
 
-type Actions = { open: (m: Material) => void; soon: () => void };
+function SoonSheet({ item, onClose }: { item: (typeof SOON)[number] | null; onClose: () => void }) {
+  const { notify } = useLibraryState();
+  const on = !!item && notify.includes(item.module);
+  return (
+    <BottomSheet visible={!!item} onClose={onClose}>
+      {item ? (
+        <>
+          <View style={{ paddingHorizontal: 4, marginTop: space.lg }}>
+            <Image source={require('../../../assets/img/lib/soon-module.png')} style={styles.soonArt} contentFit="cover" />
+            <Text variant="title1" accessibilityRole="header" style={{ marginTop: 28 }}>
+              Модуль {item.module} “{item.title}”
+            </Text>
+            <Text variant="body" style={{ marginTop: space.md }}>
+              {item.about} Модуль ще готується. Повідомимо, щойно він з’явиться.
+            </Text>
+          </View>
+          <View style={{ marginTop: space.xxl, gap: space.sm }}>
+            <Button label={on ? 'Повідомимо, коли вийде' : 'Повідомити мене'} icon={on ? 'check' : 'bell'} disabled={on} onPress={() => setNotify(item.module)} />
+            <Button label="Закрити" variant="link" onPress={onClose} />
+          </View>
+        </>
+      ) : null}
+    </BottomSheet>
+  );
+}
 
-function Home({ open, soon, selectTerm }: Actions & { selectTerm: () => void }) {
+type Actions = { open: (m: Material) => void };
+
+function Home({ open, soon, openSoon }: Actions & { soon: () => void; openSoon: (s: (typeof SOON)[number]) => void }) {
   const upNext = findMaterial(UP_NEXT_ID)!;
   return (
     <View style={{ gap: space.xxl, marginTop: space.xxl }}>
       <View style={styles.section}>
-        <SectionHeader title="До наступного уроку" onPress={soon} />
+        <SectionHeader title="До наступного уроку" onPress={() => open(upNext)} />
         <Pressable onPress={() => open(upNext)} accessibilityRole="button" accessibilityLabel={`${KIND_LABEL[upNext.kind]}: ${upNext.title}`} style={styles.pad}>
           <LinearGradient colors={['#F6FBB0', '#E9F57C']} locations={[0.14, 0.86]} start={{ x: 0.65, y: 0 }} end={{ x: 0.35, y: 1 }} style={styles.upNext}>
             <View style={styles.upNextTop}>
@@ -144,27 +177,27 @@ function Home({ open, soon, selectTerm }: Actions & { selectTerm: () => void }) 
       </View>
 
       {([1, 2, 3] as const).map((n) => {
-        const all = MATERIALS.filter((m) => m.module === n);
+        const all = moduleMaterials(n);
+        const toModule = () => router.push({ pathname: '/library/module/[n]', params: { n: String(n) } });
         return (
           <View key={n} style={styles.section}>
-            <SectionHeader title={`Модуль ${n}`} meta={countLabel(all.length, ['матеріал', 'матеріали', 'матеріалів'])} onPress={soon} />
+            <SectionHeader title={`Модуль ${n}`} meta={countLabel(all.length, ['матеріал', 'матеріали', 'матеріалів'])} onPress={toModule} />
             <View style={[styles.pad, { gap: space.sm }]}>
-              {all
-                .filter((m) => m.home)
-                .map((m) => (
-                  <MaterialRow key={m.id} material={m} title={m.title} subtitle={m.subtitle} trailing={m.site ? 'external' : 'chevron'} onPress={() => open(m)} />
-                ))}
-              <Button label="Усі матеріали модуля" variant="link" onPress={soon} />
+              {HOME_MODULE_ROWS[n].map((id) => {
+                const m = findMaterial(id)!;
+                return <MaterialRow key={m.id} material={m} title={m.title} subtitle={m.subtitle} trailing={m.site ? 'external' : 'chevron'} onPress={() => open(m)} />;
+              })}
+              <Button label="Усі матеріали модуля" variant="link" onPress={toModule} />
             </View>
           </View>
         );
       })}
 
       <View style={styles.section}>
-        <SectionHeader title="Словник" meta={countLabel(TERMS.length, COUNT.terms)} onPress={selectTerm} />
+        <SectionHeader title="Словник" meta={termsLabel(TERMS.length)} onPress={() => router.push('/library/glossary')} />
         <View style={[styles.pad, styles.wrap]}>
-          {TERMS.map((t) => (
-            <FilterChip key={t.id} label={t.title} onPress={soon} />
+          {HOME_TERMS.map((id) => (
+            <FilterChip key={id} label={findTerm(id)!.title} onPress={() => openTerm(id)} />
           ))}
         </View>
       </View>
@@ -173,7 +206,7 @@ function Home({ open, soon, selectTerm }: Actions & { selectTerm: () => void }) 
         <SectionHeader title="Скоро" style={{ paddingLeft: space.lg }} />
         <View style={[styles.pad, { gap: space.sm }]}>
           {SOON.map((s) => (
-            <View key={s.module} style={styles.soon} accessible accessibilityLabel={`Модуль ${s.module}, ${s.title}, після MVP`}>
+            <Pressable key={s.module} onPress={() => openSoon(s)} style={({ pressed }) => [styles.soon, pressed && { opacity: 0.85 }]} accessibilityRole="button" accessibilityLabel={`Модуль ${s.module}, ${s.title}, після MVP`}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <Icon name="lock" size={12} color={colors.textSecondary} />
                 <Text variant="caption2" color={colors.textSecondary}>
@@ -183,7 +216,7 @@ function Home({ open, soon, selectTerm }: Actions & { selectTerm: () => void }) 
               <Text variant="numberSmall" color={colors.textSecondary}>
                 {s.title}
               </Text>
-            </View>
+            </Pressable>
           ))}
         </View>
       </View>
@@ -193,7 +226,7 @@ function Home({ open, soon, selectTerm }: Actions & { selectTerm: () => void }) 
 
 const KIND_OF: Partial<Record<Filter, MaterialKind>> = { sim: 'sim', article: 'article', quiz: 'quiz', source: 'source' };
 
-function FilteredList({ filter, open, soon, goArticles }: Actions & { filter: Filter; goArticles: () => void }) {
+function FilteredList({ filter, open, goArticles }: Actions & { filter: Filter; goArticles: () => void }) {
   const saved = useSaved();
 
   if (filter === 'saved') {
@@ -222,7 +255,7 @@ function FilteredList({ filter, open, soon, goArticles }: Actions & { filter: Fi
           'kind' in it ? (
             <MaterialRow key={it.id} material={it} title={it.title} subtitle={KIND_LABEL[it.kind]} trailing="bookmark" onPress={() => open(it)} onTrailingPress={() => toggleSaved(it.id)} />
           ) : (
-            <MaterialRow key={it.id} title={it.title} subtitle="Термін" trailing="bookmark" onPress={soon} onTrailingPress={() => toggleSaved(it.id)} />
+            <MaterialRow key={it.id} title={it.title} subtitle="Термін" trailing="bookmark" onPress={() => openTerm(it.id)} onTrailingPress={() => toggleSaved(it.id)} />
           ),
         )}
       </List>
@@ -233,7 +266,7 @@ function FilteredList({ filter, open, soon, goArticles }: Actions & { filter: Fi
     return (
       <List count={countLabel(TERMS.length, COUNT.terms)}>
         {TERMS.map((t) => (
-          <MaterialRow key={t.id} title={t.title} subtitle={t.definition} onPress={soon} />
+          <MaterialRow key={t.id} title={t.title} subtitle={t.short} onPress={() => openTerm(t.id)} />
         ))}
       </List>
     );
@@ -296,5 +329,6 @@ const styles = StyleSheet.create({
     ...shadow.ink6,
   },
   soon: { padding: space.lg, gap: 4, borderRadius: radius.xl, backgroundColor: colors.surface },
+  soonArt: { width: 120, height: 120, borderRadius: radius.xl },
   empty: { alignItems: 'center', gap: space.lg, paddingHorizontal: space.lg, paddingTop: 56 },
 });

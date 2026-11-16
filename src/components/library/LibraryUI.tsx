@@ -3,9 +3,13 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, Linking, Modal, Pressable, StyleSheet, TextInput, View, type TextInputInstance, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import type { Material } from '@/data/library';
+import { router } from 'expo-router';
+
+import { ARTICLES, type Material } from '@/data/library';
+import { markViewed } from '@/store/saved';
 import { colors, palette, radius, shadow, space, type } from '@/theme/tokens';
 import { Button } from '../Button';
+import { GlassButton } from '../GlassButton';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 
@@ -17,8 +21,10 @@ export function SearchField({
   onChangeText,
   onPress,
   autoFocus,
+  placeholder = 'Кешбек, ОВДП, подушка…',
   style,
 }: {
+  placeholder?: string;
   value?: string;
   onChangeText?: (v: string) => void;
   onPress?: () => void;
@@ -47,7 +53,7 @@ export function SearchField({
         autoFocus={autoFocus}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        placeholder="Кешбек, ОВДП, подушка…"
+        placeholder={placeholder}
         placeholderTextColor={PLACEHOLDER}
         returnKeyType="search"
         autoCorrect={false}
@@ -139,42 +145,162 @@ export function MaterialRow({ title, subtitle, material, trailing = 'chevron', o
   );
 }
 
-/** Bottom sheet that confirms leaving the app for an official site. */
-export function ExternalSiteSheet({ site, onClose }: { site: Material['site'] | null; onClose: () => void }) {
+/** Bottom sheet over a scrim: grabber, content, tap outside to close. */
+export function BottomSheet({ visible, onClose, children, background = colors.surface }: { visible: boolean; onClose: () => void; children: ReactNode; background?: string }) {
   const insets = useSafeAreaInsets();
   return (
-    <Modal visible={!!site} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
       <View style={{ flex: 1, justifyContent: 'flex-end' }}>
         <Pressable style={styles.scrim} onPress={onClose} accessibilityLabel="Закрити" />
-        {site ? (
-          <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 0) + 40 }]} accessibilityViewIsModal>
-            <View style={styles.grabber} />
-            <View style={{ gap: space.md, paddingHorizontal: 4, marginTop: space.xl }}>
-              <Text variant="title1" accessibilityRole="header">
-                Відкрити зовнішній сайт?
-              </Text>
-              <Text variant="body">Ти переходиш на офіційний сайт {site.name} у браузері. Перевір адресу:</Text>
-              <View style={styles.address}>
-                <Icon name="compass" size={18} strokeWidth={1.5} />
-                <Text variant="subheadlineStrong">{site.host}</Text>
-              </View>
-            </View>
-            <View style={{ marginTop: space.xxl, gap: space.sm }}>
-              <Button
-                label="Відкрити сайт"
-                icon="external"
-                onPress={() => {
-                  onClose();
-                  Linking.openURL(site.url).catch(() => {});
-                }}
-              />
-              <Button label="Залишитись у застосунку" variant="link" onPress={onClose} />
-            </View>
-          </View>
-        ) : null}
+        <View style={[styles.sheet, { backgroundColor: background, paddingBottom: insets.bottom + 40 }]} accessibilityViewIsModal>
+          <View style={styles.grabber} />
+          {children}
+        </View>
       </View>
     </Modal>
   );
+}
+
+/** Bottom sheet that confirms leaving the app for an official site. */
+export function ExternalSiteSheet({ site, onClose }: { site: Material['site'] | null; onClose: () => void }) {
+  return (
+    <BottomSheet visible={!!site} onClose={onClose}>
+      {site ? (
+        <>
+          <View style={{ gap: space.md, paddingHorizontal: 4, marginTop: space.xl }}>
+            <Text variant="title1" accessibilityRole="header">
+              Відкрити зовнішній сайт?
+            </Text>
+            <Text variant="body">Ти переходиш на офіційний сайт {site.name} у браузері. Перевір адресу:</Text>
+            <View style={styles.address}>
+              <Icon name="compass" size={18} strokeWidth={1.5} />
+              <Text variant="subheadlineStrong">{site.host}</Text>
+            </View>
+          </View>
+          <View style={{ marginTop: space.xxl, gap: space.sm }}>
+            <Button
+              label="Відкрити сайт"
+              icon="external"
+              onPress={() => {
+                onClose();
+                Linking.openURL(site.url).catch(() => {});
+              }}
+            />
+            <Button label="Залишитись у застосунку" variant="link" onPress={onClose} />
+          </View>
+        </>
+      ) : null}
+    </BottomSheet>
+  );
+}
+
+/** Opens a material by its kind: article screen, lesson, external site sheet, or a "coming soon" note. */
+export function useMaterialOpener(toastBottom: number) {
+  const [site, setSite] = useState<Material['site'] | null>(null);
+  const [toast, soon] = useSoonToast(toastBottom);
+  const open = (m: Material) => {
+    if (m.site) {
+      markViewed(m.id);
+      setSite(m.site);
+    } else if (m.lessonId) router.push({ pathname: '/lesson/[id]', params: { id: m.lessonId } });
+    else if (ARTICLES[m.id]) router.push({ pathname: '/library/article/[id]', params: { id: m.id } });
+    else soon();
+  };
+  const overlay = (
+    <>
+      {toast}
+      <ExternalSiteSheet site={site} onClose={() => setSite(null)} />
+    </>
+  );
+  return { open, soon, overlay };
+}
+
+export const openTerm = (id: string) => router.push({ pathname: '/library/term/[id]', params: { id } });
+
+/** Nav bar: round glass button plus a glass title pill (centered title, or title with meta). */
+export function NavPill({ icon, label, onPress, title, meta, right }: { icon: 'chevronLeft' | 'close'; label: string; onPress: () => void; title?: string; meta?: string; right?: ReactNode }) {
+  return (
+    <View style={styles.nav}>
+      <GlassButton icon={icon} label={label} onPress={onPress} />
+      {title ? (
+        <View style={[styles.titlePill, meta ? { justifyContent: 'space-between', paddingHorizontal: space.lg } : null]}>
+          <Text variant="headline" accessibilityRole="header" numberOfLines={1} style={{ flexShrink: 1 }}>
+            {title}
+          </Text>
+          {meta ? (
+            <Text variant="caption" color={colors.textSecondary}>
+              {meta}
+            </Text>
+          ) : null}
+        </View>
+      ) : (
+        <View style={{ flex: 1 }} />
+      )}
+      {right}
+    </View>
+  );
+}
+
+/** Round glass bookmark button for the nav bar. */
+export function BookmarkButton({ saved, onPress }: { saved: boolean; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={saved ? 'Прибрати із збереженого' : 'Зберегти'} accessibilityState={{ selected: saved }} hitSlop={6} style={({ pressed }) => [styles.round, pressed && { opacity: 0.7 }]}>
+      {saved ? <Icon name="bookmark" size={24} color={colors.ink} /> : <Icon name="bookmarkOutline" size={24} />}
+    </Pressable>
+  );
+}
+
+/** Highlighted block: lime bar for the key point, blue bar for an example. */
+export function Callout({ text, tone = 'key' }: { text: string; tone?: 'key' | 'example' }) {
+  return (
+    <View style={styles.callout}>
+      <View style={{ width: 4, backgroundColor: tone === 'key' ? palette.lime : palette.blue }} />
+      <Text variant="bodyMedium" style={{ flex: 1, paddingVertical: 14 }}>
+        {text}
+      </Text>
+    </View>
+  );
+}
+
+/** Glossary list row: term and a short line, no tile. */
+export function TermRow({ title, subtitle, onPress }: { title: string; subtitle: string; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => [styles.termRow, pressed && { opacity: 0.85 }]}>
+      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+        <Text variant="subheadlineStrong">{title}</Text>
+        <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>
+          {subtitle}
+        </Text>
+      </View>
+      <Icon name="chevronRight" size={24} />
+    </Pressable>
+  );
+}
+
+/** "Додано в «Збережене»" toast with a link to the saved list. */
+export function useSavedToast(bottom: number): [ReactNode, () => void] {
+  const [shown, setShown] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+  const show = () => {
+    setShown(true);
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => setShown(false), 3000);
+  };
+  const node = shown ? (
+    <View style={[styles.savedToast, { bottom }]} accessibilityLiveRegion="polite">
+      <Icon name="bookmarkOutline" size={20} />
+      <Text variant="subheadlineMedium" style={{ flex: 1 }}>
+        Додано в «Збережене»
+      </Text>
+      <Pressable onPress={() => { setShown(false); router.navigate({ pathname: '/library', params: { filter: 'saved' } }); }} hitSlop={10} accessibilityRole="link">
+        <Text variant="subheadlineStrong" color={colors.brand}>
+          Відкрити
+        </Text>
+      </Pressable>
+    </View>
+  ) : null;
+  return [node, show];
 }
 
 /** Short message above the tab bar for screens that arrive in the next update. */
@@ -239,6 +365,47 @@ const styles = StyleSheet.create({
     borderColor: colors.glassStrong,
   },
   tile: { width: 48, height: 48, borderRadius: radius.md, overflow: 'hidden' },
+  nav: { height: 52, flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingHorizontal: space.lg },
+  titlePill: {
+    flex: 1,
+    height: 44,
+    flexDirection: 'row',
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.sm,
+    paddingHorizontal: space.md,
+    backgroundColor: colors.glassStrong,
+    borderWidth: 1,
+    borderColor: colors.borderGlass,
+    ...shadow.ink6,
+  },
+  round: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.glassStrong,
+    borderWidth: 1,
+    borderColor: colors.borderGlass,
+    ...shadow.ink6,
+  },
+  callout: { flexDirection: 'row', gap: space.md, paddingRight: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface, overflow: 'hidden' },
+  termRow: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.lg, paddingVertical: space.md, minHeight: 66, borderRadius: radius.lg, backgroundColor: colors.surface },
+  savedToast: {
+    position: 'absolute',
+    left: space.lg,
+    right: space.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+    paddingHorizontal: space.lg,
+    paddingVertical: 14,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    ...shadow.ink6,
+  },
   scrim: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(11,16,13,0.4)' },
   sheet: {
     backgroundColor: colors.surface,

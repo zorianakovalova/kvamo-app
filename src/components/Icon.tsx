@@ -25,7 +25,8 @@ export type IconName =
   | 'search'
   | 'external'
   | 'compass'
-  | 'bookmark';
+  | 'bookmark'
+  | 'bookmarkOutline';
 
 type Props = { name: IconName; size?: number; color?: string; strokeWidth?: number };
 
@@ -127,6 +128,7 @@ export function Icon({ name, size = 24, color = colors.textPrimary, strokeWidth 
           <Path d="m16.2 16.2 4.3 4.3" {...p} />
         </>
       )}
+      {name === 'bookmarkOutline' && <Path d="M18 21l-6-4.5L6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z" {...p} />}
       {name === 'external' && <Path d="M7 17L17 7M17 16V7H8" {...p} />}
       {name === 'compass' && (
         <>

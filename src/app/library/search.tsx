@@ -5,12 +5,11 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
-import { GlassButton } from '@/components/GlassButton';
-import { ExternalSiteSheet, FilterChip, MaterialRow, SearchField, useSoonToast } from '@/components/library/LibraryUI';
+import { FilterChip, MaterialRow, NavPill, SearchField, openTerm, useMaterialOpener } from '@/components/library/LibraryUI';
 import { PathBackground } from '@/components/PathBackground';
 import { Text } from '@/components/Text';
-import { KIND_LABEL, POPULAR, isCryptoQuery, search, type Material } from '@/data/library';
-import { colors, radius, shadow, space } from '@/theme/tokens';
+import { KIND_LABEL, POPULAR, isCryptoQuery, search } from '@/data/library';
+import { colors, radius, space } from '@/theme/tokens';
 
 const FIRST = 3;
 
@@ -18,8 +17,7 @@ export default function SearchScreen() {
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
-  const [site, setSite] = useState<Material['site'] | null>(null);
-  const [toast, soon] = useSoonToast(insets.bottom + 24);
+  const { open, overlay } = useMaterialOpener(insets.bottom + 24);
 
   const change = (q: string) => {
     setQuery(q);
@@ -28,7 +26,6 @@ export default function SearchScreen() {
   const { terms, materials } = search(query);
   const total = terms.length + materials.length;
   const shown = showAll ? materials : materials.slice(0, FIRST);
-  const open = (m: Material) => (m.site ? setSite(m.site) : soon());
 
   const popular = (
     <View style={{ gap: space.md }}>
@@ -47,14 +44,7 @@ export default function SearchScreen() {
     <View style={{ flex: 1 }}>
       <PathBackground />
       <View style={{ height: insets.top }} />
-      <View style={styles.nav}>
-        <GlassButton icon="chevronLeft" label="Назад" onPress={() => (router.canGoBack() ? router.back() : router.replace('/library'))} />
-        <View style={styles.titlePill}>
-          <Text variant="headline" accessibilityRole="header">
-            Пошук
-          </Text>
-        </View>
-      </View>
+      <NavPill icon="chevronLeft" label="Назад" title="Пошук" onPress={() => (router.canGoBack() ? router.back() : router.replace('/library'))} />
       <ScrollView contentContainerStyle={[styles.body, { paddingBottom: insets.bottom + space.xxl }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <SearchField value={query} onChangeText={change} autoFocus />
 
@@ -93,7 +83,7 @@ export default function SearchScreen() {
                   Словник
                 </Text>
                 {terms.map((t) => (
-                  <MaterialRow key={t.id} title={t.title} subtitle={t.definition} onPress={soon} />
+                  <MaterialRow key={t.id} title={t.title} subtitle={t.definition} onPress={() => openTerm(t.id)} />
                 ))}
               </View>
             ) : null}
@@ -111,25 +101,12 @@ export default function SearchScreen() {
           </View>
         )}
       </ScrollView>
-      {toast}
-      <ExternalSiteSheet site={site} onClose={() => setSite(null)} />
+      {overlay}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  nav: { height: 52, flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingHorizontal: space.lg },
-  titlePill: {
-    flex: 1,
-    height: 44,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.glassStrong,
-    borderWidth: 1,
-    borderColor: colors.borderGlass,
-    ...shadow.ink6,
-  },
   body: { paddingTop: space.xxl, paddingHorizontal: space.lg },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   group: { gap: space.sm },
