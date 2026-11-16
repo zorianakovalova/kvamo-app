@@ -10,9 +10,10 @@ import { plural, type Lesson, type Module } from '@/data/modules';
 import { useProfile } from '@/store/profile';
 import { dayKey, useProgress, type Stars as StarCount } from '@/store/progress';
 import { colors, radius, space } from '@/theme/tokens';
-import { ArtImage, Blocks, ChoiceChips, DoneHeader, FeedbackPanel, fmt, Header, LessonFrame, Option, Split, Stats, UpNextCard, type OptionState } from './LessonUI';
+import { CalcView } from './CalcView';
+import { ArtImage, Blocks, ChoiceChips, DataTable, DoneHeader, FeedbackPanel, fmt, Header, LessonFrame, Option, Split, Stats, UpNextCard, type OptionState } from './LessonUI';
 
-type Next = (mistake?: boolean) => void;
+type Next = (mistake?: boolean, pretestRight?: boolean) => void;
 type StepProps<S> = { step: S; total: number; done: number; onNext: Next; onClose: () => void };
 
 /** After the lesson: the first lesson ever and a not yet offered account go through the streak screen and the save-progress offer. */
@@ -26,28 +27,34 @@ export function useAfterLesson() {
 }
 
 const SHORT_KINDS: Step['kind'][] = ['question', 'situation'];
+/** A calculator practice takes two screens: the form and its result. */
+const span = (s: Step) => (s.kind === 'calc' ? 2 : 1);
 
 export function LessonFlow({ lesson, module, content, short }: { lesson: Lesson; module: Module; content: LessonContent; short?: boolean }) {
   const { completeLesson, stars, days } = useProgress();
   const steps = short ? content.steps.filter((s) => SHORT_KINDS.includes(s.kind)) : content.steps;
   const [index, setIndex] = useState(0);
   const [mistakes, setMistakes] = useState(0);
-  const [result, setResult] = useState<{ stars: StarCount; first: boolean; streak: boolean } | null>(null);
+  const [pretest, setPretest] = useState(0);
+  const [result, setResult] = useState<{ stars: StarCount; first: boolean; streak: boolean; pretest: number } | null>(null);
   const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
-  const next: Next = (mistake) => {
+  const next: Next = (mistake, pretestRight) => {
     const m = mistakes + (mistake ? 1 : 0);
     if (mistake) setMistakes(m);
+    const p = pretest + (pretestRight ? 1 : 0);
+    if (pretestRight) setPretest(p);
     if (index < steps.length - 1) return setIndex(index + 1);
     const earned = Math.max(1, 3 - m) as StarCount;
-    setResult({ stars: earned, first: Object.keys(stars).length === 0, streak: !days.includes(dayKey(new Date())) });
+    setResult({ stars: earned, first: Object.keys(stars).length === 0, streak: !days.includes(dayKey(new Date())), pretest: p });
     completeLesson(lesson.id, earned);
   };
 
   if (result) return <DoneView lesson={lesson} module={module} content={content} result={result} short={short} />;
 
   const step = steps[index];
-  const props = { total: steps.length, done: index + 1, onNext: next, onClose: close };
+  const total = steps.reduce((n, s) => n + span(s), 0);
+  const props = { total, done: steps.slice(0, index).reduce((n, s) => n + span(s), 0) + 1, onNext: next, onClose: close };
   switch (step.kind) {
     case 'content':
       return <ContentView key={index} step={step} {...props} />;
@@ -63,6 +70,8 @@ export function LessonFlow({ lesson, module, content, short }: { lesson: Lesson;
       return <RecordView key={index} step={step} {...props} />;
     case 'checklist':
       return <CheckListView key={index} step={step} {...props} />;
+    case 'calc':
+      return <CalcView key={index} step={step} {...props} onNext={() => next()} />;
   }
 }
 
@@ -108,7 +117,7 @@ function QuestionView({ step, total, done, onNext, onClose }: StepProps<Question
     if (right) {
       feedback = (
         <FeedbackPanel tone="right" title={attempt > 0 ? 'Так, з другої\nспроби!' : step.right.title} text={step.right.text}>
-          <Button label="Далі" onPress={() => onNext(mistake)} />
+          <Button label="Далі" onPress={() => onNext(mistake, step.pretest)} />
         </FeedbackPanel>
       );
     } else if (retry) {
@@ -316,7 +325,7 @@ function CheckListView({ step, total, done, onNext, onClose }: StepProps<CheckLi
   );
 }
 
-function DoneView({ lesson, module, content, result, short }: { lesson: Lesson; module: Module; content: LessonContent; result: { stars: StarCount; first: boolean; streak: boolean }; short?: boolean }) {
+function DoneView({ lesson, module, content, result, short }: { lesson: Lesson; module: Module; content: LessonContent; result: { stars: StarCount; first: boolean; streak: boolean; pretest: number }; short?: boolean }) {
   const { done } = content;
   const after = useAfterLesson();
   const next = module.lessons[module.lessons.findIndex((x) => x.id === lesson.id) + 1];
@@ -336,6 +345,7 @@ function DoneView({ lesson, module, content, result, short }: { lesson: Lesson; 
             />
           ) : null}
           {done.short && next ? <Button label="Стислий режим" variant="secondary" onPress={() => after.open(next.id, result.first, true)} /> : null}
+          {done.library ? <Button label="Детальніше в Бібліотеці" variant="secondary" onPress={() => router.push('/library')} /> : null}
           <Button label="Завершити на сьогодні" variant="link" onPress={after.leave} />
         </>
       }
@@ -343,6 +353,7 @@ function DoneView({ lesson, module, content, result, short }: { lesson: Lesson; 
       <DoneHeader title={done.title ?? 'Заняття пройдено'} stars={result.stars} streak={result.streak} />
       <Callout text={done.key} />
       {done.task ? <Callout text={done.task} tone="example" /> : null}
+      {done.pretest ? <DataTable title={done.pretest} rows={[['Правильних відповідей', `${result.pretest} з ${content.steps.filter((s) => s.kind === 'question' && s.pretest).length}`]]} /> : null}
     </LessonFrame>
   );
 }

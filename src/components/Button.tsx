@@ -37,7 +37,7 @@ export function Button({ label, variant = 'primary', icon, loading, disabled, st
           <Icon name={icon} size={24} color={textColor} />
         </View>
       ) : null}
-      <Text variant="headline" color={textColor} numberOfLines={1}>
+      <Text variant="headline" color={textColor} numberOfLines={variant === 'link' ? 2 : 1} style={{ flexShrink: 1, textAlign: 'center' }}>
         {label}
       </Text>
     </Pressable>
@@ -51,5 +51,5 @@ const styles = StyleSheet.create({
   primaryOff: { backgroundColor: colors.border },
   secondary: { backgroundColor: colors.surface, height: 56, paddingHorizontal: 16, ...shadow.ink6 },
   outline: { backgroundColor: colors.surface, height: 56, paddingHorizontal: 16, borderWidth: 1.5, borderColor: colors.border },
-  link: { height: 44, paddingHorizontal: 8, alignSelf: 'center' },
+  link: { minHeight: 44, maxWidth: '100%', paddingHorizontal: 8, alignSelf: 'center' },
 });

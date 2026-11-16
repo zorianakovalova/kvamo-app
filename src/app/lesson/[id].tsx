@@ -7,10 +7,11 @@ import { GlassButton } from '@/components/GlassButton';
 import { GlassCard } from '@/components/GlassCard';
 import { GradientBackground } from '@/components/GradientBackground';
 import { LessonFlow } from '@/components/lesson/LessonFlow';
+import { MonthSimFlow } from '@/components/lesson/MonthSimFlow';
 import { SimFlow } from '@/components/lesson/SimFlow';
 import { TestFlow } from '@/components/lesson/TestFlow';
 import { Text } from '@/components/Text';
-import { lessonContent, simulation, testContent } from '@/data/lessons';
+import { lessonContent, monthSim, simulation, testContent } from '@/data/lessons';
 import { findLesson, lessonMeta } from '@/data/modules';
 import { useProfile } from '@/store/profile';
 import { useProgress, type Stars } from '@/store/progress';
@@ -23,8 +24,10 @@ export default function LessonScreen() {
   const content = lessonContent(id);
   const sim = simulation(id);
   const test = testContent(id);
+  const month = monthSim(id);
   if (lesson && content) return <LessonFlow key={id} lesson={lesson} module={lesson.module} content={content} short={short === '1'} />;
   if (lesson && sim) return <SimFlow key={id} lesson={lesson} module={lesson.module} sim={sim} />;
+  if (lesson && month) return <MonthSimFlow key={id} lesson={lesson} module={lesson.module} sim={month.sim} art={month.art} />;
   if (lesson && test) return <TestFlow key={id} lesson={lesson} module={lesson.module} test={test} />;
   return <Placeholder id={id} />;
 }

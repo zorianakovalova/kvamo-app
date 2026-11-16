@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -104,7 +104,7 @@ export function LessonChip({ label }: { label: string }) {
 
 export function ArtImage({ art }: { art: Art }) {
   const a = ART[art];
-  return <Image source={a.src} style={{ width: '100%', aspectRatio: a.ratio, borderRadius: radius.xl }} contentFit="cover" accessibilityIgnoresInvertColors />;
+  return <Image source={a.src} style={{ width: '100%', aspectRatio: a.ratio, borderRadius: radius.lg }} contentFit="cover" accessibilityIgnoresInvertColors />;
 }
 
 export function Blocks({ blocks }: { blocks: Block[] }) {
@@ -125,6 +125,8 @@ function BlockView({ block: b }: { block: Block }) {
           {b.text}
         </Text>
       );
+    case 'title':
+      return <Header title={b.text} />;
     case 'note':
       return (
         <Text variant="footnote" color={colors.textSecondary} style={{ paddingHorizontal: 4 }}>
@@ -193,10 +195,38 @@ function BlockView({ block: b }: { block: Block }) {
       );
     case 'split':
       return <Split items={b.items} />;
+    case 'checks':
+      return (
+        <View style={[styles.card, { paddingVertical: space.sm }]}>
+          {b.items.map((it) => (
+            <View key={it} style={styles.stepItem}>
+              <View style={[styles.num, { backgroundColor: LESSON.rightBg }]}>
+                <Icon name="check" size={14} color={colors.brand} strokeWidth={2.5} />
+              </View>
+              <Text variant="body" style={{ flex: 1 }}>
+                {it}
+              </Text>
+            </View>
+          ))}
+        </View>
+      );
+    case 'choose':
+      return <Choose items={b.items} />;
   }
 }
 
-export function DataTable({ title, rows, total }: { title?: string; rows: [string, string][]; total?: boolean }) {
+function Choose({ items }: { items: [string, string][] }) {
+  const [value, setValue] = useState(0);
+  return (
+    <View style={{ gap: space.sm }} accessibilityRole="radiogroup">
+      {items.map(([label, sub], i) => (
+        <Option key={label} label={label} sub={sub} state={i === value ? 'selected' : 'idle'} onPress={() => setValue(i)} />
+      ))}
+    </View>
+  );
+}
+
+export function DataTable({ title, rows, total, onRowPress }: { title?: string; rows: [string, string][]; total?: boolean; onRowPress?: (i: number) => void }) {
   return (
     <View style={styles.card}>
       {title ? (
@@ -208,26 +238,35 @@ export function DataTable({ title, rows, total }: { title?: string; rows: [strin
         const last = i === rows.length - 1;
         const strong = total && last;
         return (
-          <View key={label + i} style={[styles.row, !last && styles.divider]}>
+          <Pressable
+            key={label + i}
+            disabled={!onRowPress}
+            onPress={() => onRowPress?.(i)}
+            accessibilityRole={onRowPress ? 'button' : undefined}
+            style={({ pressed }) => [styles.row, !last && styles.divider, pressed && { opacity: 0.7 }]}
+          >
             <Text variant={strong ? 'headline' : 'body'} style={{ flex: 1 }}>
               {label}
             </Text>
             <Text variant={strong ? 'headline' : 'body'} style={{ textAlign: 'right', maxWidth: '55%' }}>
               {value}
             </Text>
-          </View>
+          </Pressable>
         );
       })}
     </View>
   );
 }
 
+/** Web ignores adjustsFontSizeToFit, so long amounts get a smaller size up front. */
+const fit = (v: string) => (v.length > 12 ? { fontSize: Math.floor((40 * 12) / v.length), lineHeight: 46 } : undefined);
+
 export function Stats({ items, dim }: { items: [string, string][]; dim?: number[] }) {
   return (
     <View style={[styles.card, { paddingVertical: space.xs }]}>
       {items.map(([value, caption], i) => (
         <View key={value} style={[{ paddingVertical: space.md, gap: 2 }, i < items.length - 1 && styles.divider]}>
-          <Text variant="displayLarge" color={dim?.includes(i) ? colors.textSecondary : colors.textPrimary} adjustsFontSizeToFit numberOfLines={1}>
+          <Text variant="displayLarge" color={dim?.includes(i) ? colors.textSecondary : colors.textPrimary} adjustsFontSizeToFit numberOfLines={1} style={fit(value)}>
             {value}
           </Text>
           <Text variant="subheadline" color={colors.textSecondary}>
@@ -275,6 +314,7 @@ export type OptionState = 'idle' | 'selected' | 'right' | 'wrong';
 /** Answer option: radio or checkbox, with an optional amount on the right. */
 export function Option({
   label,
+  sub,
   value,
   state,
   checkbox,
@@ -282,6 +322,7 @@ export function Option({
   onPress,
 }: {
   label: string;
+  sub?: string;
   value?: string;
   state: OptionState;
   checkbox?: boolean;
@@ -306,9 +347,16 @@ export function Option({
           <Icon name={state === 'wrong' ? 'close' : 'check'} size={14} color={ink ? colors.ink : '#fff'} strokeWidth={2.5} />
         </View>
       )}
-      <Text variant="bodyMedium" color={ink ? colors.textInverse : colors.textPrimary} style={{ flex: 1 }}>
-        {label}
-      </Text>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text variant="bodyMedium" color={ink ? colors.textInverse : colors.textPrimary}>
+          {label}
+        </Text>
+        {sub ? (
+          <Text variant="subheadline" color={ink ? 'rgba(247,249,247,0.7)' : colors.textSecondary}>
+            {sub}
+          </Text>
+        ) : null}
+      </View>
       {value ? (
         <Text variant="subheadlineMedium" color={ink ? colors.textInverse : colors.textPrimary}>
           {value}
