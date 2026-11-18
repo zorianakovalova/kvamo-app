@@ -3,13 +3,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
-import Svg, { Circle, G, Path } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 import { Button } from '@/components/Button';
 import { Icon } from '@/components/Icon';
 import { BottomSheet } from '@/components/library/LibraryUI';
 import { Text } from '@/components/Text';
 import type { Badge } from '@/data/badges';
+import type { Module } from '@/data/modules';
+import { Sticker } from '@/components/library/Folders';
+import { LessonBook } from '@/components/path/LessonBook';
 import { dayKey, useProgress } from '@/store/progress';
 import { colors, fonts, palette, radius, space } from '@/theme/tokens';
 
@@ -31,6 +34,102 @@ export function SectionTitle({ title, meta, onPress }: { title: string; meta?: s
   );
 }
 
+const STATS = [
+  { color: '#d78f50', sticker: 'calendar' },
+  { color: '#5ca779', sticker: 'checklist' },
+  { color: '#9c7de8', sticker: 'bookmark' },
+] as const;
+
+/** Three coloured stat tiles with a sticker peeking over the top (streak, lessons, badges). */
+export function StatCards({ items }: { items: { value: string; label: string; onPress?: () => void }[] }) {
+  return (
+    <View style={{ flexDirection: 'row', gap: space.sm, paddingHorizontal: space.lg }}>
+      {items.map((it, i) => (
+        <Pressable key={i} onPress={it.onPress} disabled={!it.onPress} accessibilityLabel={`${it.value} ${it.label}`} style={{ flex: 1, height: 124 }}>
+          <View style={[styles.stat, { backgroundColor: STATS[i].color }]}>
+            <Text variant="number24" color={colors.textInverse} numberOfLines={1} adjustsFontSizeToFit>
+              {it.value}
+            </Text>
+            <Text variant="captionStrong" color={colors.textInverse}>
+              {it.label}
+            </Text>
+          </View>
+          <Sticker name={STATS[i].sticker} w={44} h={50} r={8} rotate="6deg" style={{ position: 'absolute', left: 62, top: -4 }} />
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
+const SHORT = ['Бюджет', 'Заощадження', 'Інвестування'];
+
+/** "Прогрес навчання": one white row per module with a mini lesson book and a progress bar. */
+export function ModuleProgressRow({ module, done, onPress }: { module: Module; done: number; onPress: () => void }) {
+  const total = module.lessons.length;
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`Модуль ${module.number}: пройдено ${done} з ${total}`} style={({ pressed }) => [styles.moduleRow, pressed && { opacity: 0.85 }]}>
+      <View style={{ width: 52, height: 62 }}>
+        <LessonBook moduleId={module.id} index={Math.min(done, total - 1)} state={done ? 'done' : 'locked'} scale={0.4} badge={false} />
+      </View>
+      <View style={{ flex: 1, gap: 6 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: space.sm }}>
+          <View style={{ flex: 1 }}>
+            <Text variant="caption" color={colors.textSecondary}>
+              Модуль {module.number}
+            </Text>
+            <Text variant="text16Strong" numberOfLines={1}>
+              {SHORT[module.number - 1] ?? module.title}
+            </Text>
+          </View>
+          <Text variant="captionStrong">
+            {done} з {total}
+          </Text>
+        </View>
+        <View style={styles.bar}>
+          <View style={[styles.barFill, { width: `${total ? (100 * done) / total : 0}%` }]} />
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
+/** "Бейджі" binder: count with a chevron on top, a ringed white card with the badge tiles. */
+export function BadgeNotebook({ badges, onPress, onOpenAll }: { badges: Badge[]; onPress: (b: Badge) => void; onOpenAll: () => void }) {
+  const { stars } = useProgress();
+  const earned = badges.filter((b) => isEarned(b, stars)).length;
+  const rows = [badges.slice(0, 3), badges.slice(3, 6)];
+  return (
+    <View style={styles.notebook}>
+      <Pressable onPress={onOpenAll} accessibilityRole="button" accessibilityLabel={`Усі бейджі: ${earned} з ${badges.length}`} style={styles.notebookTop}>
+        <Text variant="text16Strong">
+          {earned} / {badges.length}
+        </Text>
+        <Icon name="chevronRight" size={24} strokeWidth={1.4} />
+      </Pressable>
+      <View style={styles.badgesCard}>
+        {rows.map((row, r) => (
+          <View key={r} style={{ flexDirection: 'row', gap: space.sm }}>
+            {row.map((b) => {
+              const on = isEarned(b, stars);
+              return (
+                <Pressable key={b.id} onPress={() => onPress(b)} accessibilityRole="button" accessibilityLabel={`${b.title}: ${on ? 'отримано' : 'ще не отримано'}`} style={styles.badgeTile}>
+                  <Image source={on && b.art ? b.art : b.off} style={{ width: 94, height: 104 }} contentFit="contain" />
+                </Pressable>
+              );
+            })}
+          </View>
+        ))}
+        {[0, 1, 2, 3, 4].map((i) => (
+          <View key={i} pointerEvents="none" style={[styles.ringSlot, { left: `${4.7 + i * 21.6}%` }]}>
+            <View style={styles.ringBase} />
+            <View style={styles.ring} />
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 /** Settings row: white 56 px card, label left, value and chevron right. */
 export function SettingsRow({ label, value, onPress, danger, chevron = true }: { label: string; value?: string; onPress: () => void; danger?: boolean; chevron?: boolean }) {
   return (
@@ -40,11 +139,11 @@ export function SettingsRow({ label, value, onPress, danger, chevron = true }: {
       accessibilityLabel={value ? `${label}: ${value}` : label}
       style={({ pressed }) => [styles.card, styles.row, pressed && { opacity: 0.85 }]}
     >
-      <Text variant="subheadlineMedium" color={danger ? colors.error : colors.textPrimary} style={{ flex: 1 }} numberOfLines={1}>
+      <Text variant="text14" color={danger ? colors.error : colors.textPrimary} style={{ flex: 1 }} numberOfLines={1}>
         {label}
       </Text>
       {value ? (
-        <Text variant="subheadlineStrong" numberOfLines={1} style={{ flexShrink: 1, maxWidth: '62%' }}>
+        <Text variant="text14Strong" numberOfLines={1} style={{ flexShrink: 1, maxWidth: '62%' }}>
           {value}
         </Text>
       ) : null}
@@ -104,10 +203,10 @@ export function WeekCard({ onPress }: { onPress: () => void }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`Цей тиждень: ${count} з 7 днів. Деталі стрику`} style={[styles.card, styles.week]}>
       <View style={{ flexDirection: 'row' }}>
-        <Text variant="subheadlineStrong" style={{ flex: 1 }}>
+        <Text variant="text14Strong" style={{ flex: 1 }}>
           Цей тиждень
         </Text>
-        <Text variant="subheadline" color={colors.textSecondary}>
+        <Text variant="text14" color={colors.textSecondary}>
           {count} з 7 днів
         </Text>
       </View>
@@ -162,40 +261,7 @@ export function ModuleRingCard({ n, done, total, onPress }: { n: number; done: n
 /** Badge art: the illustration once earned, otherwise the grey hexagon with a lock. Figma size 72×80. */
 export function BadgeArt({ badge, earned, size = 72 }: { badge: Badge; earned: boolean; size?: number }) {
   const h = (size * 80) / 72;
-  if (earned && badge.art) return <Image source={badge.art} style={{ width: size, height: h }} contentFit="contain" />;
-  const lock = (32 * size) / 72;
-  return (
-    <View style={{ width: size, height: h, alignItems: 'center', justifyContent: 'center' }}>
-      <Svg width={size} height={h} viewBox="0 0 72 80" style={StyleSheet.absoluteFill}>
-        <G transform="translate(4.9 4.5)">
-          <Path
-            d="M26.1 1.98C29.436 0.06 32.772 0.06 36.108 1.98L56.664 13.86C60 15.78 61.668 18.66 61.668 22.5V46.26C61.668 50.1 60 52.98 56.664 54.9L36.108 66.78C32.772 68.7 29.436 68.7 26.1 66.78L5.544 54.9C2.208 52.98 0.54 50.1 0.54 46.26V22.5C0.54 18.66 2.208 15.78 5.544 13.86L26.1 1.98Z"
-            fill="#F7F9F7"
-            strokeWidth={1.08}
-            stroke="#C8D0CB"
-          />
-        </G>
-        <G transform="translate(6.37 5.53)">
-          <Path
-            d="M24.948 1.35C28.068 -0.45 31.188 -0.45 34.308 1.35L54.576 13.05C57.696 14.85 59.256 17.55 59.256 21.15V44.55C59.256 48.15 57.696 50.85 54.576 52.65L34.308 64.35C31.188 66.15 28.068 66.15 24.948 64.35L4.68 52.65C1.56 50.85 0 48.15 0 44.55V21.15C0 17.55 1.56 14.85 4.68 13.05L24.948 1.35Z"
-            fill="#F6F8F6"
-          />
-        </G>
-        <G transform="translate(9.29 9.03)">
-          <Path
-            d="M23.58 1.44C25.668 0.24 27.756 0.24 29.844 1.44L49.788 12.96C51.852 14.16 52.884 15.96 52.884 18.36V41.4C52.884 43.8 51.852 45.6 49.788 46.8L29.844 58.32C27.756 59.52 25.668 59.52 23.58 58.32L3.636 46.8C1.572 45.6 0.54 43.8 0.54 41.4V18.36C0.54 15.96 1.572 14.16 3.636 12.96L23.58 1.44Z"
-            fill="#768A7E"
-            fillOpacity={0.12}
-            strokeWidth={1.08}
-            stroke="#C8D0CB"
-          />
-        </G>
-      </Svg>
-      <View style={[styles.lock, { width: lock, height: lock, borderRadius: lock / 2 }]}>
-        <Icon name="lock" size={(16 * size) / 72} />
-      </View>
-    </View>
-  );
+  return <Image source={earned && badge.art ? badge.art : badge.off} style={{ width: size, height: h }} contentFit="contain" />;
 }
 
 export function isEarned(badge: Badge, stars: Record<string, unknown>) {
@@ -366,13 +432,24 @@ const styles = StyleSheet.create({
   week: { padding: space.lg, gap: space.md },
   weekRow: { height: 72, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
   weekDay: { width: 40, alignItems: 'center', gap: 4 },
-  dayCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderStrong },
+  dayCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   ringCard: { flex: 1, alignItems: 'center', gap: space.lg, padding: space.lg },
   ringText: { fontFamily: fonts.display, fontSize: 20, lineHeight: 28, color: colors.textPrimary },
   badgeCard: { paddingVertical: space.lg, gap: space.sm },
   badgeRow: { flexDirection: 'row', gap: space.sm, paddingHorizontal: space.lg },
   badge: { flex: 1, alignItems: 'center' },
   lock: { backgroundColor: colors.glassStrong, borderWidth: 1, borderColor: colors.borderStrong, alignItems: 'center', justifyContent: 'center' },
+  stat: { position: 'absolute', left: 0, right: 0, top: 20, height: 104, borderRadius: 16, padding: 12, justifyContent: 'flex-end' },
+  moduleRow: { minHeight: 82, borderRadius: 16, backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 10, paddingLeft: 12, paddingRight: 16 },
+  bar: { height: 6, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
+  barFill: { height: 6, borderRadius: 3, backgroundColor: '#121612' },
+  notebook: { borderRadius: 20, backgroundColor: palette.gray[50] },
+  notebookTop: { height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingTop: 12, paddingBottom: 20 },
+  badgesCard: { borderRadius: 20, backgroundColor: '#fff', paddingTop: 24, paddingHorizontal: 8, paddingBottom: 8, gap: space.sm, alignItems: 'center' },
+  badgeTile: { width: 110, height: 124, borderRadius: 16, backgroundColor: palette.gray[100], paddingLeft: 7, paddingTop: 10 },
+  ringSlot: { position: 'absolute', top: -8, width: 16, height: 26, alignItems: 'center' },
+  ringBase: { position: 'absolute', top: 12, width: 16, height: 15, borderRadius: 8, backgroundColor: palette.gray[100] },
+  ring: { width: 12, height: 22, borderRadius: 8, backgroundColor: palette.blue },
   segment: { flex: 1, height: 4, borderRadius: 2 },
   appIcon: { width: 88, height: 88, borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(11,16,13,0.1)', alignItems: 'center', justifyContent: 'center' },
 });

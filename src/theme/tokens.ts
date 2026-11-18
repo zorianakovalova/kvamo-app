@@ -98,6 +98,14 @@ export const type = {
   captionStrong: sys(12, 16, '600'),
   captionMedium: sys(12, 16, '500'),
   caption2: sys(11, 13, '600', 0.66),
+  /** Navigation v2 scale from Figma (Unbounded 32/40, 24/32, 16/24 and SF Pro 20/28, 16/24, 14/20). */
+  screenTitle: display(32, 40),
+  number24: display(24, 32),
+  display16: display(16, 24),
+  text20Strong: sys(20, 28, '600'),
+  text16Strong: sys(16, 24, '600'),
+  text14: sys(14, 20, '400'),
+  text14Strong: sys(14, 20, '600'),
 } as const;
 export type TypeVariant = keyof typeof type;
 

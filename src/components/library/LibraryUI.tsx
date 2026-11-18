@@ -38,7 +38,7 @@ export function SearchField({
     return (
       <Pressable onPress={onPress} accessibilityRole="search" accessibilityLabel="Пошук" style={({ pressed }) => [styles.search, pressed && { opacity: 0.8 }, style]}>
         <Icon name="search" size={20} strokeWidth={1.4} color={colors.textSecondary} />
-        <Text variant="subheadline" color={PLACEHOLDER} numberOfLines={1} style={{ flex: 1 }}>
+        <Text variant="text14" color={PLACEHOLDER} numberOfLines={1} style={{ flex: 1 }}>
           Пошук: кешбек, ОВДП, подушка…
         </Text>
       </Pressable>
@@ -59,7 +59,7 @@ export function SearchField({
         returnKeyType="search"
         autoCorrect={false}
         accessibilityLabel="Пошук"
-        style={[type.subheadline, styles.input]}
+        style={[type.text14, styles.input]}
       />
       {value ? (
         <Pressable onPress={() => { onChangeText?.(''); ref.current?.focus(); }} hitSlop={12} accessibilityRole="button" accessibilityLabel="Очистити" style={styles.clear}>
@@ -358,7 +358,7 @@ export function useSavedToast(bottom: number): [ReactNode, () => void] {
       <Text variant="subheadlineMedium" style={{ flex: 1 }}>
         Додано в «Збережене»
       </Text>
-      <Pressable onPress={() => { setShown(false); router.navigate({ pathname: '/library', params: { filter: 'saved' } }); }} hitSlop={10} accessibilityRole="link">
+      <Pressable onPress={() => { setShown(false); router.push({ pathname: '/library/folder/[id]', params: { id: 'saved' } }); }} hitSlop={10} accessibilityRole="link">
         <Text variant="subheadlineStrong" color={colors.brand}>
           Відкрити
         </Text>

@@ -9,7 +9,7 @@ const W = 4.84;
 const R = (SIZE - W) / 2;
 const C = 2 * Math.PI * R;
 
-/** 44 px module ring from Figma: grey track, ink arc for done lessons, "1/8" in Unbounded 12. */
+/** 44 px module ring from Figma: grey track, ink arc for done lessons, "1/8" in Unbounded 16/24. */
 export function ProgressRing({ done, total }: { done: number; total: number }) {
   const len = total ? (C * done) / total : 0;
   return (
@@ -21,7 +21,7 @@ export function ProgressRing({ done, total }: { done: number; total: number }) {
         )}
       </Svg>
       <View style={[StyleSheet.absoluteFill, styles.center]}>
-        <Text variant="numberXs">
+        <Text variant="display16">
           {done}/{total}
         </Text>
       </View>

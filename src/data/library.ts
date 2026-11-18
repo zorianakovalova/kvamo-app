@@ -1,3 +1,4 @@
+import type { StickerName } from '@/components/library/stickers';
 type ImageSourcePropType = number;
 
 export type MaterialKind = 'sim' | 'article' | 'quiz' | 'source' | 'lesson' | 'checklist';
@@ -81,6 +82,38 @@ export const MATERIALS: Material[] = [
     site: { name: 'НКЦПФР', host: 'nssmc.gov.ua', url: 'https://www.nssmc.gov.ua' },
   },
 ];
+
+/** Library folders from Figma "01 Бібліотека / Головна · Папки": colours, preview stickers and what goes inside. */
+export type FolderId = 'article' | 'example' | 'sim' | 'quiz' | 'source' | 'terms';
+export type Folder = { id: FolderId; title: string; kinds: MaterialKind[]; color: string; glass: string; stickers: StickerName[]; forms: [string, string, string] };
+export const FOLDERS: Folder[] = [
+  { id: 'article', title: 'Статті', kinds: ['article'], color: '#6ca983', glass: '#5ca779', stickers: ['payslip', 'bond', 'bag'], forms: ['стаття', 'статті', 'статей'] },
+  { id: 'example', title: 'Приклади', kinds: [], color: '#d88376', glass: '#dd796a', stickers: ['scales', 'broken-phone', 'red-flag'], forms: ['історія', 'історії', 'історій'] },
+  { id: 'sim', title: 'Симуляції', kinds: ['sim'], color: '#7299d9', glass: '#6493de', stickers: ['calendar', 'wallet', 'sprout-coin'], forms: ['симуляція', 'симуляції', 'симуляцій'] },
+  { id: 'quiz', title: 'Квізи', kinds: ['quiz'], color: '#a086e5', glass: '#9c7de8', stickers: ['question-card', 'savings-jar', 'volatility'], forms: ['квіз', 'квізи', 'квізів'] },
+  { id: 'source', title: 'Джерела', kinds: ['source', 'checklist'], color: '#d39662', glass: '#d78f50', stickers: ['bank', 'government', 'checklist'], forms: ['джерело', 'джерела', 'джерел'] },
+  { id: 'terms', title: 'Словник', kinds: [], color: '#67ada8', glass: '#58aca6', stickers: ['magnifier', 'coin', 'chart'], forms: ['термін', 'терміни', 'термінів'] },
+];
+export const folderItems = (f: Folder) => MATERIALS.filter((m) => f.kinds.includes(m.kind));
+
+/** Stickers on each material tile inside a folder. */
+export const MATERIAL_STICKERS: Record<string, StickerName[]> = {
+  'art-payslip': ['payslip', 'coin'],
+  'art-cashback': ['bag', 'coin'],
+  'art-needs': ['groceries', 'sneakers'],
+  'art-cushion': ['cushion', 'savings-jar'],
+  'art-ovdp-buy': ['phone', 'bond'],
+  'art-ovdp-simple': ['bond', 'government'],
+  'sim-week': ['calendar', 'wallet'],
+  'sim-unexpected': ['broken-phone', 'wallet'],
+  'sim-first1000': ['sprout-coin', 'chart'],
+  'quiz-budget': ['question-card', 'wallet'],
+  'quiz-cushion': ['question-card', 'savings-jar'],
+  'quiz-risk': ['volatility', 'question-card'],
+  'src-nbu': ['bank'],
+  'src-nkcpfr': ['government', 'magnifier'],
+  'check-offer': ['checklist', 'red-flag'],
+};
 
 /** Rows shown in each module section on the Library home, in the Figma order. */
 export const HOME_MODULE_ROWS: Record<1 | 2 | 3, string[]> = {

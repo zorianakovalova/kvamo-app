@@ -4,12 +4,11 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
-import { PathBackground } from '@/components/PathBackground';
-import { BadgeGrid, BadgeSheet, ConfirmSheet, isEarned, ModuleRingCard, Rows, SectionTitle, SettingsRow, WeekCard } from '@/components/profile/ProfileUI';
+import { BadgeNotebook, BadgeSheet, ConfirmSheet, isEarned, ModuleProgressRow, Rows, SettingsRow, StatCards, WeekCard } from '@/components/profile/ProfileUI';
 import { StreakPill } from '@/components/StreakPill';
 import { Text } from '@/components/Text';
 import { BADGES, type Badge } from '@/data/badges';
-import { MODULES } from '@/data/modules';
+import { ALL_LESSONS, MODULES, plural } from '@/data/modules';
 import { displayName, goalLabel, initial, remindersLabel } from '@/data/profile';
 import { useProfile } from '@/store/profile';
 import { useProgress } from '@/store/progress';
@@ -24,14 +23,14 @@ export default function ProfileScreen() {
   const [askLogout, setAskLogout] = useState(false);
   const { account, minutes, reminders, update } = profile;
   const earned = BADGES.filter((b) => isEarned(b, stars)).length;
+  const lessonsDone = ALL_LESSONS.filter((l) => stars[l.id]).length;
   const openStreak = () => router.push('/profile/streak');
 
   return (
-    <View style={{ flex: 1 }}>
-      <PathBackground />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+    <View style={{ flex: 1, backgroundColor: colors.backgroundTertiary }}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 110 + insets.bottom }} showsVerticalScrollIndicator={false}>
         <View style={styles.title}>
-          <Text variant="largeTitle" accessibilityRole="header">
+          <Text variant="screenTitle" accessibilityRole="header">
             Профіль
           </Text>
         </View>
@@ -41,14 +40,14 @@ export default function ProfileScreen() {
             <View style={styles.identity}>
               <Pressable onPress={() => router.push('/profile/settings')} accessibilityRole="button" accessibilityLabel="Налаштування акаунта" style={styles.who}>
                 <View style={styles.avatar}>
-                  <Text variant="title1">{initial(profile)}</Text>
+                  <Text variant="number24">{initial(profile)}</Text>
                 </View>
                 <View style={{ flexShrink: 1, gap: 2 }}>
-                  <Text variant="title3" numberOfLines={1}>
+                  <Text variant="text20Strong" numberOfLines={1}>
                     {displayName(profile)}
                   </Text>
                   {account.contact ? (
-                    <Text variant="subheadline" numberOfLines={1}>
+                    <Text variant="text14" numberOfLines={1}>
                       {account.contact}
                     </Text>
                   ) : null}
@@ -74,34 +73,36 @@ export default function ProfileScreen() {
             </View>
           )}
 
+          <StatCards
+            items={[
+              { value: String(streak), label: `${plural(streak, 'день', 'дні', 'днів')} стрику`, onPress: openStreak },
+              { value: `${lessonsDone} з ${ALL_LESSONS.length}`, label: 'заняття', onPress: () => router.navigate('/') },
+              { value: `${earned} з ${BADGES.length}`, label: plural(BADGES.length, 'бейджа', 'бейджів', 'бейджів'), onPress: () => router.push('/profile/badges') },
+            ]}
+          />
+
           <View style={styles.pad}>
             <WeekCard onPress={openStreak} />
           </View>
 
           <View style={{ gap: space.md }}>
-            <View style={styles.padTitle}>
-              <SectionTitle title="Прогрес навчання" />
-            </View>
-            <View style={[styles.pad, { flexDirection: 'row', gap: space.sm }]}>
-              {MODULES.map((m, i) => (
-                <ModuleRingCard key={m.id} n={i + 1} done={doneCount(m)} total={m.lessons.length} onPress={() => router.navigate('/')} />
+            <Section title="Прогрес навчання" />
+            <View style={[styles.pad, { gap: space.sm }]}>
+              {MODULES.map((m) => (
+                <ModuleProgressRow key={m.id} module={m} done={doneCount(m)} onPress={() => router.navigate('/')} />
               ))}
             </View>
           </View>
 
           <View style={{ gap: space.md }}>
-            <View style={styles.padTitle}>
-              <SectionTitle title="Бейджі" meta={`${earned} з ${BADGES.length}`} onPress={() => router.push('/profile/badges')} />
-            </View>
+            <Section title="Бейджі" />
             <View style={styles.pad}>
-              <BadgeGrid badges={BADGES} onPress={setBadge} />
+              <BadgeNotebook badges={BADGES} onPress={setBadge} onOpenAll={() => router.push('/profile/badges')} />
             </View>
           </View>
 
           <View style={{ gap: space.md }}>
-            <View style={styles.padTitle}>
-              <SectionTitle title="Навчання" />
-            </View>
+            <Section title="Навчання" />
             <View style={styles.pad}>
               <Rows>
                 <SettingsRow label="Мета" value={goalLabel(profile)} onPress={() => router.push('/profile/goal')} />
@@ -112,9 +113,7 @@ export default function ProfileScreen() {
           </View>
 
           <View style={{ gap: space.md }}>
-            <View style={styles.padTitle}>
-              <SectionTitle title="Акаунт" />
-            </View>
+            <Section title="Акаунт" />
             <View style={styles.pad}>
               <Rows>
                 <SettingsRow label="Налаштування" onPress={() => router.push('/profile/settings')} />
@@ -143,11 +142,18 @@ export default function ProfileScreen() {
   );
 }
 
+function Section({ title }: { title: string }) {
+  return (
+    <Text variant="display16" accessibilityRole="header" style={{ paddingHorizontal: space.xl }}>
+      {title}
+    </Text>
+  );
+}
+
 const styles = StyleSheet.create({
-  title: { paddingLeft: space.xl, paddingRight: space.lg, paddingVertical: space.md },
+  title: { height: 64, justifyContent: 'center', paddingHorizontal: space.xl },
   body: { paddingTop: space.sm, paddingBottom: space.xxxl, gap: space.xxl },
   pad: { paddingHorizontal: space.lg },
-  padTitle: { paddingHorizontal: space.lg },
   identity: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.sm, paddingHorizontal: space.lg },
   who: { flexDirection: 'row', alignItems: 'center', gap: space.md, flexShrink: 1 },
   avatar: { width: 64, height: 64, borderRadius: 32, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
