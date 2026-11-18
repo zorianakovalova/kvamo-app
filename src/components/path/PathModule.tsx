@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Platform, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { moduleMinutes, plural, type Lesson, type Module } from '@/data/modules';
@@ -21,10 +21,26 @@ const ROAD =
 const ROAD_END = ' C 191 1440 95 1430 95 1460';
 
 const PROP = {
-  bush: { src: require('../../../assets/img/path/prop-bush.png'), w: 44, h: 40 },
-  tree: { src: require('../../../assets/img/path/prop-tree.png'), w: 44, h: 40 },
-  coins: { src: require('../../../assets/img/path/prop-coins.png'), w: 44, h: 40 },
-  pond: { src: require('../../../assets/img/path/prop-pond.png'), w: 64, h: 30 },
+  bush: {
+    src: require('../../../assets/img/path/prop-bush.png'),
+    w: 44,
+    h: 40,
+  },
+  tree: {
+    src: require('../../../assets/img/path/prop-tree.png'),
+    w: 44,
+    h: 40,
+  },
+  coins: {
+    src: require('../../../assets/img/path/prop-coins.png'),
+    w: 44,
+    h: 40,
+  },
+  pond: {
+    src: require('../../../assets/img/path/prop-pond.png'),
+    w: 64,
+    h: 30,
+  },
 };
 type PropName = keyof typeof PROP;
 /** Props between the books, alternating sides, per module (first one on the left). */
@@ -43,6 +59,9 @@ type Props = {
   /** Last module: the road stops at its final book instead of running on to the next banner. */
   last: boolean;
 };
+
+/** Balanced line breaks for label titles, as set by hand in Figma (web only). */
+const BALANCE = Platform.OS === 'web' ? ({ textWrap: 'balance' } as object) : null;
 
 const open = (lesson: Lesson) => router.push({ pathname: '/lesson/[id]', params: { id: lesson.id } });
 
@@ -68,7 +87,7 @@ export function PathModule({ module, stars, currentLessonId, done, last }: Props
             <Text variant="text14">{moduleMinutes(module)} хв</Text>
           </View>
         </View>
-        <ProgressRing done={done} total={total} />
+        {done > 0 ? <ProgressRing done={done} total={total} /> : null}
       </View>
 
       <View style={{ height: trailH }}>
@@ -81,7 +100,20 @@ export function PathModule({ module, stars, currentLessonId, done, last }: Props
         {(PROPS[module.id] ?? PROPS.m1).slice(0, total - 1).map((name, k) => {
           const p = PROP[name];
           const left = k % 2 === 0 ? 14 : name === 'pond' ? 315 : 335;
-          return <Image key={k} source={p.src} style={{ position: 'absolute', left: ox + left, top: 214 + BOOK_PITCH * k, width: p.w, height: p.h }} pointerEvents="none" />;
+          return (
+            <Image
+              key={k}
+              source={p.src}
+              style={{
+                position: 'absolute',
+                left: ox + left,
+                top: 214 + BOOK_PITCH * k,
+                width: p.w,
+                height: p.h,
+              }}
+              pointerEvents="none"
+            />
+          );
         })}
 
         {module.lessons.map((lesson, i) => {
@@ -99,7 +131,13 @@ export function PathModule({ module, stars, currentLessonId, done, last }: Props
                 onPress={() => open(lesson)}
                 accessibilityRole="button"
                 accessibilityLabel={label}
-                style={{ position: 'absolute', left: ox + bookLeft, top, width: 130, height: 152 }}
+                style={{
+                  position: 'absolute',
+                  left: ox + bookLeft,
+                  top,
+                  width: 130,
+                  height: 152,
+                }}
               >
                 <LessonBook moduleId={module.id} index={i} state={state} stars={result ?? 0} />
               </Pressable>
@@ -116,14 +154,12 @@ export function PathModule({ module, stars, currentLessonId, done, last }: Props
                       <Text variant="captionStrong">{chip}</Text>
                     </View>
                   ) : null}
-                  <Text variant={isCurrent ? 'text16Strong' : 'text14Strong'} color={result ? colors.textSecondary : colors.textPrimary} style={styles.center}>
+                  <Text variant={isCurrent ? 'text16Strong' : 'text14Strong'} color={result ? colors.textSecondary : colors.textPrimary} style={[styles.center, BALANCE]}>
                     {lesson.title}
                   </Text>
-                  {isCurrent ? null : (
-                    <Text variant="caption" color={colors.textSecondary} style={styles.center}>
-                      {meta}
-                    </Text>
-                  )}
+                  <Text variant="caption" color={colors.textSecondary} style={styles.center}>
+                    {meta}
+                  </Text>
                 </Pressable>
               </View>
             </View>
@@ -150,9 +186,24 @@ const styles = StyleSheet.create({
   },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   divider: { width: 1, height: 12, backgroundColor: colors.borderStrong },
-  labelSlot: { position: 'absolute', width: 200, height: 152, justifyContent: 'center' },
-  label: { backgroundColor: '#fff', borderRadius: 12, padding: 12, gap: 2, alignItems: 'center' },
+  labelSlot: {
+    position: 'absolute',
+    width: 200,
+    height: 152,
+    justifyContent: 'center',
+  },
+  label: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 12,
+    gap: 2,
+    alignItems: 'center',
+  },
   center: { textAlign: 'center' },
-  chip: { borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4, marginBottom: 2 },
-  chipOutline: { borderWidth: 1, borderColor: colors.borderStrong, paddingVertical: 3 },
+  chip: { borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4 },
+  chipOutline: {
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: '#fff',
+  },
 });

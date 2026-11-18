@@ -17,7 +17,7 @@ export function ProgressRing({ done, total }: { done: number; total: number }) {
       <Svg width={SIZE} height={SIZE} style={{ transform: [{ rotate: '-90deg' }] }}>
         <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} stroke={colors.border} strokeWidth={W} fill="none" />
         {done > 0 && (
-          <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} stroke={colors.ink} strokeWidth={W} fill="none" strokeLinecap="round" strokeDasharray={`${len} ${C}`} />
+          <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} stroke={colors.ink} strokeWidth={W} fill="none" strokeDasharray={`${len} ${C}`} />
         )}
       </Svg>
       <View style={[StyleSheet.absoluteFill, styles.center]}>

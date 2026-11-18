@@ -26,7 +26,12 @@ export default function PathScreen() {
       const idx = m.lessons.findIndex((l) => l.id === current.id);
       if (idx > 1) {
         scrolled.current = true;
-        requestAnimationFrame(() => scrollRef.current?.scrollTo({ y: top.current + y + BANNER_H + 36 + idx * BOOK_PITCH - 160, animated: false }));
+        requestAnimationFrame(() =>
+          scrollRef.current?.scrollTo({
+            y: top.current + y + BANNER_H + 36 + idx * BOOK_PITCH - 160,
+            animated: false,
+          }),
+        );
       }
     }
   };
@@ -35,9 +40,16 @@ export default function PathScreen() {
 
   return (
     <View style={styles.screen}>
-      <ScrollView ref={scrollRef} contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 110 + insets.bottom }} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={{
+          paddingTop: insets.top,
+          paddingBottom: 110 + insets.bottom,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.titleRow}>
-          <Text variant="screenTitle" accessibilityRole="header">
+          <Text variant="screenTitle" accessibilityRole="header" style={{ letterSpacing: -0.64 }}>
             Шлях
           </Text>
           <StreakPill days={streak} />
@@ -45,7 +57,12 @@ export default function PathScreen() {
 
         {current ? (
           <Pressable
-            onPress={() => router.push({ pathname: '/lesson/[id]', params: { id: current.id } })}
+            onPress={() =>
+              router.push({
+                pathname: '/lesson/[id]',
+                params: { id: current.id },
+              })
+            }
             accessibilityRole="button"
             accessibilityLabel={`Продовжити: заняття ${index}, ${current.title}`}
             style={styles.now}
@@ -54,16 +71,16 @@ export default function PathScreen() {
               <Text variant="caption">Заняття {index}</Text>
               <Text variant="caption">{current.minutes} хв</Text>
             </View>
-            <Text variant="display16">{current.title}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: space.md }}>
-              <Text variant="text14" style={{ flex: 1 }}>
+            <View style={{ gap: 4 }}>
+              <Text variant="display16">{current.title}</Text>
+              <Text variant="text14" style={{ paddingRight: 56 }}>
                 {current.summary}
               </Text>
-              <View style={styles.play}>
-                <Svg width={48} height={48} viewBox="0 0 48 48">
-                  <Path d="M19 17L30 24L19 31V17Z" fill={colors.ink} stroke={colors.ink} strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" />
-                </Svg>
-              </View>
+            </View>
+            <View style={styles.play}>
+              <Svg width={48} height={48} viewBox="0 0 48 48">
+                <Path d="M19 17L30 24L19 31V17Z" fill={colors.ink} stroke={colors.ink} strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
             </View>
           </Pressable>
         ) : (
@@ -94,7 +111,22 @@ const styles = StyleSheet.create({
     paddingLeft: space.xl,
     paddingRight: space.lg,
   },
-  now: { marginHorizontal: space.lg, marginBottom: space.xxl, borderRadius: 24, padding: space.lg, backgroundColor: colors.accent, gap: 4 },
+  now: {
+    marginHorizontal: space.lg,
+    marginVertical: space.md,
+    borderRadius: 24,
+    padding: space.lg,
+    backgroundColor: colors.accent,
+    gap: space.sm,
+  },
   nowTop: { flexDirection: 'row', justifyContent: 'space-between' },
-  play: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#fff' },
+  play: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#fff',
+  },
 });
