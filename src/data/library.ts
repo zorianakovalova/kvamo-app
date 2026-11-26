@@ -51,11 +51,11 @@ const tile = {
 };
 
 export const MATERIALS: Material[] = [
-  { id: 'art-payslip', kind: 'article', module: 1, title: 'Як читати розрахунковий лист', subtitle: 'Що таке ПДФО, ЄСВ і військовий збір', minutes: 3, tile: require('../../assets/img/lib/art-payslip.png') },
-  { id: 'art-cashback', kind: 'article', module: 1, title: 'Як насправді працює кешбек', subtitle: 'Коли він вигідний, а коли змушує витрачати більше', minutes: 4, tile: require('../../assets/img/lib/art-cashback.png') },
+  { id: 'art-subs', kind: 'article', module: 1, title: 'Підписки, що тихо з\'їдають бюджет', subtitle: 'Як скасувати зайві', minutes: 3, tile: require('../../assets/img/lib/art-payslip.png') },
+  { id: 'art-cashback', kind: 'article', module: 1, title: 'Кешбек: вигода чи пастка', subtitle: 'Коли змушує витрачати більше', minutes: 3, tile: require('../../assets/img/lib/art-cashback.png') },
   { id: 'sim-week', kind: 'sim', module: 1, title: 'Тиждень після зарплати', subtitle: '3–5 рішень, кожне змінює залишок', minutes: 5, tile: tile.simWeek },
   { id: 'quiz-budget', kind: 'quiz', module: 1, title: 'Бюджет: 10 питань', subtitle: 'Можна пройти будь-коли, без впливу на стрик', tile: tile.quizBudget },
-  { id: 'art-needs', kind: 'article', module: 1, title: 'Потреби чи бажання: 5 прикладів', subtitle: 'Як відрізнити необхідне від імпульсу', minutes: 4, tile: require('../../assets/img/lib/art-needs.png') },
+  { id: 'art-fx', kind: 'article', module: 2, title: 'Гривня чи валюта для заощаджень', subtitle: 'Плюси й ризики кожної', minutes: 4, tile: require('../../assets/img/lib/art-needs.png') },
   {
     id: 'src-nbu',
     kind: 'source',
@@ -67,11 +67,11 @@ export const MATERIALS: Material[] = [
   },
   { id: 'lesson-income', kind: 'lesson', module: 1, title: 'Дохід', tile: tile.quizBudget, lessonId: 'm1l2', keywords: 'зарплата' },
   { id: 'sim-unexpected', kind: 'sim', module: 2, title: 'Непередбачені витрати', subtitle: 'Зламався телефон: звідки взяти гроші', minutes: 5, tile: require('../../assets/img/lib/sim-unexpected.png') },
-  { id: 'art-cushion', kind: 'article', module: 2, title: 'Де тримати подушку безпеки', subtitle: 'Картка, депозит чи ОВДП', minutes: 4, tile: require('../../assets/img/lib/art-cushion.png'), keywords: 'подушка', rank: 3 },
+  { id: 'art-fgvfo', kind: 'article', module: 2, title: 'Скільки грошей захищає ФГВФО', subtitle: 'Гарантія вкладів у банках', minutes: 3, tile: require('../../assets/img/lib/art-cushion.png'), keywords: 'подушка депозит' },
   { id: 'quiz-cushion', kind: 'quiz', module: 2, title: 'Подушка безпеки: 8 питань', tile: require('../../assets/img/lib/quiz-cushion.png') },
   { id: 'sim-first1000', kind: 'sim', module: 3, title: 'Перші 1 000 грн інвестицій', minutes: 6, tile: require('../../assets/img/lib/sim-first1000.png'), keywords: 'ОВДП інвестиції' },
-  { id: 'art-ovdp-buy', kind: 'article', module: 3, title: 'Як купити ОВДП у банківському застосунку', subtitle: 'Покроково, з прикладами екранів', minutes: 5, tile: require('../../assets/img/lib/art-ovdp-buy.png'), rank: 1 },
-  { id: 'art-ovdp-simple', kind: 'article', module: 3, title: 'Що таке ОВДП простими словами', minutes: 5, tile: require('../../assets/img/lib/art-ovdp-simple.png') },
+  { id: 'art-ovdp-buy', kind: 'article', module: 3, title: 'Як купити ОВДП у застосунку', subtitle: 'Покроково, з екранами', minutes: 4, tile: require('../../assets/img/lib/art-ovdp-buy.png'), keywords: 'ОВДП облігації' },
+  { id: 'art-tax-invest', kind: 'article', module: 3, title: 'Податки з інвестицій', subtitle: 'Що і коли сплачувати', minutes: 3, tile: require('../../assets/img/lib/art-ovdp-simple.png') },
   { id: 'lesson-ovdp', kind: 'lesson', module: 3, title: 'ОВДП', tile: require('../../assets/img/lib/lesson-ovdp.png'), lessonId: 'm3l4', rank: 2 },
   { id: 'quiz-risk', kind: 'quiz', module: 3, title: 'Ризик чи ні: 8 ситуацій', subtitle: 'Перевір, чи розпізнаєш ризик', tile: require('../../assets/img/lib/quiz-risk.png') },
   { id: 'check-offer', kind: 'checklist', module: 3, title: 'Перевір пропозицію: 5 червоних прапорців', subtitle: 'Як розпізнати шахрайську пропозицію', tile: require('../../assets/img/lib/check-offer.png'), keywords: 'шахраї' },
@@ -101,12 +101,12 @@ export const folderItems = (f: Folder) => MATERIALS.filter((m) => f.kinds.includ
 
 /** Stickers on each material tile inside a folder. */
 export const MATERIAL_STICKERS: Record<string, StickerName[]> = {
-  'art-payslip': ['payslip', 'coin'],
+  'art-subs': ['payslip', 'coin'],
   'art-cashback': ['bag', 'coin'],
-  'art-needs': ['groceries', 'sneakers'],
-  'art-cushion': ['cushion', 'savings-jar'],
+  'art-fx': ['groceries', 'sneakers'],
+  'art-fgvfo': ['cushion', 'savings-jar'],
   'art-ovdp-buy': ['phone', 'bond'],
-  'art-ovdp-simple': ['bond', 'government'],
+  'art-tax-invest': ['bond', 'government'],
   'sim-week': ['calendar', 'wallet'],
   'sim-unexpected': ['broken-phone', 'wallet'],
   'sim-first1000': ['sprout-coin', 'chart'],
@@ -121,7 +121,7 @@ export const MATERIAL_STICKERS: Record<string, StickerName[]> = {
 /** Rows shown in each module section on the Library home, in the Figma order. */
 export const HOME_MODULE_ROWS: Record<1 | 2 | 3, string[]> = {
   1: ['sim-week', 'art-cashback', 'quiz-budget', 'src-nbu'],
-  2: ['sim-unexpected', 'art-cushion'],
+  2: ['sim-unexpected', 'art-fgvfo'],
   3: ['art-ovdp-buy', 'quiz-risk', 'src-nkcpfr'],
 };
 
@@ -131,12 +131,12 @@ export function moduleMaterials(n: number) {
 }
 
 /** The article that prepares for the learner's next lesson. */
-export const UP_NEXT_ID = 'art-payslip';
+export const UP_NEXT_ID = 'art-subs';
 
 /** "Для тебе" cards with their wide covers. */
 export const FOR_YOU: { id: string; cover: ImageSourcePropType }[] = [
   { id: 'sim-first1000', cover: require('../../assets/img/lib/cover-first1000.png') },
-  { id: 'art-ovdp-simple', cover: require('../../assets/img/lib/cover-ovdp-simple.png') },
+  { id: 'art-tax-invest', cover: require('../../assets/img/lib/cover-ovdp-simple.png') },
 ];
 
 /** Ids that other screens already link to. */
@@ -169,50 +169,75 @@ export const SOON = [
   { module: 6, title: 'Захист від шахраїв', about: 'Фішинг, фейкові інвестиції і як захистити картку.' },
 ];
 
-/** Article body: paragraphs (with glossary links), headings, a table, a callout and a self-check. */
-export type Inline = string | { term: string; text: string };
-export type Block =
-  | { type: 'p'; parts: Inline[] }
-  | { type: 'h'; text: string }
-  | { type: 'table'; rows: { label: string; value: string; kind?: 'deduction' | 'total' }[] }
-  | { type: 'callout'; text: string };
+/** Article from the Figma "Стаття" screens: illustration, intro, heading, one or two visual blocks (exported from Figma) and the explanation. */
 export type Article = {
   id: string;
   chapter: string;
   hero: ImageSourcePropType;
-  blocks: Block[];
-  check: { question: string; options: string[]; correct: number };
-  readAlso: string[];
+  intro: string;
+  heading: string;
+  visuals: { src: ImageSourcePropType; ratio: number; alt: string }[];
+  /** Paragraphs separated by a blank line. A line break inside one makes its first line a bold lead-in. */
+  text: string;
 };
 
 export const ARTICLES: Record<string, Article> = {
-  'art-payslip': {
-    id: 'art-payslip',
+  'art-subs': {
+    id: 'art-subs',
     chapter: '“Все про бюджет”',
-    hero: require('../../assets/img/lib/hero-payslip.png'),
-    blocks: [
-      {
-        type: 'p',
-        parts: ['Розрахунковий лист показує, скільки тобі нарахували і скільки ти отримуєш на руки. Різниця – це податки: ', { term: 't-pdfo', text: 'ПДФО' }, ' і ', { term: 't-military', text: 'військовий збір' }, '.'],
-      },
-      { type: 'h', text: 'Що утримують із зарплати' },
-      {
-        type: 'table',
-        rows: [
-          { label: 'Нараховано', value: '20 000 грн' },
-          { label: 'ПДФО 18%', value: '−3 600 грн', kind: 'deduction' },
-          { label: 'Військовий збір 5%', value: '−1 000 грн', kind: 'deduction' },
-          { label: 'На руки', value: '15 400 грн', kind: 'total' },
-        ],
-      },
-      { type: 'p', parts: ['Нараховано – уся сума за місяць: оклад, премії, доплати.'] },
-      { type: 'p', parts: ['Утримано – податки, які роботодавець сплатив за тебе.'] },
-      { type: 'p', parts: ['До виплати – те, що прийде на картку.'] },
-      { type: 'p', parts: ['ЄСВ (22%) роботодавець платить зверху, з твоєї суми його не віднімають.'] },
-      { type: 'callout', text: 'Сума в договорі – це «брудна» зарплата. Плануй бюджет від суми на руки.' },
+    hero: require('../../assets/img/art/hero1.png'),
+    intro: 'Музика, кіно, хмара для фото – кожна підписка здається дрібницею. Але гроші списуються щомісяця, навіть коли нею не користуються.',
+    heading: 'Скільки це за рік',
+    visuals: [
+      { src: require('../../assets/img/art/vis1a.png'), ratio: 1179 / 609, alt: 'Музика 99 грн на місяць, кіно 199, хмара 59. Разом за рік 4 284 грн.' },
+      { src: require('../../assets/img/art/vis1b.png'), ratio: 1179 / 558, alt: 'Щомісяця по 357 грн, і так 12 разів: 4 284 грн за рік.' },
     ],
-    check: { question: 'Що з цього утримують із зарплати?', options: ['ПДФО і військовий збір', 'Кешбек'], correct: 0 },
-    readAlso: ['art-cashback', 'lesson-income'],
+    text: 'Як рахуємо: 99 + 199 + 59 = 357 грн на місяць. Помножимо на 12 – це 4 284 грн за рік.\n\nЯк скасувати зайві: відкрий виписку з банку й знайди всі регулярні списання. Залиш те, чим користуєшся щотижня.\n\nПідписки з App Store чи Google Play вимикають у налаштуваннях телефона. Безкоштовний пробний період краще вимкнути за день до кінця, щоб гроші не почали списуватися.',
+  },
+  'art-cashback': {
+    id: 'art-cashback',
+    chapter: '“Все про бюджет”',
+    hero: require('../../assets/img/art/hero2.png'),
+    intro: 'Кешбек – це частина грошей, яку банк повертає після покупки. Він вигідний, лише коли купуєш те, що й так планувалося.',
+    heading: 'Коли кешбек – пастка',
+    visuals: [{ src: require('../../assets/img/art/vis2.png'), ratio: 1179 / 768, alt: 'Планувалося 400 грн. Витрачено через акцію: 400 грн, які й так мали витратити, 550 грн зайвих покупок, 50 грн повернувся кешбек.' }],
+    text: 'Як рахуємо: 5% від 1 000 грн – це 50 грн. Без акції витрати були б 400 грн. Різниця 600 грн мінус 50 грн кешбеку – це 550 грн зайвих витрат.\n\nПеред покупкою з кешбеком спитай себе: чи купувалося б це без бонусу? Якщо ні – краще не купувати. Кешбек часто має ліміт на місяць, а бали можна витратити лише в певних магазинах.',
+  },
+  'art-fx': {
+    id: 'art-fx',
+    chapter: '“Заощадження”',
+    hero: require('../../assets/img/art/hero3.png'),
+    intro: 'Заощадження можна тримати в гривні або в іноземній валюті. Гривня зазвичай дає вищий відсоток, а валюта захищає, коли гривня дешевшає.',
+    heading: 'Плюси й ризики',
+    visuals: [{ src: require('../../assets/img/art/vis3.png'), ratio: 1179 / 1068, alt: 'Відсоток чи захист: гривня дає вищий відсоток, валюта краще захищає від знецінення, а суміш гривні й валюти лежить між ними.' }],
+    text: 'Чому так?\nБанки платять за гривневими вкладами більше, бо гривня з часом може дешевшати. Валюта цей ризик знижує, але відсоток на ній малий, а під час купівлі й продажу частина грошей іде на різницю курсів.\n\nЩо робити?\nНе обов’язково обирати одне. Частину подушки можна тримати в гривні для щоденних витрат, а частину – у валюті на довгий строк. Валюту варто купувати лише в банку чи офіційному обміннику.',
+  },
+  'art-fgvfo': {
+    id: 'art-fgvfo',
+    chapter: '“Заощадження”',
+    hero: require('../../assets/img/art/hero4.png'),
+    intro: 'Фонд гарантування вкладів фізичних осіб (ФГВФО) повертає гроші вкладникам, якщо банк закривається. Тому депозит у банку – одне з найнадійніших місць для подушки.',
+    heading: 'Що захищає фонд',
+    visuals: [{ src: require('../../assets/img/art/vis4.png'), ratio: 1179 / 1032, alt: 'Гарантія діє для кожного банку окремо: до 600 000 грн у кожному.' }],
+    text: 'Як це працює?\nГарантія діє для кожного банку окремо. Якщо в одному банку лежить понад 600 000 грн, частину краще перенести в інший.\n\nВиплати починаються не пізніше ніж через 20 робочих днів після закриття банку.\n\nПеревір свій банк: на сайті fg.gov.ua є список банків – учасників фонду. Майже всі банки в Україні в ньому є.',
+  },
+  'art-ovdp-buy': {
+    id: 'art-ovdp-buy',
+    chapter: '“Основи інвестування”',
+    hero: require('../../assets/img/art/hero5.png'),
+    intro: 'ОВДП – це облігації внутрішньої державної позики. Купуючи їх, позичаєш гроші державі, а вона повертає їх із відсотками. Купити можна просто в застосунку банку.',
+    heading: 'Покроково',
+    visuals: [{ src: require('../../assets/img/art/vis5.png'), ratio: 1179 / 1368, alt: 'Кроки купівлі ОВДП у застосунку банку.' }],
+    text: 'Що далі?\nОблігації з’являться в застосунку. Відсотки приходять за графіком або разом із сумою в кінці строку. Податку з доходу від ОВДП немає.\n\nВажливо: ОВДП не підпадають під гарантію ФГВФО, їх повертає держава. Продати раніше строку можна, але ціна може бути нижчою.',
+  },
+  'art-tax-invest': {
+    id: 'art-tax-invest',
+    chapter: '“Основи інвестування”',
+    hero: require('../../assets/img/art/hero6.png'),
+    intro: 'Акції купили дешевше, а продали дорожче. Різниця між цими сумами – це прибуток. З нього треба заплатити податки.',
+    heading: 'Скільки податків з прибутку',
+    visuals: [{ src: require('../../assets/img/art/vis6.png'), ratio: 1179 / 552, alt: 'З 10 000 грн прибутку: ПДФО 18% це 1 800 грн, військовий збір 5% це 500 грн, лишається 7 700 грн.' }],
+    text: 'Як рахуємо:\n18% від 10 000 грн – це 1 800 грн\n5% – це 500 грн.\nРазом 2 300 грн податків.\n\nКоли податку немає: прибуток від ОВДП не оподатковується.\n\nХто платить: часто брокер сам забирає податок. Якщо ні – до 1 травня наступного року треба подати декларацію й сплатити податок.',
   },
 };
 
