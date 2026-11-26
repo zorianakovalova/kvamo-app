@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
-import { colors, radius, shadow, space } from '@/theme/tokens';
+import { colors, radius, space } from '@/theme/tokens';
 import { Text } from './Text';
 
 type Props = { visible: boolean; onClose: () => void; title: string; description?: string; titleVariant?: 'title1' | 'title3'; children: ReactNode };
@@ -40,6 +40,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundTertiary,
     borderRadius: radius.xxl,
     padding: space.xl,
-    ...shadow.tabBar,
   },
 });

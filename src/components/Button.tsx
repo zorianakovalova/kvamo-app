@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, StyleSheet, View, type PressableProps } from 'react-native';
 
-import { colors, radius, shadow } from '@/theme/tokens';
+import { colors, radius } from '@/theme/tokens';
 import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
 
@@ -11,7 +11,7 @@ type Props = Omit<PressableProps, 'children'> & {
   loading?: boolean;
 };
 
-/** Action button from Figma: 56 px, full radius. Primary is ink, secondary is white with a soft shadow. */
+/** Action button from Figma: 56 px, full radius. Primary is ink, secondary is white. */
 export function Button({ label, variant = 'primary', icon, loading, disabled, style, ...rest }: Props) {
   const primary = variant === 'primary' || variant === 'danger';
   const off = disabled && !loading;
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   primary: { backgroundColor: colors.ink, height: 56, paddingHorizontal: 16 },
   danger: { backgroundColor: colors.error, height: 56, paddingHorizontal: 16 },
   primaryOff: { backgroundColor: colors.border },
-  secondary: { backgroundColor: colors.surface, height: 56, paddingHorizontal: 16, ...shadow.ink6 },
+  secondary: { backgroundColor: colors.surface, height: 56, paddingHorizontal: 16 },
   outline: { backgroundColor: colors.surface, height: 56, paddingHorizontal: 16, borderWidth: 1.5, borderColor: colors.border },
   link: { minHeight: 44, maxWidth: '100%', paddingHorizontal: 8, alignSelf: 'center' },
 });

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import type { AccountMethod } from '@/store/profile';
-import { colors, radius, shadow, space } from '@/theme/tokens';
+import { colors, radius, space } from '@/theme/tokens';
 import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
 
@@ -74,6 +74,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: space.lg,
-    ...shadow.ink6,
   },
 });

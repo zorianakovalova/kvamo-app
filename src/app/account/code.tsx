@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View, type TextInputInstance } from 'react-native';
 
 import { Button } from '@/components/Button';
+import { ERROR } from '@/components/Field';
 import { GlassButton } from '@/components/GlassButton';
 import { Screen, ScreenHeader } from '@/components/Screen';
 import { Text } from '@/components/Text';
@@ -11,7 +12,6 @@ import { colors, space } from '@/theme/tokens';
 
 const LEN = 6;
 const RESEND = 60;
-const ERROR = '#b8321a';
 
 /** 14 / 16 Six-digit code from SMS or email. There is no server yet, so any 6 digits are accepted. */
 export default function Code() {
@@ -94,7 +94,7 @@ export default function Code() {
         />
         <View style={{ paddingHorizontal: 20 }}>
           {incomplete ? (
-            <Text variant="text14Strong" color={ERROR}>
+            <Text variant="text14Medium" color={ERROR}>
               Введи всі 6 цифр з {source}.
             </Text>
           ) : left > 0 ? (

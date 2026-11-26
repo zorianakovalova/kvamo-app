@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/Button';
-import { Field, inputBox } from '@/components/Field';
+import { Field, inputBox, inputError } from '@/components/Field';
 import { GlassButton } from '@/components/GlassButton';
 import { Icon } from '@/components/Icon';
 import { Screen, ScreenHeader } from '@/components/Screen';
@@ -21,20 +21,25 @@ export default function Phone() {
   const { mode = 'save', back } = useLocalSearchParams<{ mode?: string; back?: string }>();
   const [digits, setDigits] = useState('');
   const [error, setError] = useState<string | undefined>();
+  const [sending, setSending] = useState(false);
 
   const submit = () => {
     if (digits.length !== 9) {
-      setError(digits.length === 0 ? 'Введи номер телефону' : 'У номері має бути 9 цифр після +380');
+      setError(digits.length === 0 ? 'Введи номер телефону, щоб отримати код.' : 'Номер має містити 9 цифр після +380, наприклад 67 123 45 67.');
       return;
     }
-    router.push({ pathname: '/account/code', params: { kind: 'phone', to: `+380 ${formatPhone(digits)}`, mode , back } });
+    setSending(true);
+    setTimeout(() => {
+      setSending(false);
+      router.push({ pathname: '/account/code', params: { kind: 'phone', to: `+380 ${formatPhone(digits)}`, mode, back } });
+    }, 900);
   };
 
   return (
     <Screen
       nav={<GlassButton icon="chevronLeft" label="Назад" onPress={() => router.back()} />}
       bodyStyle={{ paddingHorizontal: 0, gap: space.xxl }}
-      footer={<Button label="Отримати код" onPress={submit} />}
+      footer={<Button label={sending ? 'Надсилаємо SMS…' : 'Отримати код'} loading={sending} onPress={submit} />}
     >
       <View style={{ paddingHorizontal: space.xl }}>
         <ScreenHeader title="Твій номер телефону" description="Надішлемо SMS з кодом, щоб підтвердити номер. Пароль не потрібен." />
@@ -56,14 +61,14 @@ export default function Phone() {
                 setDigits(t.replace(/\D/g, '').slice(0, 9));
                 setError(undefined);
               }}
-              onBlur={() => digits.length > 0 && digits.length < 9 && setError('У номері має бути 9 цифр після +380')}
+              onBlur={() => digits.length > 0 && digits.length < 9 && setError('Номер має містити 9 цифр після +380, наприклад 67 123 45 67.')}
               keyboardType="number-pad"
               textContentType="telephoneNumber"
               autoComplete="tel"
               placeholder="67 123 45 67"
               placeholderTextColor={colors.textTertiary}
               accessibilityLabel="Номер телефону"
-              style={[inputBox, styles.input, error && { borderColor: colors.danger }]}
+              style={[inputBox, styles.input, error && inputError]}
               onSubmitEditing={submit}
             />
           </View>

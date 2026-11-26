@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet } from 'react-native';
 
-import { colors, shadow } from '@/theme/tokens';
+import { colors } from '@/theme/tokens';
 import { Icon, type IconName } from './Icon';
 
 type Props = { icon: IconName; label: string; onPress: () => void };
@@ -24,6 +24,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.glassStrong,
     borderWidth: 1,
     borderColor: colors.borderGlass,
-    ...shadow.ink6,
   },
 });

@@ -7,7 +7,7 @@ import { GlassButton } from '@/components/GlassButton';
 import { AppIcon, InfoSheet, Rows, SectionTitle, SettingsRow } from '@/components/profile/ProfileUI';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
-import { colors, radius, shadow, space } from '@/theme/tokens';
+import { colors, radius, space } from '@/theme/tokens';
 
 const SOURCES = [
   { label: 'Національний банк України', host: 'bank.gov.ua' },
@@ -67,5 +67,5 @@ export default function About() {
 }
 
 const styles = StyleSheet.create({
-  note: { backgroundColor: colors.surface, borderRadius: radius.md, padding: space.md, ...shadow.ink6 },
+  note: { backgroundColor: colors.surface, borderRadius: radius.md, padding: space.md },
 });

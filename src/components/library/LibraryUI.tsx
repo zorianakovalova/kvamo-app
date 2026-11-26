@@ -8,7 +8,7 @@ import { router } from 'expo-router';
 import { ARTICLES, QUIZZES, SIMULATIONS, findMaterial, type Material } from '@/data/library';
 import { useProgress } from '@/store/progress';
 import { markViewed } from '@/store/saved';
-import { colors, palette, radius, shadow, space, type } from '@/theme/tokens';
+import { colors, palette, radius, space, type } from '@/theme/tokens';
 import { Button } from '../Button';
 import { GlassButton } from '../GlassButton';
 import { Icon } from '../Icon';
@@ -443,7 +443,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.glassStrong,
     borderWidth: 1,
     borderColor: colors.borderGlass,
-    ...shadow.ink6,
   },
   round: {
     width: 44,
@@ -454,7 +453,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.glassStrong,
     borderWidth: 1,
     borderColor: colors.borderGlass,
-    ...shadow.ink6,
   },
   callout: { flexDirection: 'row', gap: space.md, paddingRight: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface, overflow: 'hidden' },
   termRow: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.lg, paddingVertical: space.md, minHeight: 66, borderRadius: radius.lg, backgroundColor: colors.surface },
@@ -469,7 +467,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: radius.lg,
     backgroundColor: colors.surface,
-    ...shadow.ink6,
   },
   facts: { marginHorizontal: space.lg, backgroundColor: colors.surface, borderRadius: radius.lg, paddingHorizontal: space.lg, paddingVertical: 4 },
   factRow: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.md },
@@ -481,7 +478,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.glassStrong,
     borderWidth: 1,
     borderColor: colors.glass,
-    ...shadow.ink6,
   },
   scrim: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(11,16,13,0.4)' },
   sheet: {
@@ -510,6 +506,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.lg,
     borderRadius: radius.lg,
     backgroundColor: colors.ink,
-    ...shadow.tabBar,
   },
 });

@@ -11,7 +11,7 @@ import { Text } from '@/components/Text';
 import { MODULES, plural, type Module } from '@/data/modules';
 import { GOALS } from '@/data/onboarding';
 import { useProfile } from '@/store/profile';
-import { colors, palette, radius, shadow, space } from '@/theme/tokens';
+import { colors, palette, radius, space } from '@/theme/tokens';
 
 const waveFrog = require('../../../assets/img/wave-frog.png');
 
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   cover: { paddingTop: space.xxl, gap: space.xl },
   stack: { height: 196 },
   back: { position: 'absolute', height: 168, borderRadius: 22 },
-  front: { height: 168, borderRadius: 22, ...shadow.ink6 },
+  front: { height: 168, borderRadius: 22 },
   coverText: { position: 'absolute', left: 20, top: 20, gap: 6 },
   chips: { flexDirection: 'row', gap: 4 },
   frog: { position: 'absolute', left: 199.44, top: 30, width: 157.56, height: 190 },

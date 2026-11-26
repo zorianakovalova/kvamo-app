@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 
-import { colors, radius, shadow } from '@/theme/tokens';
+import { colors, radius } from '@/theme/tokens';
 import { Text } from './Text';
 
 /** Tab icons exported from the Figma tab bar (24 px, 1.2 stroke, 1.6 when active). */
@@ -59,7 +59,7 @@ export function TabBar({ state, navigateToTab }: BottomTabBarProps) {
 
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center', paddingHorizontal: 16 },
-  shadow: { width: '100%', maxWidth: 361, borderRadius: radius.pill, ...shadow.tabBar },
+  shadow: { width: '100%', maxWidth: 361, borderRadius: radius.pill },
   bar: {
     flexDirection: 'row',
     padding: 4,

@@ -527,7 +527,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.glassStrong,
     borderWidth: 1,
     borderColor: colors.borderGlass,
-    ...shadow.ink6,
   },
   segment: { flex: 1, height: 6, borderRadius: radius.sm, backgroundColor: colors.progressTodo },
   body: { paddingTop: space.xxl, paddingHorizontal: space.lg, paddingBottom: space.lg, gap: space.lg },

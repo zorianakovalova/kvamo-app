@@ -5,25 +5,28 @@ import { colors, space } from '@/theme/tokens';
 import { Icon } from './Icon';
 import { Text } from './Text';
 
+export const ERROR = '#b8321a';
+export const inputError = { backgroundColor: '#fce9e5', borderColor: ERROR } as const;
+
 type Props = { label: string; message?: string; error?: string; children: ReactNode };
 
 /** Form field: visible label, the input row, and a help or error message under it. */
 export function Field({ label, message, error, children }: Props) {
   return (
     <View style={{ gap: space.sm }}>
-      <Text variant="subheadlineStrong" style={styles.pad}>
+      <Text variant="text14Strong" style={styles.pad}>
         {label}
       </Text>
       {children}
       {error ? (
         <View style={[styles.pad, styles.row]} accessibilityLiveRegion="polite">
-          <Icon name="alert" size={18} color={colors.danger} />
-          <Text variant="subheadline" color={colors.danger} style={{ flex: 1 }}>
+          <Icon name="alert" size={18} color={ERROR} />
+          <Text variant="text14Medium" color={ERROR} style={{ flex: 1 }}>
             {error}
           </Text>
         </View>
       ) : message ? (
-        <Text variant="subheadline" color={colors.textSecondary} style={styles.pad}>
+        <Text variant="text14" color={colors.textSecondary} style={styles.pad}>
           {message}
         </Text>
       ) : null}

@@ -12,7 +12,7 @@ import { PathBackground } from '@/components/PathBackground';
 import { Text } from '@/components/Text';
 import { QUIZZES, findMaterial, plural, type Quiz } from '@/data/library';
 import { saveQuizScore, useLibraryState } from '@/store/saved';
-import { colors, radius, shadow, space } from '@/theme/tokens';
+import { colors, radius, space } from '@/theme/tokens';
 
 const ERROR = { text: '#b8321a', bg: '#fcebe6' };
 const RIGHT_BG = '#e4f6ec';
@@ -285,7 +285,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.glassStrong,
     borderWidth: 1,
     borderColor: colors.borderGlass,
-    ...shadow.ink6,
   },
   segment: { flex: 1, height: 6, borderRadius: radius.sm, backgroundColor: colors.progressTodo },
   qBody: { paddingTop: space.xxl, gap: space.xxl },
@@ -312,7 +311,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: radius.xxxl,
     borderTopRightRadius: radius.xxxl,
     backgroundColor: colors.surface,
-    ...shadow.ink6,
   },
   feedbackHeader: { flexDirection: 'row', alignItems: 'flex-end', minHeight: 30 },
   avatar: { position: 'absolute', right: 0, bottom: 0, width: 90, height: 90 },

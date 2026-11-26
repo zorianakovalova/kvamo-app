@@ -10,7 +10,7 @@ import { OptionCard } from '@/components/OptionCard';
 import { Text } from '@/components/Text';
 import { ARTICLES, KIND_LABEL, findMaterial, findTerm, type Block } from '@/data/library';
 import { markViewed, toggleSaved, useSaved } from '@/store/saved';
-import { colors, palette, radius, shadow, space } from '@/theme/tokens';
+import { colors, palette, radius, space } from '@/theme/tokens';
 
 export default function ArticleScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -193,7 +193,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.glassStrong,
     borderWidth: 1,
     borderColor: colors.glass,
-    ...shadow.ink6,
   },
   hero: { marginHorizontal: space.lg, aspectRatio: 361 / 163, borderRadius: radius.xl },
   table: { backgroundColor: colors.surface, borderRadius: radius.lg, paddingHorizontal: space.lg, paddingVertical: 4 },

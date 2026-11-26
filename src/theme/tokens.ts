@@ -107,6 +107,7 @@ export const type = {
   text16Medium: sys(16, 24, '500'),
   text16Strong: sys(16, 24, '600'),
   text14: sys(14, 20, '400'),
+  text14Medium: sys(14, 20, '500'),
   text14Strong: sys(14, 20, '600'),
 } as const;
 export type TypeVariant = keyof typeof type;

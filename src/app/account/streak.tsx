@@ -10,7 +10,7 @@ import { Text } from '@/components/Text';
 import { plural } from '@/data/modules';
 import { useProfile } from '@/store/profile';
 import { useProgress } from '@/store/progress';
-import { colors, radius, shadow, space } from '@/theme/tokens';
+import { colors, radius, space } from '@/theme/tokens';
 
 const flame = require('../../../assets/img/flame.png');
 const frog = require('../../../assets/img/streak-frog.png');
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   },
   note: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderGlass, borderRadius: radius.md, padding: space.md },
   day: { width: 40, alignItems: 'center', gap: 4 },
-  dot: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)', backgroundColor: colors.surface, ...shadow.ink6 },
+  dot: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)', backgroundColor: colors.surface },
   dotBox: { width: 36, height: 36 },
   dayFlame: { position: 'absolute', left: 0, bottom: 0 },
 });

@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { colors, shadow } from '@/theme/tokens';
+import { colors } from '@/theme/tokens';
 
 /** Glass progress pill in the onboarding nav bar: segments, ink = done. */
 export function ProgressPill({ total, done }: { total: number; done: number }) {
@@ -25,7 +25,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.glassStrong,
     borderWidth: 1,
     borderColor: colors.borderGlass,
-    ...shadow.ink6,
   },
   seg: { flex: 1, height: 6, borderRadius: 8 },
 });
