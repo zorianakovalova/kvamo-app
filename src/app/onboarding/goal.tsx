@@ -2,10 +2,8 @@ import { router } from 'expo-router';
 import { StyleSheet, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/Button';
-import { GlassButton } from '@/components/GlassButton';
 import { OptionCard } from '@/components/OptionCard';
-import { ProgressPill } from '@/components/ProgressPill';
-import { Screen, ScreenHeader } from '@/components/Screen';
+import { FlowNav, Screen, ScreenHeader } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { GOALS } from '@/data/onboarding';
 import { useProfile, type Goal } from '@/store/profile';
@@ -19,12 +17,7 @@ export default function GoalScreen() {
 
   return (
     <Screen
-      nav={
-        <>
-          <GlassButton icon="chevronLeft" label="Назад" onPress={() => router.back()} />
-          <ProgressPill total={4} done={1} />
-        </>
-      }
+      nav={<FlowNav total={4} done={1} />}
       bodyStyle={{ gap: space.xxl }}
       footer={
         <>

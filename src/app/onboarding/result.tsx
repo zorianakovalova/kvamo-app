@@ -27,7 +27,7 @@ export default function Result() {
   const v = verdict(score);
 
   return (
-    <Screen background="gradient" bodyStyle={{ gap: space.lg, paddingTop: space.xl }} footer={<Button label="Налаштувати навчання" onPress={() => router.push('/onboarding/goal')} />}>
+    <Screen bodyStyle={{ gap: space.lg, paddingTop: space.xl }} footer={<Button label="Налаштувати навчання" onPress={() => router.push('/onboarding/goal')} />}>
       <View style={styles.illustration}>
         <Image source={mascot} style={styles.mascot} contentFit="contain" />
         {score !== null && (
@@ -39,7 +39,7 @@ export default function Result() {
         )}
       </View>
 
-      <View style={{ gap: space.xxl, alignItems: 'center' }}>
+      <View style={{ gap: space.xxxl, alignItems: 'center' }}>
         {score !== null && <Chip label={`Правильних відповідей: ${score} з ${QUIZ.length}`} size="md" style={{ alignSelf: 'center' }} />}
         <ScreenHeader title={v.title} description={v.text} align="center" />
       </View>
@@ -50,12 +50,12 @@ export default function Result() {
             const known = quiz[i] === q.correct;
             return (
               <View key={q.topic} style={[styles.row, i > 0 && styles.divider]}>
-                <Text variant="bodyMedium" style={{ flex: 1 }}>
+                <Text variant="text16Medium" style={{ flex: 1 }}>
                   {q.topic}
                 </Text>
                 <View style={styles.status}>
                   <Icon name={known ? 'check' : 'flag'} size={16} color={known ? colors.brand : colors.textSecondary} />
-                  <Text variant="subheadlineMedium" color={known ? colors.brand : colors.textSecondary}>
+                  <Text variant="text14Strong">
                     {known ? 'знаєш' : 'вивчимо'}
                   </Text>
                 </View>

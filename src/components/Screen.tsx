@@ -2,7 +2,11 @@ import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { router } from 'expo-router';
+
 import { colors, space } from '@/theme/tokens';
+import { GlassButton } from './GlassButton';
+import { ProgressPill } from './ProgressPill';
 import { PathBackground } from './PathBackground';
 import { Text } from './Text';
 
@@ -45,16 +49,35 @@ export function Screen({ background = 'tertiary', nav, children, footer, scroll 
   );
 }
 
-/** Heading/H1 (Unbounded 30/36) with Body below. */
+/** Nav for the onboarding flow: progress pill and a close button that leaves to the welcome screen. */
+export function FlowNav({ total, done }: { total: number; done: number }) {
+  return (
+    <>
+      <ProgressPill total={total} done={done} />
+      <GlassButton icon="close" label="Закрити" onPress={() => router.dismissTo('/onboarding/welcome')} />
+    </>
+  );
+}
+
+/** Nav with only a close button on the right (save progress, reminders). */
+export function CloseNav({ onPress }: { onPress: () => void }) {
+  return (
+    <View style={{ flex: 1, alignItems: 'flex-end' }}>
+      <GlassButton icon="close" label="Закрити" onPress={onPress} />
+    </View>
+  );
+}
+
+/** Heading (Unbounded 32/40) with a 16/24 description below. */
 export function ScreenHeader({ title, description, align = 'left' }: { title: string; description?: string; align?: 'left' | 'center' }) {
   const textAlign = align;
   return (
     <View style={{ gap: space.sm }}>
-      <Text variant="largeTitle" accessibilityRole="header" style={{ textAlign }}>
+      <Text variant="screenTitle" accessibilityRole="header" style={{ textAlign }}>
         {title}
       </Text>
       {description ? (
-        <Text variant="body" style={{ textAlign }}>
+        <Text variant="text16" style={{ textAlign }}>
           {description}
         </Text>
       ) : null}

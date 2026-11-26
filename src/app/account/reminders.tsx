@@ -7,7 +7,7 @@ import { Button } from '@/components/Button';
 import { GlassButton } from '@/components/GlassButton';
 import { Icon } from '@/components/Icon';
 import { ToggleRow } from '@/components/profile/ProfileUI';
-import { Screen, ScreenHeader } from '@/components/Screen';
+import { CloseNav, Screen, ScreenHeader } from '@/components/Screen';
 import { Sheet } from '@/components/Sheet';
 import { Text } from '@/components/Text';
 import { findLesson } from '@/data/modules';
@@ -86,7 +86,7 @@ export default function RemindersScreen() {
 
   return (
     <Screen
-      nav={editing ? <GlassButton icon="chevronLeft" label="Назад" onPress={finish} /> : <GlassButton icon="close" label="Закрити" onPress={finish} />}
+      nav={editing ? <GlassButton icon="chevronLeft" label="Назад" onPress={finish} /> : <CloseNav onPress={finish} />}
       bodyStyle={{ paddingHorizontal: 0, gap: space.xxl }}
       footer={
         <>
@@ -119,12 +119,12 @@ export default function RemindersScreen() {
           <Image source={appIcon} style={styles.appIcon} />
           <View style={{ flex: 1, gap: 2 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text variant="subheadlineStrong">Квамо</Text>
+              <Text variant="text14Strong">Квамо</Text>
               <Text variant="caption" color={colors.textSecondary}>
                 {off ? '' : time}
               </Text>
             </View>
-            <Text variant="subheadline">Жабка вже чекає: 3 хвилини на урок «{lesson?.title ?? 'Потреби і бажання'}»</Text>
+            <Text variant="text14">Жабка вже чекає: 3 хвилини на урок «{lesson?.title ?? 'Потреби і бажання'}»</Text>
           </View>
         </View>
       </View>
@@ -144,13 +144,13 @@ export default function RemindersScreen() {
       {!(editing && !on) && (
       <View style={styles.pickers}>
         <Picker label="Коли?" value={off ? 'Не нагадувати' : 'Щодня'} onPress={() => setSheet('freq')} small={off} />
-        {!off && <Picker label="О котрій?" value={time} icon onPress={openTime} />}
+        {!off && <Picker label="О котрій?" value={time} onPress={openTime} />}
       </View>
       )}
 
       {!off && (
         <View style={{ gap: space.sm }}>
-          <Text variant="subheadlineStrong" style={{ paddingHorizontal: space.xl }}>
+          <Text variant="text14Strong" style={{ paddingHorizontal: space.xl }}>
             У які дні нагадувати
           </Text>
           <View style={styles.days}>
@@ -164,13 +164,13 @@ export default function RemindersScreen() {
                 style={[styles.day, days[i] && styles.dayOn]}
               >
                 {days[i] && <Icon name="check" size={16} color={colors.textInverse} />}
-                <Text variant="subheadlineStrong" color={days[i] ? colors.textInverse : colors.textPrimary}>
+                <Text variant="text14Strong" color={days[i] ? colors.textInverse : colors.textPrimary}>
                   {d}
                 </Text>
               </Pressable>
             ))}
           </View>
-          <Text variant="subheadline" color={noDays ? colors.danger : colors.textSecondary} style={{ paddingHorizontal: space.xl }}>
+          <Text variant="text14" color={noDays ? colors.danger : colors.textSecondary} style={{ paddingHorizontal: space.xl }}>
             {noDays ? 'Обери хоча б один день' : 'Обери дні, коли плануєш навчатися. Дні без занять не переривають стрик.'}
           </Text>
         </View>
@@ -257,15 +257,14 @@ export default function RemindersScreen() {
   );
 }
 
-function Picker({ label, value, onPress, icon, small }: { label: string; value: string; onPress: () => void; icon?: boolean; small?: boolean }) {
+function Picker({ label, value, onPress, small }: { label: string; value: string; onPress: () => void; small?: boolean }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label} ${value}. Змінити`} style={styles.picker}>
-      {icon && <Icon name="clock" size={22} color={colors.brand} />}
       <View style={{ flex: 1 }}>
-        <Text variant="subheadline" color={colors.textSecondary}>
+        <Text variant="text14" color={colors.textSecondary}>
           {label}
         </Text>
-        <Text variant={small ? 'numberSmall' : 'title1'} numberOfLines={1}>
+        <Text variant={small ? 'numberSmall' : 'number24'} numberOfLines={1}>
           {value}
         </Text>
       </View>
@@ -311,7 +310,7 @@ const styles = StyleSheet.create({
   pickers: { flexDirection: 'row', gap: space.sm, paddingHorizontal: space.lg },
   picker: {
     flex: 1,
-    minHeight: 64,
+    minHeight: 82,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,

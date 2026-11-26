@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 
 import { Button } from '@/components/Button';
-import { GlassButton } from '@/components/GlassButton';
-import { Screen, ScreenHeader } from '@/components/Screen';
+import { CloseNav, Screen, ScreenHeader } from '@/components/Screen';
 import { Sheet } from '@/components/Sheet';
 import { SignInOptions } from '@/components/SignInOptions';
 import { Text } from '@/components/Text';
@@ -24,7 +23,7 @@ export default function SaveProgress() {
 
   return (
     <Screen
-      nav={<GlassButton icon="close" label="Закрити" onPress={close} />}
+      nav={<CloseNav onPress={close} />}
       bodyStyle={{ paddingHorizontal: space.xxl, gap: space.lg }}
       footer={
         <View style={{ paddingHorizontal: space.sm, gap: space.sm }}>

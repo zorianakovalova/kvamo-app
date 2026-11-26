@@ -33,15 +33,17 @@ export default function Welcome() {
     >
       <View style={{ paddingHorizontal: 20, gap: 16 }}>
         <View accessibilityRole="header" accessibilityLabel="Все про грошенята за 5 хвилин на день" style={{ gap: 4 }}>
-          <Text variant="displayLarge">Все про{'\n'}грошенята за</Text>
+          <Text variant="displayLarge" style={styles.title}>Все про{'\n'}грошенята за</Text>
           <View style={styles.highlight}>
-            <Text variant="displayLarge" color={colors.textInverse}>
+            <Text variant="displayLarge" color={colors.textInverse} style={styles.title}>
               5 хвилин
             </Text>
           </View>
-          <Text variant="displayLarge">на день</Text>
+          <Text variant="displayLarge" style={styles.title}>на день</Text>
         </View>
-        <Text variant="headline">Перший урок можна пройти без реєстрації</Text>
+        <Text variant="text16Strong" style={{ maxWidth: 290 }}>
+          Перший урок можна пройти без реєстрації
+        </Text>
       </View>
 
       <View style={styles.art} pointerEvents="none">
@@ -49,7 +51,7 @@ export default function Welcome() {
         {STICKERS.map((s) => (
           <View key={s.label} style={[styles.stickerBox, s.box]}>
             <View style={[styles.sticker, { backgroundColor: s.bg, transform: [{ rotate: s.rotate }] }]}>
-              <Text variant="numberMedium" color={s.color}>
+              <Text variant="number24" color={s.color}>
                 {s.label}
               </Text>
             </View>
@@ -61,6 +63,7 @@ export default function Welcome() {
 }
 
 const styles = StyleSheet.create({
+  title: { lineHeight: 48 },
   highlight: {
     alignSelf: 'flex-start',
     backgroundColor: colors.ink,

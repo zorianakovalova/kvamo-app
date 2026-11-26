@@ -103,6 +103,8 @@ export const type = {
   number24: display(24, 32),
   display16: display(16, 24),
   text20Strong: sys(20, 28, '600'),
+  text16: sys(16, 24, '400'),
+  text16Medium: sys(16, 24, '500'),
   text16Strong: sys(16, 24, '600'),
   text14: sys(14, 20, '400'),
   text14Strong: sys(14, 20, '600'),

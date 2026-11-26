@@ -5,10 +5,8 @@ import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
-import { GlassButton } from '@/components/GlassButton';
 import { Icon } from '@/components/Icon';
-import { ProgressPill } from '@/components/ProgressPill';
-import { Screen, ScreenHeader } from '@/components/Screen';
+import { FlowNav, Screen, ScreenHeader } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { MODULES, plural, type Module } from '@/data/modules';
 import { GOALS } from '@/data/onboarding';
@@ -58,12 +56,7 @@ export default function YourPath() {
 
   return (
     <Screen
-      nav={
-        <>
-          <GlassButton icon="chevronLeft" label="Назад" onPress={() => router.back()} />
-          <ProgressPill total={4} done={3} />
-        </>
-      }
+      nav={<FlowNav total={4} done={3} />}
       bodyStyle={{ paddingTop: space.xxl }}
       footer={<Button label={`Почати з «${first.title}»`} icon="play" onPress={begin} />}
     >

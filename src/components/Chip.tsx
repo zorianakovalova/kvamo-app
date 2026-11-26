@@ -11,7 +11,7 @@ export function Chip({ label, tone = 'glass', size = 'sm', style }: Props) {
   return (
     <View style={[styles.base, styles[tone], size === 'md' && styles.md, style]}>
       <Text
-        variant={size === 'md' ? 'subheadline' : tone === 'glassLight' ? 'captionMedium' : 'captionStrong'}
+        variant={size === 'md' ? 'text14' : tone === 'glassLight' ? 'captionMedium' : 'captionStrong'}
         color={ink ? colors.textInverse : colors.textPrimary}
       >
         {label}

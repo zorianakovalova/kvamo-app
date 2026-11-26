@@ -30,7 +30,7 @@ export function OptionCard({ label, selected, onPress, control = 'radio', childr
       )}
       <View style={{ flex: 1 }}>
         {children ?? (
-          <Text variant="bodyMedium" color={selected ? colors.textInverse : colors.textPrimary}>
+          <Text variant="text16Medium" color={selected ? colors.textInverse : colors.textPrimary}>
             {label}
           </Text>
         )}
