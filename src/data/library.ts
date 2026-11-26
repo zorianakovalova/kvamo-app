@@ -1,3 +1,4 @@
+import { GLOSSARY } from './glossary';
 import type { StickerName } from '@/components/library/stickers';
 type ImageSourcePropType = number;
 
@@ -30,6 +31,8 @@ export type Term = {
   example?: string;
   /** Materials where the term is used. */
   usedIn?: string[];
+  /** Lesson and module where the term appears (Figma "Де зустрічається"). */
+  where?: { lesson: string; module: string };
   related?: string[];
 };
 
@@ -136,33 +139,24 @@ export const FOR_YOU: { id: string; cover: ImageSourcePropType }[] = [
   { id: 'art-ovdp-simple', cover: require('../../assets/img/lib/cover-ovdp-simple.png') },
 ];
 
-/** Glossary, sorted by the Ukrainian alphabet when shown. */
-export const TERMS: Term[] = [
-  { id: 't-share', title: 'Акція', short: 'Частка у власності компанії', definition: 'Цінний папір, який робить тебе співвласником компанії. Ціна акції може як зрости, так і впасти.', related: ['t-dividends', 't-diversification'] },
-  { id: 't-budget', title: 'Бюджет', short: 'План доходів і витрат', definition: 'План, скільки грошей ти отримуєш і на що їх витрачаєш за місяць. Допомагає бачити, куди йдуть гроші.', usedIn: ['quiz-budget', 'sim-week'], related: ['t-cushion'] },
-  { id: 't-interest', title: 'Відсоток', short: 'Плата за користування грошима', definition: 'Плата, яку банк чи держава дає тобі за те, що користуються твоїми грошима. Або яку ти платиш, коли позичаєш сам.', related: ['t-deposit', 't-compound'] },
-  { id: 't-military', title: 'Військовий збір', short: '5% із зарплати на оборону', definition: 'Податок 5% із зарплати на потреби оборони. Як і ПДФО, його утримує роботодавець, тож на картку приходить сума вже без нього.', usedIn: ['art-payslip'], related: ['t-pdfo', 't-esv'] },
-  { id: 't-deposit', title: 'Депозит', short: 'Гроші в банку під відсоток на строк', definition: 'Гроші, які ти кладеш у банк на певний строк. За це банк платить відсоток. Вклади до 600 000 грн гарантує держава.', usedIn: ['art-cushion'], related: ['t-interest', 't-ovdp', 't-compound'] },
-  { id: 't-diversification', title: 'Диверсифікація', short: 'Розподіл грошей між вкладеннями', definition: 'Розподіл грошей між різними вкладеннями, щоб невдача одного не забрала все. Не всі яйця в один кошик.', usedIn: ['sim-first1000'], related: ['t-share', 't-ovdp'] },
-  { id: 't-dividends', title: 'Дивіденди', short: 'Частка прибутку для власників акцій', definition: 'Частина прибутку компанії, яку вона виплачує власникам акцій. Не всі компанії платять дивіденди.', related: ['t-share'] },
-  { id: 't-esv', title: 'ЄСВ', short: 'Внесок, який сплачує роботодавець', definition: 'Єдиний соціальний внесок: 22% від зарплати на пенсію і соціальні виплати. Роботодавець платить його зверху, з твоєї суми його не віднімають.', usedIn: ['art-payslip'], related: ['t-pdfo', 't-military'] },
-  { id: 't-inflation', title: 'Інфляція', short: 'Зростання цін з часом', definition: 'Зростання цін з часом. Через інфляцію на ту саму суму через рік можна купити менше.', related: ['t-deposit', 't-ovdp'] },
-  { id: 't-cashback', title: 'Кешбек', short: 'Повернення частини витрат', definition: 'Частина витраченої суми, яку банк або магазин повертає тобі. Вигідний, лише коли ти й так планував цю покупку.', usedIn: ['art-cashback'], related: ['t-budget'] },
-  { id: 't-coupon', title: 'Купон', short: 'Відсоток, який платять за облігацією', definition: 'Регулярна виплата відсотків власнику облігації. Для ОВДП купон зазвичай платять двічі на рік.', related: ['t-ovdp', 't-nominal'] },
-  { id: 't-nominal', title: 'Номінал', short: 'Сума, яку повернуть у кінці строку', definition: 'Ціна облігації, яку тобі повернуть у кінці строку. Для ОВДП номінал зазвичай 1 000 грн.', related: ['t-ovdp', 't-coupon'] },
-  {
-    id: 't-ovdp',
-    title: 'ОВДП',
-    short: 'Облігації держави під відсоток',
-    definition: 'Облігації внутрішньої державної позики. Ти позичаєш гроші державі, а вона платить відсоток і в кінці строку повертає суму. Дохід за ОВДП не оподатковується.',
-    example: '3 ОВДП по 1 000 грн під 15% на рік – це 450 грн відсотків за рік і 3 000 грн назад у кінці строку.',
-    usedIn: ['lesson-ovdp'],
-    related: ['t-deposit', 't-nominal', 't-coupon'],
-  },
-  { id: 't-pdfo', title: 'ПДФО', short: 'Податок 18% із доходу', definition: 'Податок на доходи фізичних осіб.\nІз зарплати утримують 18%, і роботодавець сам сплачує його до бюджету.\nНа картку приходить сума вже без нього.', usedIn: ['art-payslip'], related: ['t-military', 't-esv'] },
-  { id: 't-cushion', title: 'Подушка безпеки', short: 'Запас на 3–6 місяців витрат', definition: 'Гроші, відкладені на непередбачені ситуації: втрату роботи, хворобу, поломку. Зазвичай це 3–6 місячних витрат.', usedIn: ['art-cushion', 'sim-unexpected'], related: ['t-deposit', 't-budget'] },
-  { id: 't-compound', title: 'Складний відсоток', short: 'Відсотки, які нараховуються на відсотки', definition: 'Коли відсотки додаються до суми і наступного разу нараховуються вже на більшу суму. Чим довше строк, тим помітніший ефект.', related: ['t-interest', 't-deposit'] },
-];
+/** Ids that other screens already link to. */
+const LEGACY_ID: Record<string, string> = { Акція: 't-share', Бюджет: 't-budget', Відсоток: 't-interest', Депозит: 't-deposit', Диверсифікація: 't-diversification', Дивіденди: 't-dividends', ЄСВ: 't-esv', Інфляція: 't-inflation', Кешбек: 't-cashback', ОВДП: 't-ovdp', ПДФО: 't-pdfo', 'Грошова подушка': 't-cushion', 'Складний відсоток': 't-compound' };
+const termId = (title: string, i: number) => LEGACY_ID[title] ?? `t-${i + 1}`;
+const ID_BY_TITLE = Object.fromEntries(GLOSSARY.map((g, i) => [g[0], termId(g[0], i)]));
+
+/** Glossary from the Figma "Словник" screens, sorted by the Ukrainian alphabet when shown. */
+export const TERMS: Term[] = GLOSSARY.map(([title, short, definition, example, lesson, module, related], i) => ({
+  id: termId(title, i),
+  title,
+  short,
+  definition,
+  example,
+  where: { lesson, module },
+  related: related.map((r) => ID_BY_TITLE[r]).filter(Boolean),
+}));
+
+/** Linked from articles but not listed in the glossary. */
+const HIDDEN_TERMS: Term[] = [{ id: 't-military', title: 'Військовий збір', short: '5% із зарплати на оборону', definition: 'Податок 5% із зарплати на потреби оборони. Як і ПДФО, його утримує роботодавець, тож на картку приходить сума вже без нього.', related: ['t-pdfo', 't-esv'] }];
 
 /** Chips in the Library home "Словник" section. */
 export const HOME_TERMS = ['t-pdfo', 't-esv', 't-inflation', 't-ovdp', 't-deposit', 't-diversification', 't-cashback'];
@@ -227,7 +221,7 @@ export function findMaterial(id: string) {
 }
 
 export function findTerm(id: string) {
-  return TERMS.find((t) => t.id === id);
+  return TERMS.find((t) => t.id === id) ?? HIDDEN_TERMS.find((t) => t.id === id);
 }
 
 export function plural(n: number, one: string, few: string, many: string) {

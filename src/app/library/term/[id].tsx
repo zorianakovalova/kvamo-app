@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BookmarkButton, Callout, FilterChip, MaterialRow, NavPill, useMaterialOpener, useSavedToast } from '@/components/library/LibraryUI';
 import { Text } from '@/components/Text';
 import { KIND_LABEL, findMaterial, findTerm } from '@/data/library';
-import { MODULES } from '@/data/modules';
+import { ALL_LESSONS, MODULES } from '@/data/modules';
 import { toggleSaved, useSaved } from '@/store/saved';
 import { colors, space } from '@/theme/tokens';
 
@@ -62,12 +62,22 @@ export default function TermScreen() {
             <Callout text={term.example} tone="example" />
           </View>
         ) : null}
-        {used.length ? (
+        {used.length || term.where ? (
           <View style={{ gap: space.sm }}>
             <Text variant="headline" accessibilityRole="header" style={styles.padText}>
               Де зустрічається
             </Text>
             <View style={[styles.pad, { gap: space.sm }]}>
+              {term.where ? (
+                <MaterialRow
+                  title={term.where.lesson}
+                  subtitle={term.where.module}
+                  onPress={() => {
+                    const l = ALL_LESSONS.find((x) => x.title === term.where!.lesson);
+                    if (l) router.push({ pathname: '/lesson/[id]', params: { id: l.id } });
+                  }}
+                />
+              ) : null}
               {used.map((m) => (
                 <MaterialRow key={m!.id} material={m} title={m!.title} subtitle={m!.kind === 'lesson' ? moduleLine(m!.module) : KIND_LABEL[m!.kind]} trailing={m!.site ? 'external' : 'chevron'} onPress={() => open(m!)} />
               ))}
