@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { router } from 'expo-router';
 
-import { ARTICLES, QUIZZES, SIMULATIONS, findMaterial, type Material } from '@/data/library';
+import { ARTICLES, QUIZZES, SIMULATIONS, STORIES, findMaterial, type Material } from '@/data/library';
 import { useProgress } from '@/store/progress';
 import { markViewed } from '@/store/saved';
 import { colors, palette, radius, space, type } from '@/theme/tokens';
@@ -207,6 +207,7 @@ export function useMaterialOpener(toastBottom: number) {
       markViewed(m.id);
       setSite(m.site);
     } else if (m.lessonId) router.push({ pathname: '/lesson/[id]', params: { id: m.lessonId } });
+    else if (STORIES[m.id]) router.push({ pathname: '/library/story/[id]', params: { id: m.id } });
     else if (ARTICLES[m.id]) router.push({ pathname: '/library/article/[id]', params: { id: m.id } });
     else if (QUIZZES[m.id]) router.push({ pathname: '/library/quiz/[id]', params: { id: m.id } });
     else if (sim) {

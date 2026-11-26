@@ -2,7 +2,7 @@ import { GLOSSARY } from './glossary';
 import type { StickerName } from '@/components/library/stickers';
 type ImageSourcePropType = number;
 
-export type MaterialKind = 'sim' | 'article' | 'quiz' | 'source' | 'lesson' | 'checklist';
+export type MaterialKind = 'sim' | 'story' | 'article' | 'quiz' | 'source' | 'lesson' | 'checklist';
 
 export type Material = {
   id: string;
@@ -38,6 +38,7 @@ export type Term = {
 
 export const KIND_LABEL: Record<MaterialKind, string> = {
   sim: 'Симуляція',
+  story: 'Історія',
   article: 'Стаття',
   quiz: 'Квіз',
   source: 'Джерело',
@@ -51,6 +52,12 @@ const tile = {
 };
 
 export const MATERIALS: Material[] = [
+  { id: 'story-student', kind: 'story', module: 1, title: 'Бюджет студентки на 12 000 грн', subtitle: 'Реальний розподіл за місяць', tile: require('../../assets/img/lib/art-payslip.png'), keywords: 'бюджет студентка' },
+  { id: 'story-family', kind: 'story', module: 1, title: 'Сім\'я з двома дітьми', subtitle: 'Бюджет на чотирьох', tile: require('../../assets/img/lib/art-needs.png'), keywords: 'бюджет сім\'я' },
+  { id: 'story-deposit', kind: 'story', module: 2, title: '10 000 грн на депозиті 3 роки', subtitle: 'Скільки реально виросте', tile: require('../../assets/img/lib/art-cushion.png'), keywords: 'депозит' },
+  { id: 'story-inflation', kind: 'story', module: 2, title: 'Як інфляція з\'їла заначку', subtitle: 'Ціни 2021 і 2024', tile: require('../../assets/img/lib/art-cashback.png'), keywords: 'інфляція' },
+  { id: 'story-portfolio', kind: 'story', module: 3, title: 'Портфель на 5 000 грн', subtitle: 'Реальний розподіл активів', tile: require('../../assets/img/lib/art-ovdp-simple.png'), keywords: 'інвестиції портфель' },
+  { id: 'story-scam', kind: 'story', module: 3, title: 'Схема про гарантовані 30%', subtitle: 'Розбір реальної піраміди', tile: require('../../assets/img/lib/art-ovdp-buy.png'), keywords: 'шахраї піраміда' },
   { id: 'art-subs', kind: 'article', module: 1, title: 'Підписки, що тихо з\'їдають бюджет', subtitle: 'Як скасувати зайві', minutes: 3, tile: require('../../assets/img/lib/art-payslip.png') },
   { id: 'art-cashback', kind: 'article', module: 1, title: 'Кешбек: вигода чи пастка', subtitle: 'Коли змушує витрачати більше', minutes: 3, tile: require('../../assets/img/lib/art-cashback.png') },
   { id: 'sim-week', kind: 'sim', module: 1, title: 'Тиждень після зарплати', subtitle: '3–5 рішень, кожне змінює залишок', minutes: 5, tile: tile.simWeek },
@@ -91,7 +98,7 @@ export type FolderId = 'article' | 'example' | 'sim' | 'quiz' | 'source' | 'term
 export type Folder = { id: FolderId; title: string; kinds: MaterialKind[]; color: string; glass: string; stickers: StickerName[]; forms: [string, string, string] };
 export const FOLDERS: Folder[] = [
   { id: 'article', title: 'Статті', kinds: ['article'], color: '#6ca983', glass: '#5ca779', stickers: ['payslip', 'bond', 'bag'], forms: ['стаття', 'статті', 'статей'] },
-  { id: 'example', title: 'Приклади', kinds: [], color: '#d88376', glass: '#dd796a', stickers: ['scales', 'broken-phone', 'red-flag'], forms: ['історія', 'історії', 'історій'] },
+  { id: 'example', title: 'Приклади', kinds: ['story'], color: '#d88376', glass: '#dd796a', stickers: ['scales', 'broken-phone', 'red-flag'], forms: ['історія', 'історії', 'історій'] },
   { id: 'sim', title: 'Симуляції', kinds: ['sim'], color: '#7299d9', glass: '#6493de', stickers: ['calendar', 'wallet', 'sprout-coin'], forms: ['симуляція', 'симуляції', 'симуляцій'] },
   { id: 'quiz', title: 'Квізи', kinds: ['quiz'], color: '#a086e5', glass: '#9c7de8', stickers: ['question-card', 'savings-jar', 'volatility'], forms: ['квіз', 'квізи', 'квізів'] },
   { id: 'source', title: 'Джерела', kinds: ['source', 'checklist'], color: '#d39662', glass: '#d78f50', stickers: ['bank', 'government', 'checklist'], forms: ['джерело', 'джерела', 'джерел'] },
@@ -101,6 +108,12 @@ export const folderItems = (f: Folder) => MATERIALS.filter((m) => f.kinds.includ
 
 /** Stickers on each material tile inside a folder. */
 export const MATERIAL_STICKERS: Record<string, StickerName[]> = {
+  'story-student': ['wallet', 'coin'],
+  'story-family': ['groceries', 'wallet'],
+  'story-deposit': ['savings-jar', 'coin'],
+  'story-inflation': ['volatility', 'coin'],
+  'story-portfolio': ['chart', 'bond'],
+  'story-scam': ['red-flag', 'broken-phone'],
   'art-subs': ['payslip', 'coin'],
   'art-cashback': ['bag', 'coin'],
   'art-fx': ['groceries', 'sneakers'],
@@ -366,6 +379,20 @@ export const QUIZZES: Record<string, Quiz> = {
       { q: 'Що робити з грошима, які знадобляться за місяць?', options: ['Інвестувати в акції', 'Тримати доступними', 'Купити криптовалюту'], correct: 1, explain: 'Інвестувати варто лише гроші, які не знадобляться найближчим часом.', topic: 'Інвестування чи заощадження', lessonId: 'm3l1' },
       { q: 'Де перевірити, чи має компанія ліцензію на інвестиції?', options: ['У соцмережах компанії', 'На сайті НКЦПФР', 'У відгуках друзів'], correct: 1, explain: 'НКЦПФР веде реєстр учасників ринку цінних паперів.', topic: 'Інвестиційні шахраї', lessonId: 'm3l6' },
       { q: 'Що отримує власник акції, коли компанія ділиться прибутком?', options: ['Купон', 'Дивіденди', 'Кешбек'], correct: 1, explain: 'Частку прибутку для власників акцій називають дивідендами.', topic: 'Акції та фонди', lessonId: 'm3l5' },
+    ],
+  },
+};
+
+/** Kvamo stories: swipeable cards exported from the Figma "Історія Квамо" screens (the text is part of the image, so every card has a spoken label). */
+export type Story = { cards: { img: ImageSourcePropType; alt: string }[] };
+export const STORIES: Record<string, Story> = {
+  'story-student': {
+    cards: [
+      { img: require('../../assets/img/story/s1-1.png'), alt: 'Квамо – студент. Квамо: Привіт! Я вчуся й підробляю. Щомісяця на картку приходить 12 000 грн. Покажу, як я їх ділю.' },
+      { img: require('../../assets/img/story/s1-2.png'), alt: 'Спершу – обов’язкове. Кімната 4 000, їжа 3 500, проїзд 1 000. Квамо: Першим ділом плачу за те, без чого не прожити. Разом 8 500 з 12 000 грн.' },
+      { img: require('../../assets/img/story/s1-3.png'), alt: 'Одразу – в банку. Квамо: Одразу відкладаю 10% – 1 200 грн, поки гроші не розійшлися на дрібниці. 9 700 з 12 000 грн.' },
+      { img: require('../../assets/img/story/s1-4.png'), alt: 'Решта – на бажання. Квамо: Лишається 2 300 грн. Кава з друзями, кіно, дрібниці – але не більше цього ліміту.' },
+      { img: require('../../assets/img/story/s1-5.png'), alt: 'Кінець місяця. Квамо: Боргів – 0. У банці +1 200 грн. Якщо так щомісяця, за рік збереться 14 400 грн!' },
     ],
   },
 };
