@@ -60,7 +60,10 @@ export const MATERIALS: Material[] = [
   { id: 'story-scam', kind: 'story', module: 3, title: 'Схема про гарантовані 30%', subtitle: 'Розбір реальної піраміди', tile: require('../../assets/img/lib/art-ovdp-buy.png'), keywords: 'шахраї піраміда' },
   { id: 'art-subs', kind: 'article', module: 1, title: 'Підписки, що тихо з\'їдають бюджет', subtitle: 'Як скасувати зайві', minutes: 3, tile: require('../../assets/img/lib/art-payslip.png') },
   { id: 'art-cashback', kind: 'article', module: 1, title: 'Кешбек: вигода чи пастка', subtitle: 'Коли змушує витрачати більше', minutes: 3, tile: require('../../assets/img/lib/art-cashback.png') },
-  { id: 'sim-week', kind: 'sim', module: 1, title: 'Тиждень після зарплати', subtitle: '3–5 рішень, кожне змінює залишок', minutes: 5, tile: tile.simWeek },
+  { id: 'sim-basket', kind: 'sim', module: 1, title: 'Розумний кошик', subtitle: 'Ціна за кілограм і пастки 1+1', minutes: 5, tile: tile.simWeek, keywords: 'продукти акція бюджет' },
+  { id: 'sim-installment', kind: 'sim', module: 1, title: 'Розстрочка «0%»', subtitle: 'Знайди справжню ціну', minutes: 5, tile: tile.simWeek, keywords: 'кредит комісія телефон' },
+  { id: 'sim-move', kind: 'sim', module: 1, title: 'Перший переїзд', subtitle: 'Бюджет власного житла', minutes: 5, tile: tile.simWeek, keywords: 'оренда житло договір' },
+  { id: 'sim-trip', kind: 'sim', module: 1, title: 'Подорож з друзями', subtitle: 'Спільні витрати без сварок', minutes: 5, tile: tile.simWeek, keywords: 'борг друзі поїздка' },
   { id: 'quiz-budget', kind: 'quiz', module: 1, title: 'Бюджет: 10 питань', subtitle: 'Можна пройти будь-коли, без впливу на стрик', tile: tile.quizBudget },
   { id: 'art-fx', kind: 'article', module: 2, title: 'Гривня чи валюта для заощаджень', subtitle: 'Плюси й ризики кожної', minutes: 4, tile: require('../../assets/img/lib/art-needs.png') },
   {
@@ -73,10 +76,10 @@ export const MATERIALS: Material[] = [
     site: { name: 'НБУ', host: 'bank.gov.ua', url: 'https://bank.gov.ua' },
   },
   { id: 'lesson-income', kind: 'lesson', module: 1, title: 'Дохід', tile: tile.quizBudget, lessonId: 'm1l2', keywords: 'зарплата' },
-  { id: 'sim-unexpected', kind: 'sim', module: 2, title: 'Непередбачені витрати', subtitle: 'Зламався телефон: звідки взяти гроші', minutes: 5, tile: require('../../assets/img/lib/sim-unexpected.png') },
+  { id: 'sim-fx', kind: 'sim', module: 2, title: 'Обмін валюти', subtitle: 'Де курс вигідніший', minutes: 5, tile: tile.simWeek, keywords: 'євро долар курс обмінник' },
   { id: 'art-fgvfo', kind: 'article', module: 2, title: 'Скільки грошей захищає ФГВФО', subtitle: 'Гарантія вкладів у банках', minutes: 3, tile: require('../../assets/img/lib/art-cushion.png'), keywords: 'подушка депозит' },
   { id: 'quiz-cushion', kind: 'quiz', module: 2, title: 'Подушка безпеки: 8 питань', tile: require('../../assets/img/lib/quiz-cushion.png') },
-  { id: 'sim-first1000', kind: 'sim', module: 3, title: 'Перші 1 000 грн інвестицій', minutes: 6, tile: require('../../assets/img/lib/sim-first1000.png'), keywords: 'ОВДП інвестиції' },
+  { id: 'sim-cashback', kind: 'sim', module: 3, title: 'Кешбек і бонуси', subtitle: 'Скільки повертається насправді', minutes: 5, tile: tile.simWeek, keywords: 'кешбек бонуси картка' },
   { id: 'art-ovdp-buy', kind: 'article', module: 3, title: 'Як купити ОВДП у застосунку', subtitle: 'Покроково, з екранами', minutes: 4, tile: require('../../assets/img/lib/art-ovdp-buy.png'), keywords: 'ОВДП облігації' },
   { id: 'art-tax-invest', kind: 'article', module: 3, title: 'Податки з інвестицій', subtitle: 'Що і коли сплачувати', minutes: 3, tile: require('../../assets/img/lib/art-ovdp-simple.png') },
   { id: 'lesson-ovdp', kind: 'lesson', module: 3, title: 'ОВДП', tile: require('../../assets/img/lib/lesson-ovdp.png'), lessonId: 'm3l4', rank: 2 },
@@ -120,9 +123,12 @@ export const MATERIAL_STICKERS: Record<string, StickerName[]> = {
   'art-fgvfo': ['bank'],
   'art-ovdp-buy': ['phone', 'bond'],
   'art-tax-invest': ['payslip', 'chart'],
-  'sim-week': ['calendar', 'wallet'],
-  'sim-unexpected': ['broken-phone', 'wallet'],
-  'sim-first1000': ['sprout-coin', 'chart'],
+  'sim-basket': ['checklist', 'groceries'],
+  'sim-installment': ['calendar', 'phone'],
+  'sim-move': ['wallet', 'house'],
+  'sim-trip': ['wallet', 'bus'],
+  'sim-fx': ['coin', 'bank'],
+  'sim-cashback': ['coin', 'bag'],
   'quiz-budget': ['question-card', 'wallet'],
   'quiz-cushion': ['question-card', 'savings-jar'],
   'quiz-risk': ['volatility', 'question-card'],
@@ -133,8 +139,8 @@ export const MATERIAL_STICKERS: Record<string, StickerName[]> = {
 
 /** Rows shown in each module section on the Library home, in the Figma order. */
 export const HOME_MODULE_ROWS: Record<1 | 2 | 3, string[]> = {
-  1: ['sim-week', 'art-cashback', 'quiz-budget', 'src-nbu'],
-  2: ['sim-unexpected', 'art-fgvfo'],
+  1: ['sim-basket', 'art-cashback', 'quiz-budget', 'src-nbu'],
+  2: ['sim-fx', 'art-fgvfo'],
   3: ['art-ovdp-buy', 'quiz-risk', 'src-nkcpfr'],
 };
 
@@ -148,7 +154,7 @@ export const UP_NEXT_ID = 'art-subs';
 
 /** "Для тебе" cards with their wide covers. */
 export const FOR_YOU: { id: string; cover: ImageSourcePropType }[] = [
-  { id: 'sim-first1000', cover: require('../../assets/img/lib/cover-first1000.png') },
+  { id: 'sim-cashback', cover: require('../../assets/img/lib/cover-first1000.png') },
   { id: 'art-tax-invest', cover: require('../../assets/img/lib/cover-ovdp-simple.png') },
 ];
 
@@ -292,42 +298,6 @@ export function searchTerms(query: string) {
 export function isCryptoQuery(query: string) {
   return /крипт|біткоїн|біткоін|біткойн|bitcoin|btc|crypto|ethereum|ефір/i.test(query);
 }
-
-/** Simulation intros: the simulation itself is the practice lesson on the Path. */
-export type Simulation = { id: string; chapter: string; hero: ImageSourcePropType; tile: ImageSourcePropType; description: string; decisions: string; minutes: number; lessonId: string };
-
-export const SIMULATIONS: Record<string, Simulation> = {
-  'sim-week': {
-    id: 'sim-week',
-    chapter: '“Все про бюджет”',
-    hero: require('../../assets/img/lib/hero-sim-week.png'),
-    tile: require('../../assets/img/lib/tile-sim-week.png'),
-    description: 'На картку прийшло 15 400 грн. Ухвали кілька рішень за тиждень і подивись, скільки лишиться до наступної зарплати.',
-    decisions: '3–5',
-    minutes: 5,
-    lessonId: 'm1l7',
-  },
-  'sim-unexpected': {
-    id: 'sim-unexpected',
-    chapter: '“Заощадження і подушка”',
-    hero: require('../../assets/img/lib/hero-sim-unexpected.png'),
-    tile: require('../../assets/img/lib/tile-sim-unexpected.png'),
-    description: 'Зламався телефон, а до зарплати ще два тижні. Обери, звідки взяти гроші, і подивись, що буде з подушкою.',
-    decisions: '3–4',
-    minutes: 5,
-    lessonId: 'm2l7',
-  },
-  'sim-first1000': {
-    id: 'sim-first1000',
-    chapter: '“Основи інвестування”',
-    hero: require('../../assets/img/lib/hero-sim-first1000.png'),
-    tile: require('../../assets/img/lib/tile-sim-first1000.png'),
-    description: 'У тебе є 1 000 грн, які не знадобляться найближчий рік. Обери, куди їх вкласти, і подивись на результат через рік.',
-    decisions: '3–5',
-    minutes: 6,
-    lessonId: 'm3l7',
-  },
-};
 
 /** Quizzes: can be taken any time, no effect on streak, points or badges. */
 export type QuizQuestion = { q: string; options: string[]; correct: number; explain: string; topic: string; lessonId: string };

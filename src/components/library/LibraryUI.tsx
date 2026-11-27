@@ -5,8 +5,9 @@ import { useSafeAreaInsets } from '@/lib/insets';
 
 import { router } from 'expo-router';
 
-import { ARTICLES, QUIZZES, SIMULATIONS, STORIES, findMaterial, type Material } from '@/data/library';
-import { useProgress } from '@/store/progress';
+import { ARTICLES, QUIZZES, STORIES, type Material } from '@/data/library';
+import { SIMS } from '@/data/sims';
+import { useSimResults } from '@/store/sims';
 import { markViewed } from '@/store/saved';
 import { colors, palette, radius, space, type } from '@/theme/tokens';
 import { Button } from '../Button';
@@ -200,9 +201,8 @@ export function useMaterialOpener(toastBottom: number) {
   const [site, setSite] = useState<Material['site'] | null>(null);
   const [rerun, setRerun] = useState<string | null>(null);
   const [toast, soon] = useSoonToast(toastBottom);
-  const { stars } = useProgress();
+  const results = useSimResults();
   const open = (m: Material) => {
-    const sim = SIMULATIONS[m.id];
     if (m.site) {
       markViewed(m.id);
       setSite(m.site);
@@ -210,8 +210,8 @@ export function useMaterialOpener(toastBottom: number) {
     else if (STORIES[m.id]) router.push({ pathname: '/library/story/[id]', params: { id: m.id } });
     else if (ARTICLES[m.id]) router.push({ pathname: '/library/article/[id]', params: { id: m.id } });
     else if (QUIZZES[m.id]) router.push({ pathname: '/library/quiz/[id]', params: { id: m.id } });
-    else if (sim) {
-      if (stars[sim.lessonId]) setRerun(m.id);
+    else if (SIMS[m.id]) {
+      if (results[m.id]) setRerun(m.id);
       else router.push({ pathname: '/library/sim/[id]', params: { id: m.id } });
     } else soon();
   };
@@ -219,36 +219,37 @@ export function useMaterialOpener(toastBottom: number) {
     <>
       {toast}
       <ExternalSiteSheet site={site} onClose={() => setSite(null)} />
-      <SimRerunSheet id={rerun} best={rerun ? stars[SIMULATIONS[rerun].lessonId] : undefined} onClose={() => setRerun(null)} />
+      <SimRerunSheet id={rerun} onClose={() => setRerun(null)} />
     </>
   );
   return { open, soon, overlay };
 }
 
 /** Sheet for a simulation that was already passed: reminds the result and offers another run. */
-function SimRerunSheet({ id, best, onClose }: { id: string | null; best?: number; onClose: () => void }) {
-  const sim = id ? SIMULATIONS[id] : null;
-  const m = id ? findMaterial(id) : null;
-  const go = () => {
+function SimRerunSheet({ id, onClose }: { id: string | null; onClose: () => void }) {
+  const results = useSimResults();
+  const def = id ? SIMS[id] : null;
+  const result = id ? results[id] : undefined;
+  const go = (view?: string) => {
     onClose();
-    if (sim) router.push({ pathname: '/lesson/[id]', params: { id: sim.lessonId } });
+    if (id) router.push({ pathname: '/library/sim/[id]', params: view ? { id, view } : { id } });
   };
   return (
-    <BottomSheet visible={!!sim} onClose={onClose}>
-      {sim && m ? (
+    <BottomSheet visible={!!def && !!result} onClose={onClose}>
+      {def && result ? (
         <>
           <View style={{ alignItems: 'center', gap: space.md, marginTop: space.lg, paddingHorizontal: 4 }}>
-            <Image source={sim.tile} style={{ width: 120, height: 120, borderRadius: radius.xl }} contentFit="cover" />
-            <Text variant="title1" accessibilityRole="header" style={{ textAlign: 'center', marginTop: space.sm }}>
-              {m.title}
+            <Image source={require('../../../assets/img/sim/hero.png')} style={{ width: 220, aspectRatio: 1064 / 396 }} contentFit="contain" />
+            <Text variant="title1" accessibilityRole="header" style={{ textAlign: 'center' }}>
+              {def.title}
             </Text>
             <Text variant="body" style={{ textAlign: 'center' }}>
-              Симуляцію вже пройдено: найкращий результат – {best ?? 0} з 3 зірок.
+              {result.replay}
             </Text>
           </View>
           <View style={{ marginTop: space.lg, gap: space.sm }}>
-            <Button label="Пройти ще раз" onPress={go} />
-            <Button label="Подивитися мій результат" variant="link" onPress={go} />
+            <Button label="Пройти ще раз" onPress={() => go()} />
+            <Button label="Подивитися мій результат" variant="link" onPress={() => go('result')} />
           </View>
         </>
       ) : null}
