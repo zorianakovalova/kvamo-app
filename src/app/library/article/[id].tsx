@@ -39,7 +39,7 @@ export default function ArticleScreen() {
               </View>
             ))}
           </View>
-          <Text variant="screenTitle" accessibilityRole="header" style={styles.padText}>
+          <Text variant="screenTitle" accessibilityRole="header" style={[styles.padText, { letterSpacing: -0.64 }]}>
             {material.title}
           </Text>
         </View>
@@ -48,27 +48,15 @@ export default function ArticleScreen() {
         <Text variant="text16" style={styles.padText}>
           {article.intro}
         </Text>
-        <Text variant="display16" accessibilityRole="header" style={[styles.padText, { fontSize: 22, lineHeight: 32 }]}>
+        <Text variant="number24" accessibilityRole="header" style={[styles.padText, { letterSpacing: -0.24 }]}>
           {article.heading}
         </Text>
         {article.visuals.map((v, i) => (
           <Image key={i} source={v.src} style={[styles.visual, { aspectRatio: v.ratio }]} contentFit="contain" accessibilityLabel={v.alt} />
         ))}
-        <View style={[styles.padText, { gap: space.lg }]}>
-          {article.text.split('\n\n').map((para, i) => {
-            const [lead, ...rest] = para.split('\n');
-            return rest.length ? (
-              <Text key={i} variant="text16">
-                <Text variant="text16Strong">{lead}</Text>
-                {'\n' + rest.join('\n')}
-              </Text>
-            ) : (
-              <Text key={i} variant="text16">
-                {para}
-              </Text>
-            );
-          })}
-        </View>
+        <Text variant="text16" style={styles.padText}>
+          {article.text}
+        </Text>
       </ScrollView>
     </View>
   );
@@ -76,10 +64,10 @@ export default function ArticleScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.backgroundTertiary },
-  body: { paddingTop: space.xxl, gap: space.xl },
+  body: { paddingTop: space.xxl, gap: space.lg },
   padText: { paddingHorizontal: space.xl },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, paddingHorizontal: space.lg },
   chip: { paddingHorizontal: space.sm, paddingVertical: 2, borderRadius: radius.pill, backgroundColor: colors.glassStrong, borderWidth: 1, borderColor: colors.glass },
   hero: { marginHorizontal: space.lg, aspectRatio: 1083 / 489 },
-  visual: { marginHorizontal: space.lg, width: undefined, alignSelf: 'stretch' },
+  visual: { width: '100%' },
 });
