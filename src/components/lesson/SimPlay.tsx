@@ -20,7 +20,7 @@ function Tile({ icon, value, sub, small }: { icon: keyof typeof SIM_ICONS; value
   return (
     <View style={styles.tile} accessible accessibilityLabel={`${value}, ${sub}`}>
       <Image source={SIM_ICONS[icon]} style={small ? styles.iconSmall : styles.icon} contentFit="contain" />
-      <Text variant="number24" adjustsFontSizeToFit numberOfLines={1} style={{ textAlign: 'center' }}>
+      <Text variant="number24" numberOfLines={1} style={{ textAlign: 'center', ...(value.length >= 10 ? { fontSize: 20, lineHeight: 26 } : null) }}>
         {value}
       </Text>
       <Text variant="caption" color={colors.textSecondary} style={{ textAlign: 'center' }}>
