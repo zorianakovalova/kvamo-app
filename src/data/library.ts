@@ -189,7 +189,7 @@ export type Article = {
   hero: ImageSourcePropType;
   intro: string;
   heading: string;
-  visuals: { src: ImageSourcePropType; ratio: number; alt: string }[];
+  visuals: { inset?: number; src: ImageSourcePropType; ratio: number; alt: string }[];
   /** Paragraphs separated by a blank line. A line break inside one makes its first line a bold lead-in. */
   text: string;
 };
@@ -202,8 +202,8 @@ export const ARTICLES: Record<string, Article> = {
     intro: 'Музика, кіно, хмара для фото – кожна підписка здається дрібницею. Але гроші списуються щомісяця, навіть коли нею не користуються.',
     heading: 'Скільки це за рік',
     visuals: [
-      { src: require('../../assets/img/art/vis1a.png'), ratio: 1179 / 609, alt: 'Музика 99 грн на місяць, кіно 199, хмара 59. Разом за рік 4 284 грн.' },
-      { src: require('../../assets/img/art/vis1b.png'), ratio: 1179 / 558, alt: 'Щомісяця по 357 грн, і так 12 разів: 4 284 грн за рік.' },
+      { src: require('../../assets/img/art/vis1a.png'), ratio: 1083 / 609, inset: 16, alt: 'Музика 99 грн на місяць, кіно 199, хмара 59. Разом за рік 4 284 грн.' },
+      { src: require('../../assets/img/art/vis1b.png'), ratio: 1059 / 216, inset: 20, alt: 'Щомісяця по 357 грн, і так 12 разів: 4 284 грн за рік.' },
     ],
     text: 'Як рахуємо: 99 + 199 + 59 = 357 грн на місяць. Помножимо на 12 – це 4 284 грн за рік.\n\nЯк скасувати зайві: відкрий виписку з банку й знайди всі регулярні списання. Залиш те, чим користуєшся щотижня.\n\nПідписки з App Store чи Google Play вимикають у налаштуваннях телефона. Безкоштовний пробний період краще вимкнути за день до кінця, щоб гроші не почали списуватися.',
   },

@@ -52,7 +52,7 @@ export default function ArticleScreen() {
           {article.heading}
         </Text>
         {article.visuals.map((v, i) => (
-          <Image key={i} source={v.src} style={[styles.visual, { aspectRatio: v.ratio }]} contentFit="contain" accessibilityLabel={v.alt} />
+          <Image key={i} source={v.src} style={[styles.visual, { aspectRatio: v.ratio, marginHorizontal: v.inset ?? 0 }]} contentFit="contain" accessibilityLabel={v.alt} />
         ))}
         <Text variant="text16" style={styles.padText}>
           {article.text}
@@ -69,5 +69,5 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, paddingHorizontal: space.lg },
   chip: { paddingHorizontal: space.sm, paddingVertical: 2, borderRadius: radius.pill, backgroundColor: colors.glassStrong, borderWidth: 1, borderColor: colors.glass },
   hero: { marginHorizontal: space.lg, aspectRatio: 1083 / 489 },
-  visual: { width: '100%' },
+  visual: { alignSelf: 'stretch' },
 });
