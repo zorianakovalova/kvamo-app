@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '@/components/Icon';
 import { FolderIcon, MaterialTile } from '@/components/library/Folders';
 import { SearchField, useMaterialOpener } from '@/components/library/LibraryUI';
+import { TabBarView } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { FOLDERS, MATERIALS, MATERIAL_STICKERS, findMaterial, folderItems, type Material } from '@/data/library';
 import { useSaved } from '@/store/saved';
@@ -31,7 +32,7 @@ export default function FolderScreen() {
 
   return (
     <View style={styles.screen}>
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 40 + insets.bottom }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 110 + insets.bottom }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <View style={styles.nav}>
           <Pressable onPress={back} accessibilityRole="button" accessibilityLabel="Назад" hitSlop={8} style={styles.back}>
             <Icon name="chevronLeft" size={24} strokeWidth={1.6} />
@@ -68,6 +69,14 @@ export default function FolderScreen() {
           )}
         </View>
       </ScrollView>
+      <TabBarView
+        tabs={[
+          { key: 'index', name: 'index', focused: false },
+          { key: 'library', name: 'library', focused: true },
+          { key: 'profile', name: 'profile', focused: false },
+        ]}
+        onSelect={(k) => router.dismissTo(k === 'index' ? '/' : (`/${k}` as '/library'))}
+      />
       {overlay}
     </View>
   );

@@ -21,15 +21,23 @@ const LABELS: Record<string, string> = { index: 'Шлях', library: 'Біблі
 
 /** Floating glass tab bar from Figma (361×66); the active tab is an ink pill. */
 export function TabBar({ state, navigateToTab }: BottomTabBarProps) {
+  const tabs = state.routes.map((r, i) => ({ key: r.key, name: r.name, focused: state.index === i }));
+  return <TabBarView tabs={tabs} onSelect={navigateToTab} />;
+}
+
+type Tab = { key: string; name: string; focused: boolean };
+
+/** Presentational bar, also used on stack screens (e.g. a library folder) where Library stays active. */
+export function TabBarView({ tabs, onSelect }: { tabs: Tab[]; onSelect: (key: string) => void }) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.wrap, { paddingBottom: Math.max(insets.bottom, 12) }]} pointerEvents="box-none">
       <View style={styles.shadow}>
         <BlurView intensity={30} tint="light" style={styles.bar}>
-          {state.routes.map((route, index) => {
+          {tabs.map((route) => {
             const label = LABELS[route.name];
             if (!label) return null;
-            const focused = state.index === index;
+            const focused = route.focused;
             const color = focused ? colors.textInverse : '#2a322d';
             return (
               <Pressable
@@ -37,7 +45,7 @@ export function TabBar({ state, navigateToTab }: BottomTabBarProps) {
                 accessibilityRole="tab"
                 accessibilityState={{ selected: focused }}
                 accessibilityLabel={label}
-                onPress={() => navigateToTab(route.key)}
+                onPress={() => onSelect(route.key)}
                 style={[styles.tab, focused && styles.tabActive]}
               >
                 <Svg width={24} height={24} viewBox="0 0 24 24">

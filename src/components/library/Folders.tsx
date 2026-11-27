@@ -65,19 +65,18 @@ export function FolderIcon({ folder }: { folder: Folder }) {
 /** Material tile inside a folder: title, subtitle and one or two stickers peeking from the bottom right. */
 export function MaterialTile({ material, stickers, onPress }: { material: Material; stickers: StickerName[]; onPress: () => void }) {
   const sub = material.subtitle ?? (material.minutes ? `${material.minutes} хв` : undefined);
-  const pos = stickers.length > 1 ? [{ right: 50, bottom: -20, rotate: '-6deg' }, { right: 4, bottom: -8, rotate: '6deg' }] : [{ right: 8, bottom: -12, rotate: '4deg' }];
+  // Figma "Tile": 175×174, previews 48×48 tilted -6° / 6° in the bottom right corner.
+  const pos = stickers.length > 1 ? [{ right: 49, bottom: 19, rotate: '-6deg' }, { right: 15, bottom: 10, rotate: '6deg' }] : [{ right: 15, bottom: 10, rotate: '6deg' }];
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={sub ? `${material.title}. ${sub}` : material.title} style={({ pressed }) => [styles.tile, pressed && { opacity: 0.85 }]}>
-      <View style={{ gap: 4 }}>
-        <Text variant="text14Strong">{material.title}</Text>
-        {sub ? (
-          <Text variant="caption" color={colors.textSecondary} numberOfLines={2}>
-            {sub}
-          </Text>
-        ) : null}
-      </View>
+      <Text variant="text16Strong">{material.title}</Text>
+      {sub ? (
+        <Text variant="text14" color={colors.textSecondary}>
+          {sub}
+        </Text>
+      ) : null}
       {stickers.slice(0, 2).map((name, i) => (
-        <Sticker key={name} raised name={name} w={44} h={50} r={8} rotate={pos[i].rotate} style={{ position: 'absolute', right: pos[i].right, bottom: pos[i].bottom }} />
+        <Sticker key={name} raised name={name} w={48} h={48} r={12} rotate={pos[i].rotate} style={{ position: 'absolute', right: pos[i].right, bottom: pos[i].bottom }} />
       ))}
     </Pressable>
   );
@@ -92,5 +91,5 @@ const styles = StyleSheet.create({
   glassFx: Platform.select({ web: { backdropFilter: 'blur(1.5px)' } as object, default: {} }),
   front: { position: 'absolute', left: 0, right: 0, top: 50, height: 96, borderRadius: 16, overflow: 'hidden' },
   frontText: { padding: 12, gap: 2, justifyContent: 'flex-end' },
-  tile: { flex: 1, minHeight: 120, backgroundColor: '#fff', borderRadius: 16, padding: 12, paddingBottom: 44, overflow: 'hidden' },
+  tile: { flex: 1, height: 174, backgroundColor: '#fff', borderRadius: 16, padding: 12, gap: 4 },
 });
