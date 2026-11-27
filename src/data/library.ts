@@ -67,15 +67,18 @@ export const MATERIALS: Material[] = [
   { id: 'quiz-rights', kind: 'quiz', module: 1, title: 'Права покупця', subtitle: '5 питань · 2 хв', tile: tile.quizBudget },
   { id: 'quiz-credit', kind: 'quiz', module: 1, title: 'Кредитна картка', subtitle: '5 питань · 2 хв', tile: tile.quizBudget },
   { id: 'art-fx', kind: 'article', module: 2, title: 'Гривня чи валюта для заощаджень', subtitle: 'Плюси й ризики кожної', minutes: 4, tile: require('../../assets/img/lib/art-needs.png') },
+  { id: 'src-diia', kind: 'source', module: 1, title: 'Дія.Освіта: курс про бюджет', subtitle: 'Безкоштовний відеокурс', tile: require('../../assets/img/lib/src-nbu.png'), site: { name: 'Дія.Освіта', host: 'osvita.diia.gov.ua', url: 'https://osvita.diia.gov.ua' } },
   {
     id: 'src-nbu',
     kind: 'source',
     module: 1,
     title: 'НБУ: фінансова грамотність',
-    subtitle: 'Зовнішній сайт',
+    subtitle: 'Поради й матеріали НБУ',
     tile: require('../../assets/img/lib/src-nbu.png'),
     site: { name: 'НБУ', host: 'bank.gov.ua', url: 'https://bank.gov.ua' },
   },
+  { id: 'src-fgvfo', kind: 'source', module: 2, title: 'ФГВФО: перевір свій банк', subtitle: 'Чи гарантовано ваш вклад', tile: require('../../assets/img/lib/src-nbu.png'), site: { name: 'ФГВФО', host: 'fgvfo.gov.ua', url: 'https://fgvfo.gov.ua' } },
+  { id: 'src-ukrstat', kind: 'source', module: 2, title: 'Держстат: індекс цін', subtitle: 'Офіційна інфляція щомісяця', tile: require('../../assets/img/lib/src-nbu.png'), site: { name: 'Держстат', host: 'ukrstat.gov.ua', url: 'https://ukrstat.gov.ua' } },
   { id: 'lesson-income', kind: 'lesson', module: 1, title: 'Дохід', tile: tile.quizBudget, lessonId: 'm1l2', keywords: 'зарплата' },
   { id: 'sim-fx', kind: 'sim', module: 2, title: 'Обмін валюти', subtitle: 'Де курс вигідніший', minutes: 5, tile: tile.simWeek, keywords: 'євро долар курс обмінник' },
   { id: 'art-fgvfo', kind: 'article', module: 2, title: 'Скільки грошей захищає ФГВФО', subtitle: 'Гарантія вкладів у банках', minutes: 3, tile: require('../../assets/img/lib/art-cushion.png'), keywords: 'подушка депозит' },
@@ -92,11 +95,12 @@ export const MATERIALS: Material[] = [
     id: 'src-nkcpfr',
     kind: 'source',
     module: 3,
-    title: 'НКЦПФР: як перевірити компанію',
-    subtitle: 'Зовнішній сайт',
+    title: 'НКЦПФР: перевір компанію',
+    subtitle: 'Реєстр ліцензованих брокерів',
     tile: require('../../assets/img/lib/src-nkcpfr.png'),
     site: { name: 'НКЦПФР', host: 'nssmc.gov.ua', url: 'https://www.nssmc.gov.ua' },
   },
+  { id: 'src-mof', kind: 'source', module: 3, title: 'Мінфін: аукціони ОВДП', subtitle: 'Графік і ставки розміщень', tile: require('../../assets/img/lib/src-nbu.png'), site: { name: 'Мінфін', host: 'mof.gov.ua', url: 'https://mof.gov.ua' } },
 ];
 
 /** Library folders from Figma "01 Бібліотека / Головна · Папки": colours, preview stickers and what goes inside. */
@@ -107,7 +111,7 @@ export const FOLDERS: Folder[] = [
   { id: 'example', title: 'Приклади', kinds: ['story'], color: '#d88376', glass: '#dd796a', stickers: ['scales', 'broken-phone', 'red-flag'], forms: ['історія', 'історії', 'історій'] },
   { id: 'sim', title: 'Симуляції', kinds: ['sim'], color: '#7299d9', glass: '#6493de', stickers: ['calendar', 'wallet', 'sprout-coin'], forms: ['симуляція', 'симуляції', 'симуляцій'] },
   { id: 'quiz', title: 'Квізи', kinds: ['quiz'], color: '#a086e5', glass: '#9c7de8', stickers: ['question-card', 'savings-jar', 'volatility'], forms: ['квіз', 'квізи', 'квізів'] },
-  { id: 'source', title: 'Джерела', kinds: ['source', 'checklist'], color: '#d39662', glass: '#d78f50', stickers: ['bank', 'government', 'checklist'], forms: ['джерело', 'джерела', 'джерел'] },
+  { id: 'source', title: 'Джерела', kinds: ['source'], color: '#d39662', glass: '#d78f50', stickers: ['bank', 'government', 'checklist'], forms: ['джерело', 'джерела', 'джерел'] },
   { id: 'terms', title: 'Словник', kinds: [], color: '#67ada8', glass: '#58aca6', stickers: ['magnifier', 'coin', 'chart'], forms: ['термін', 'терміни', 'термінів'] },
 ];
 export const folderItems = (f: Folder) => MATERIALS.filter((m) => f.kinds.includes(m.kind));
@@ -138,8 +142,12 @@ export const MATERIAL_STICKERS: Record<string, StickerName[]> = {
   'quiz-fees': ['question-card', 'coin'],
   'quiz-charity': ['question-card', 'red-flag'],
   'quiz-card': ['question-card', 'bank'],
+  'src-diia': ['government', 'phone'],
   'src-nbu': ['bank'],
-  'src-nkcpfr': ['government', 'magnifier'],
+  'src-fgvfo': ['magnifier', 'bank'],
+  'src-ukrstat': ['chart', 'calendar'],
+  'src-mof': ['bond', 'government'],
+  'src-nkcpfr': ['company', 'magnifier'],
   'check-offer': ['checklist', 'red-flag'],
 };
 
