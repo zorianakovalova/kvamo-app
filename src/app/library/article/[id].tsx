@@ -3,18 +3,15 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { BookmarkButton, NavPill, useSavedToast } from '@/components/library/LibraryUI';
+import { NavPill } from '@/components/library/LibraryUI';
 import { Text } from '@/components/Text';
 import { ARTICLES, KIND_LABEL, findMaterial } from '@/data/library';
-import { toggleSaved, useSaved } from '@/store/saved';
 import { colors, radius, space } from '@/theme/tokens';
 
 /** Library article, from the Figma "Стаття" screens. */
 export default function ArticleScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
-  const saved = useSaved();
-  const [savedToast, showSaved] = useSavedToast(insets.bottom + space.lg);
   const article = ARTICLES[id];
   const material = findMaterial(id);
   const back = () => (router.canGoBack() ? router.back() : router.replace('/library'));
@@ -30,15 +27,9 @@ export default function ArticleScreen() {
     );
   }
 
-  const isSaved = saved.includes(id);
-  const toggle = () => {
-    toggleSaved(id);
-    if (!isSaved) showSaved();
-  };
-
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <NavPill icon="chevronLeft" label="Назад" onPress={back} right={<BookmarkButton saved={isSaved} onPress={toggle} />} />
+      <NavPill icon="chevronLeft" label="Назад" onPress={back} />
       <ScrollView contentContainerStyle={[styles.body, { paddingBottom: insets.bottom + space.xxxl }]} showsVerticalScrollIndicator={false}>
         <View style={{ gap: space.lg }}>
           <View style={styles.chips}>
@@ -79,7 +70,6 @@ export default function ArticleScreen() {
           })}
         </View>
       </ScrollView>
-      {savedToast}
     </View>
   );
 }

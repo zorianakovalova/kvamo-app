@@ -2,18 +2,15 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { BookmarkButton, Callout, FilterChip, MaterialRow, NavPill, useMaterialOpener, useSavedToast } from '@/components/library/LibraryUI';
+import { Callout, FilterChip, MaterialRow, NavPill, useMaterialOpener } from '@/components/library/LibraryUI';
 import { Text } from '@/components/Text';
 import { KIND_LABEL, findMaterial, findTerm } from '@/data/library';
 import { ALL_LESSONS, MODULES } from '@/data/modules';
-import { toggleSaved, useSaved } from '@/store/saved';
 import { colors, space } from '@/theme/tokens';
 
 export default function TermScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
-  const saved = useSaved();
-  const [savedToast, showSaved] = useSavedToast(insets.bottom + space.lg);
   const { open, overlay } = useMaterialOpener(insets.bottom + space.lg);
   const term = findTerm(id);
   const back = () => (router.canGoBack() ? router.back() : router.replace('/library/glossary'));
@@ -29,7 +26,6 @@ export default function TermScreen() {
     );
   }
 
-  const isSaved = saved.includes(term.id);
   const used = (term.usedIn ?? []).map(findMaterial).filter((m) => !!m);
   const related = (term.related ?? []).map(findTerm).filter((t) => !!t);
   const moduleLine = (n: number) => `Модуль ${n} “${MODULES[n - 1]?.title ?? ''}”`;
@@ -40,15 +36,6 @@ export default function TermScreen() {
         icon="chevronLeft"
         label="Назад"
         onPress={back}
-        right={
-          <BookmarkButton
-            saved={isSaved}
-            onPress={() => {
-              toggleSaved(term.id);
-              if (!isSaved) showSaved();
-            }}
-          />
-        }
       />
       <ScrollView contentContainerStyle={[styles.body, { paddingBottom: insets.bottom + space.xxl }]} showsVerticalScrollIndicator={false}>
         <View style={[styles.padText, { gap: space.sm }]}>
@@ -97,7 +84,6 @@ export default function TermScreen() {
           </View>
         ) : null}
       </ScrollView>
-      {savedToast}
       {overlay}
     </View>
   );

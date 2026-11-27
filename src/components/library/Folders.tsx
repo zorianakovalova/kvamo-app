@@ -16,10 +16,12 @@ const PREVIEWS = [
 ] as const;
 
 /** Sticker clipped into a white card with a 2 px border, as in the Figma "Preview" frames. */
-export function Sticker({ name, w, h, r, rotate, style }: { name: StickerName; w: number; h: number; r: number; rotate?: string; style?: object }) {
+export function Sticker({ name, w, h, r, rotate, raised, style }: { name: StickerName; w: number; h: number; r: number; rotate?: string; raised?: boolean; style?: object }) {
   return (
-    <View style={[{ width: w, height: h, borderRadius: r, borderWidth: 2, borderColor: '#f7f9f7', backgroundColor: '#fff', overflow: 'hidden' }, rotate ? { transform: [{ rotate }] } : null, style]}>
-      <Image source={STICKERS[name]} style={{ position: 'absolute', left: (w - h) / 2 - 2, top: -2, width: h, height: h }} contentFit="cover" />
+    <View style={[{ width: w, height: h, borderRadius: r }, raised ? styles.raised : null, rotate ? { transform: [{ rotate }] } : null, style]}>
+      <View style={[{ flex: 1, borderRadius: r, borderWidth: 2, borderColor: raised ? '#fff' : '#f7f9f7', backgroundColor: '#fff', overflow: 'hidden' }]}>
+        <Image source={STICKERS[name]} style={{ position: 'absolute', left: (w - h) / 2 - 2, top: -2, width: h, height: h }} contentFit="cover" />
+      </View>
     </View>
   );
 }
@@ -75,13 +77,15 @@ export function MaterialTile({ material, stickers, onPress }: { material: Materi
         ) : null}
       </View>
       {stickers.slice(0, 2).map((name, i) => (
-        <Sticker key={name} name={name} w={44} h={50} r={8} rotate={pos[i].rotate} style={{ position: 'absolute', right: pos[i].right, bottom: pos[i].bottom }} />
+        <Sticker key={name} raised name={name} w={44} h={50} r={8} rotate={pos[i].rotate} style={{ position: 'absolute', right: pos[i].right, bottom: pos[i].bottom }} />
       ))}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
+  /** Figma "Preview" on a material tile: white 2 px edge and a 0 2 6 shadow at 10%. */
+  raised: { backgroundColor: '#fff', shadowColor: '#0b100d', shadowOpacity: 0.1, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
   folder: { flex: 1, height: 146, borderRadius: 16, overflow: 'hidden' },
   /** Figma "Glass" (blur 3) over the lower half of the previews. */
   glass: { borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.55)' },

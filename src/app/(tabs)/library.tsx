@@ -1,13 +1,11 @@
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Icon } from '@/components/Icon';
 import { FolderCard } from '@/components/library/Folders';
 import { SearchField } from '@/components/library/LibraryUI';
 import { Text } from '@/components/Text';
 import { FOLDERS, TERMS, folderItems, plural, type Folder } from '@/data/library';
-import { useSaved } from '@/store/saved';
 import { colors, space } from '@/theme/tokens';
 
 const countLabel = (f: Folder) => {
@@ -18,7 +16,6 @@ const countLabel = (f: Folder) => {
 /** 01 Бібліотека / Головна · Папки: search and six folders. */
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
-  const saved = useSaved();
   const openFolder = (f: Folder) => (f.id === 'terms' ? router.push('/library/glossary') : router.push({ pathname: '/library/folder/[id]', params: { id: f.id } }));
   const rows = [FOLDERS.slice(0, 2), FOLDERS.slice(2, 4), FOLDERS.slice(4, 6)];
 
@@ -41,22 +38,6 @@ export default function LibraryScreen() {
               </View>
             ))}
           </View>
-          {saved.length ? (
-            <Pressable
-              onPress={() => router.push({ pathname: '/library/folder/[id]', params: { id: 'saved' } })}
-              accessibilityRole="button"
-              style={({ pressed }) => [styles.saved, pressed && { opacity: 0.85 }]}
-            >
-              <Icon name="bookmark" size={20} />
-              <Text variant="text14Strong" style={{ flex: 1 }}>
-                Збережене
-              </Text>
-              <Text variant="text14" color={colors.textSecondary}>
-                {saved.length}
-              </Text>
-              <Icon name="chevronRight" size={24} strokeWidth={1.4} color={colors.textSecondary} />
-            </Pressable>
-          ) : null}
         </View>
       </ScrollView>
     </View>
@@ -69,5 +50,4 @@ const styles = StyleSheet.create({
   body: { paddingTop: space.sm, gap: space.xxl },
   grid: { paddingHorizontal: space.lg, gap: space.xl },
   row: { flexDirection: 'row', gap: space.lg },
-  saved: { marginHorizontal: space.lg, height: 56, borderRadius: 16, backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingLeft: space.lg, paddingRight: space.md },
 });
