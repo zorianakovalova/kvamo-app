@@ -47,7 +47,7 @@ export function StatCards({ items }: { items: { value: string; label: string; on
       {items.map((it, i) => (
         <Pressable key={i} onPress={it.onPress} disabled={!it.onPress} accessibilityLabel={`${it.value} ${it.label}`} style={{ flex: 1, height: 124 }}>
           <View style={[styles.stat, { backgroundColor: STATS[i].color }]}>
-            <Text variant="number24" color={colors.textInverse} numberOfLines={1} adjustsFontSizeToFit>
+            <Text variant="number24" color={colors.textInverse} numberOfLines={1} adjustsFontSizeToFit style={it.value.includes(' з ') ? { fontSize: 20, lineHeight: 26 } : undefined}>
               {it.value}
             </Text>
             <Text variant="captionStrong" color={colors.textInverse}>
