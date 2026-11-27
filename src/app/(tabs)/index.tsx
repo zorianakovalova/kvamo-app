@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, type ScrollViewInstance } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from '@/lib/insets';
 
 import { BANNER_H, BOOK_PITCH, PathModule } from '@/components/path/PathModule';
 import { StreakPill } from '@/components/StreakPill';

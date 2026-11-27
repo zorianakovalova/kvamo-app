@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, type ScrollViewInstance } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from '@/lib/insets';
 
 import { NavPill, SearchField, TermRow, openTerm } from '@/components/library/LibraryUI';
 import { PathBackground } from '@/components/PathBackground';

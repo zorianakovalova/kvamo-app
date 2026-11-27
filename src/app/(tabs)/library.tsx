@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from '@/lib/insets';
 
 import { FolderCard } from '@/components/library/Folders';
 import { SearchField } from '@/components/library/LibraryUI';

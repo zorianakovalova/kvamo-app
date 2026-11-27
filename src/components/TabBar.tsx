@@ -1,7 +1,7 @@
 import { BlurView } from 'expo-blur';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from '@/lib/insets';
 import Svg, { Path } from 'react-native-svg';
 
 import { colors, radius } from '@/theme/tokens';
