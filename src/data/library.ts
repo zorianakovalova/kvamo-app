@@ -64,7 +64,8 @@ export const MATERIALS: Material[] = [
   { id: 'sim-installment', kind: 'sim', module: 1, title: 'Розстрочка «0%»', subtitle: 'Знайди справжню ціну', minutes: 5, tile: tile.simWeek, keywords: 'кредит комісія телефон' },
   { id: 'sim-move', kind: 'sim', module: 1, title: 'Перший переїзд', subtitle: 'Бюджет власного житла', minutes: 5, tile: tile.simWeek, keywords: 'оренда житло договір' },
   { id: 'sim-trip', kind: 'sim', module: 1, title: 'Подорож з друзями', subtitle: 'Спільні витрати без сварок', minutes: 5, tile: tile.simWeek, keywords: 'борг друзі поїздка' },
-  { id: 'quiz-budget', kind: 'quiz', module: 1, title: 'Бюджет: 10 питань', subtitle: 'Можна пройти будь-коли, без впливу на стрик', tile: tile.quizBudget },
+  { id: 'quiz-rights', kind: 'quiz', module: 1, title: 'Права покупця', subtitle: '5 питань · 2 хв', tile: tile.quizBudget },
+  { id: 'quiz-credit', kind: 'quiz', module: 1, title: 'Кредитна картка', subtitle: '5 питань · 2 хв', tile: tile.quizBudget },
   { id: 'art-fx', kind: 'article', module: 2, title: 'Гривня чи валюта для заощаджень', subtitle: 'Плюси й ризики кожної', minutes: 4, tile: require('../../assets/img/lib/art-needs.png') },
   {
     id: 'src-nbu',
@@ -78,12 +79,14 @@ export const MATERIALS: Material[] = [
   { id: 'lesson-income', kind: 'lesson', module: 1, title: 'Дохід', tile: tile.quizBudget, lessonId: 'm1l2', keywords: 'зарплата' },
   { id: 'sim-fx', kind: 'sim', module: 2, title: 'Обмін валюти', subtitle: 'Де курс вигідніший', minutes: 5, tile: tile.simWeek, keywords: 'євро долар курс обмінник' },
   { id: 'art-fgvfo', kind: 'article', module: 2, title: 'Скільки грошей захищає ФГВФО', subtitle: 'Гарантія вкладів у банках', minutes: 3, tile: require('../../assets/img/lib/art-cushion.png'), keywords: 'подушка депозит' },
-  { id: 'quiz-cushion', kind: 'quiz', module: 2, title: 'Подушка безпеки: 8 питань', tile: require('../../assets/img/lib/quiz-cushion.png') },
+  { id: 'quiz-insurance', kind: 'quiz', module: 2, title: 'Страхування', subtitle: '5 питань · 2 хв', tile: tile.quizBudget },
+  { id: 'quiz-fees', kind: 'quiz', module: 2, title: 'Комісії банку', subtitle: '5 питань · 2 хв', tile: tile.quizBudget },
   { id: 'sim-cashback', kind: 'sim', module: 3, title: 'Кешбек і бонуси', subtitle: 'Скільки повертається насправді', minutes: 5, tile: tile.simWeek, keywords: 'кешбек бонуси картка' },
   { id: 'art-ovdp-buy', kind: 'article', module: 3, title: 'Як купити ОВДП у застосунку', subtitle: 'Покроково, з екранами', minutes: 4, tile: require('../../assets/img/lib/art-ovdp-buy.png'), keywords: 'ОВДП облігації' },
   { id: 'art-tax-invest', kind: 'article', module: 3, title: 'Податки з інвестицій', subtitle: 'Що і коли сплачувати', minutes: 3, tile: require('../../assets/img/lib/art-ovdp-simple.png') },
   { id: 'lesson-ovdp', kind: 'lesson', module: 3, title: 'ОВДП', tile: require('../../assets/img/lib/lesson-ovdp.png'), lessonId: 'm3l4', rank: 2 },
-  { id: 'quiz-risk', kind: 'quiz', module: 3, title: 'Ризик чи ні: 8 ситуацій', subtitle: 'Перевір, чи розпізнаєш ризик', tile: require('../../assets/img/lib/quiz-risk.png') },
+  { id: 'quiz-charity', kind: 'quiz', module: 3, title: 'Благодійні збори', subtitle: '5 питань · 2 хв', tile: tile.quizBudget },
+  { id: 'quiz-card', kind: 'quiz', module: 3, title: 'Перша банківська картка', subtitle: '5 питань · 2 хв', tile: tile.quizBudget },
   { id: 'check-offer', kind: 'checklist', module: 3, title: 'Перевір пропозицію: 5 червоних прапорців', subtitle: 'Як розпізнати шахрайську пропозицію', tile: require('../../assets/img/lib/check-offer.png'), keywords: 'шахраї' },
   {
     id: 'src-nkcpfr',
@@ -129,9 +132,12 @@ export const MATERIAL_STICKERS: Record<string, StickerName[]> = {
   'sim-trip': ['wallet', 'bus'],
   'sim-fx': ['coin', 'bank'],
   'sim-cashback': ['coin', 'bag'],
-  'quiz-budget': ['question-card', 'wallet'],
-  'quiz-cushion': ['question-card', 'savings-jar'],
-  'quiz-risk': ['volatility', 'question-card'],
+  'quiz-rights': ['question-card', 'bag'],
+  'quiz-credit': ['question-card', 'wallet'],
+  'quiz-insurance': ['question-card', 'broken-phone'],
+  'quiz-fees': ['question-card', 'coin'],
+  'quiz-charity': ['question-card', 'red-flag'],
+  'quiz-card': ['question-card', 'bank'],
   'src-nbu': ['bank'],
   'src-nkcpfr': ['government', 'magnifier'],
   'check-offer': ['checklist', 'red-flag'],
@@ -139,9 +145,9 @@ export const MATERIAL_STICKERS: Record<string, StickerName[]> = {
 
 /** Rows shown in each module section on the Library home, in the Figma order. */
 export const HOME_MODULE_ROWS: Record<1 | 2 | 3, string[]> = {
-  1: ['sim-basket', 'art-cashback', 'quiz-budget', 'src-nbu'],
+  1: ['sim-basket', 'art-cashback', 'quiz-rights', 'src-nbu'],
   2: ['sim-fx', 'art-fgvfo'],
-  3: ['art-ovdp-buy', 'quiz-risk', 'src-nkcpfr'],
+  3: ['art-ovdp-buy', 'quiz-charity', 'src-nkcpfr'],
 };
 
 /** Library materials of a module (lessons live on the Path, not here). */
@@ -299,59 +305,6 @@ export function isCryptoQuery(query: string) {
   return /крипт|біткоїн|біткоін|біткойн|bitcoin|btc|crypto|ethereum|ефір/i.test(query);
 }
 
-/** Quizzes: can be taken any time, no effect on streak, points or badges. */
-export type QuizQuestion = { q: string; options: string[]; correct: number; explain: string; topic: string; lessonId: string };
-export type Quiz = { id: string; chapter: string; minutes: number; questions: QuizQuestion[] };
-
-export const QUIZZES: Record<string, Quiz> = {
-  'quiz-budget': {
-    id: 'quiz-budget',
-    chapter: '“Все про бюджет”',
-    minutes: 4,
-    questions: [
-      { q: 'У договорі 20 000 грн. Скільки приблизно прийде на картку?', options: ['20 000 грн', '15 400 грн', '18 000 грн'], correct: 1, explain: 'Із суми в договорі утримують ПДФО 18% і військовий збір 5%.', topic: 'Дохід', lessonId: 'm1l2' },
-      { q: 'Від якої суми краще планувати бюджет?', options: ['Від суми в договорі', 'Від суми на руки', 'Від суми з премією'], correct: 1, explain: 'Витрачати можна лише те, що реально прийшло на картку.', topic: 'Дохід', lessonId: 'm1l2' },
-      { q: 'Зарплата 20 000 грн. Скільки за правилом 50/30/20 іде на заощадження?', options: ['2 000 грн', '4 000 грн', '6 000 грн'], correct: 1, explain: '20% від 20 000 грн – це 4 000 грн.', topic: 'Правило 50/30/20', lessonId: 'm1l4' },
-      { q: 'Що з цього – потреба, а не бажання?', options: ['Нові навушники', 'Оплата комуналки', 'Доставка кави'], correct: 1, explain: 'Комуналка – обовʼязкова витрата, без неї не обійтися.', topic: 'Потреби і бажання', lessonId: 'm1l3' },
-      { q: 'За правилом 50/30/20 яка частка йде на бажання?', options: ['50%', '30%', '20%'], correct: 1, explain: '50% – потреби, 30% – бажання, 20% – заощадження.', topic: 'Правило 50/30/20', lessonId: 'm1l4' },
-      { q: 'Кешбек 5% на покупку, яку ти не планував. Це вигідно?', options: ['Так, бо повертають гроші', 'Ні, бо 95% суми ти все одно витратив', 'Залежить від магазину'], correct: 1, explain: 'Кешбек вигідний лише на те, що ти й так збирався купити.', topic: 'Пастки витрат', lessonId: 'm1l6' },
-      { q: 'Підписка за 99 грн на місяць коштує на рік приблизно:', options: ['99 грн', '600 грн', '1 200 грн'], correct: 2, explain: '99 грн × 12 місяців ≈ 1 200 грн.', topic: 'Пастки витрат', lessonId: 'm1l6' },
-      { q: 'Навіщо записувати витрати?', options: ['Щоб бачити, куди йдуть гроші', 'Щоб платити менше податків', 'Щоб отримати кешбек'], correct: 0, explain: 'Облік показує, на що реально йдуть гроші і де можна заощадити.', topic: 'Облік витрат', lessonId: 'm1l5' },
-      { q: 'Яку витрату найпростіше скоротити?', options: ['Оренду житла', 'Імпульсні покупки', 'Проїзд на роботу'], correct: 1, explain: 'Імпульсні покупки – бажання, від них можна відмовитися без шкоди.', topic: 'Потреби і бажання', lessonId: 'm1l3' },
-      { q: 'Хто сплачує ЄСВ із твоєї зарплати?', options: ['Ти сам із суми на руки', 'Роботодавець зверху', 'Банк'], correct: 1, explain: 'ЄСВ роботодавець платить зверху, з твоєї суми його не віднімають.', topic: 'Дохід', lessonId: 'm1l2' },
-    ],
-  },
-  'quiz-cushion': {
-    id: 'quiz-cushion',
-    chapter: '“Заощадження і подушка”',
-    minutes: 3,
-    questions: [
-      { q: 'Для чого потрібна подушка безпеки?', options: ['Для відпустки', 'На непередбачені ситуації', 'Для інвестицій'], correct: 1, explain: 'Подушка – запас на втрату роботи, хворобу чи поломку.', topic: 'Фінансова подушка', lessonId: 'm2l3' },
-      { q: 'Скільки зазвичай радять мати в подушці?', options: ['1 тиждень витрат', '3–6 місяців витрат', '5 років витрат'], correct: 1, explain: 'Цього вистачить, щоб спокійно пережити складний період.', topic: 'Фінансова подушка', lessonId: 'm2l3' },
-      { q: 'Коли краще відкладати гроші?', options: ['У кінці місяця, що лишиться', 'У день зарплати', 'Раз на рік'], correct: 1, explain: 'Принцип «спочатку заплати собі»: відклади одразу, поки гроші не розійшлися.', topic: 'Спочатку заплати собі', lessonId: 'm2l2' },
-      { q: 'Де не варто тримати подушку?', options: ['На окремій картці', 'На депозиті з можливістю зняти', 'В акціях однієї компанії'], correct: 2, explain: 'Подушка має бути доступною і не падати в ціні.', topic: 'Фінансова подушка', lessonId: 'm2l3' },
-      { q: 'Інфляція 10% на рік. Що буде з 10 000 грн під матрацом?', options: ['Купиш на них більше', 'Купиш на них менше', 'Нічого не зміниться'], correct: 1, explain: 'Ціни зростуть, тож на ту саму суму можна буде купити менше.', topic: 'Інфляція', lessonId: 'm2l4' },
-      { q: 'Що таке складний відсоток?', options: ['Відсоток, який важко порахувати', 'Відсотки, які нараховуються на відсотки', 'Штраф банку'], correct: 1, explain: 'Відсотки додаються до суми і далі ростуть уже на більшу суму.', topic: 'Депозит і складний відсоток', lessonId: 'm2l5' },
-      { q: 'Вклади в банку до якої суми гарантує держава?', options: ['До 100 000 грн', 'До 600 000 грн', 'Без обмежень'], correct: 1, explain: 'Фонд гарантування вкладів повертає до 600 000 грн на одного вкладника в банку.', topic: 'Депозит і складний відсоток', lessonId: 'm2l5' },
-      { q: 'Як перетворити мрію на ціль накопичення?', options: ['Назвати суму і строк', 'Просто відкладати, скільки вийде', 'Чекати премію'], correct: 0, explain: 'Сума і строк показують, скільки відкладати щомісяця.', topic: 'Ціль накопичення', lessonId: 'm2l6' },
-    ],
-  },
-  'quiz-risk': {
-    id: 'quiz-risk',
-    chapter: '“Основи інвестування”',
-    minutes: 3,
-    questions: [
-      { q: 'Тобі обіцяють 10% на місяць «без ризику». Що це?', options: ['Вигідна пропозиція', 'Ознака шахрайства', 'Звичайний депозит'], correct: 1, explain: 'Висока дохідність без ризику не буває. Це червоний прапорець.', topic: 'Інвестиційні шахраї', lessonId: 'm3l6' },
-      { q: 'ОВДП – це позика кому?', options: ['Банку', 'Державі', 'Друзям'], correct: 1, explain: 'Купуючи ОВДП, ти позичаєш гроші державі під відсоток.', topic: 'ОВДП', lessonId: 'm3l4' },
-      { q: 'Чим вища можлива дохідність, тим…', options: ['нижчий ризик', 'вищий ризик', 'ризик не змінюється'], correct: 1, explain: 'Висока дохідність завжди має ціну – більший ризик втрат.', topic: 'Ризик і дохідність', lessonId: 'm3l2' },
-      { q: 'Ти вклав усі гроші в акції однієї компанії. Це…', options: ['Диверсифікація', 'Високий ризик', 'Гарантований дохід'], correct: 1, explain: 'Якщо з компанією щось станеться, втратиш усе. Краще розподіляти.', topic: 'Диверсифікація', lessonId: 'm3l3' },
-      { q: 'Друг кличе в «проєкт» і просить привести ще двох людей. Це…', options: ['Стартап', 'Ймовірна фінансова піраміда', 'Депозит'], correct: 1, explain: 'Дохід за залучення нових людей – типова ознака піраміди.', topic: 'Інвестиційні шахраї', lessonId: 'm3l6' },
-      { q: 'Що робити з грошима, які знадобляться за місяць?', options: ['Інвестувати в акції', 'Тримати доступними', 'Купити криптовалюту'], correct: 1, explain: 'Інвестувати варто лише гроші, які не знадобляться найближчим часом.', topic: 'Інвестування чи заощадження', lessonId: 'm3l1' },
-      { q: 'Де перевірити, чи має компанія ліцензію на інвестиції?', options: ['У соцмережах компанії', 'На сайті НКЦПФР', 'У відгуках друзів'], correct: 1, explain: 'НКЦПФР веде реєстр учасників ринку цінних паперів.', topic: 'Інвестиційні шахраї', lessonId: 'm3l6' },
-      { q: 'Що отримує власник акції, коли компанія ділиться прибутком?', options: ['Купон', 'Дивіденди', 'Кешбек'], correct: 1, explain: 'Частку прибутку для власників акцій називають дивідендами.', topic: 'Акції та фонди', lessonId: 'm3l5' },
-    ],
-  },
-};
 
 /** Kvamo stories: swipeable cards exported from the Figma "Історія Квамо" screens (the text is part of the image, so every card has a spoken label). */
 export type Story = { cards: { img: ImageSourcePropType; alt: string }[] };

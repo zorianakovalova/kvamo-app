@@ -5,7 +5,8 @@ import { useSafeAreaInsets } from '@/lib/insets';
 
 import { router } from 'expo-router';
 
-import { ARTICLES, QUIZZES, STORIES, type Material } from '@/data/library';
+import { ARTICLES, STORIES, type Material } from '@/data/library';
+import { MINITESTS } from '@/data/minitests';
 import { SIMS } from '@/data/sims';
 import { useSimResults } from '@/store/sims';
 import { markViewed } from '@/store/saved';
@@ -209,7 +210,7 @@ export function useMaterialOpener(toastBottom: number) {
     } else if (m.lessonId) router.push({ pathname: '/lesson/[id]', params: { id: m.lessonId } });
     else if (STORIES[m.id]) router.push({ pathname: '/library/story/[id]', params: { id: m.id } });
     else if (ARTICLES[m.id]) router.push({ pathname: '/library/article/[id]', params: { id: m.id } });
-    else if (QUIZZES[m.id]) router.push({ pathname: '/library/quiz/[id]', params: { id: m.id } });
+    else if (MINITESTS[m.id]) router.push({ pathname: '/library/quiz/[id]', params: { id: m.id } });
     else if (SIMS[m.id]) {
       if (results[m.id]) setRerun(m.id);
       else router.push({ pathname: '/library/sim/[id]', params: { id: m.id } });
